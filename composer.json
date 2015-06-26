@@ -1,0 +1,11 @@
+{
+    "name": "smart-core/module-unicat",
+    "require": {
+        "smart-core/cms-bundle": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "SmartCore\\Module\\Unicat\\": ""
+        }
+    }
+}

@@ -41,7 +41,7 @@ abstract class AbstractTypeModel
     }
 
     /**
-     * @param \SmartCore\Module\Unicat\Model\ItemModel $item
+     * @param ItemModel $item
      *
      * @return $this
      */
@@ -53,7 +53,7 @@ abstract class AbstractTypeModel
     }
 
     /**
-     * @return \SmartCore\Module\Unicat\Model\ItemModel
+     * @return ItemModel
      */
     public function getItem()
     {

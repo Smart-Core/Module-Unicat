@@ -586,23 +586,11 @@ class UnicatConfigurationManager
         // Проверка и модификация атрибута. В частности загрука картинок и валидация.
         foreach ($this->getAttributes() as $attribute) {
             if ($attribute->getIsDedicatedTable()) {
-                $valueClass = $attribute->getValueClassNameWithNameSpace();
-
-                /* @var AbstractTypeModel $av */
-                // @todo пока допускается использование одного поля со значениями, но нужно предусмотреть и множественные.
-                $value = $this->em->getRepository($valueClass)->findOneBy(['item' => $item]);
-
-                if (empty($value)) {
-                    $value = new $valueClass();
-                }
-
-                $value->setValue($item->getAttr($attribute->getName()));
-
-                $this->em->persist($value);
+                continue;
             }
 
             if ($attribute->isType('image') and $item->hasAttribute($attribute->getName())) {
-                // @todo Здесь выполняется нативный SQL т.к. ORM отдаёт скешированный?
+                // @todo Здесь выполняется нативный SQL т.к. ORM отдаёт скешированный - сделать через UoW.
                 $tableItems = $this->em->getClassMetadata($this->configuration->getItemClass())->getTableName();
                 $sql = "SELECT * FROM $tableItems WHERE id = '{$item->getId()}'";
                 $res = $this->em->getConnection()->query($sql)->fetch();
@@ -632,6 +620,31 @@ class UnicatConfigurationManager
                 }
 
                 $item->setAttribute($attribute->getName(), $fileId);
+            }
+        }
+
+        $this->em->persist($item);
+        $this->em->flush($item);
+
+        // Вторым проходом обрабатываются атрибуты с внешних таблиц т.к. при создании новой записи нужно сгенерировать ID
+        foreach ($this->getAttributes() as $attribute) {
+            if ($attribute->getIsDedicatedTable()) {
+                $valueClass = $attribute->getValueClassNameWithNameSpace();
+
+                /* @var AbstractTypeModel $value */
+                // @todo пока допускается использование одного поля со значениями, но нужно предусмотреть и множественные.
+                $value = $this->em->getRepository($valueClass)->findOneBy(['item' => $item]);
+
+                if (empty($value)) {
+                    $value = new $valueClass();
+                    $value->setItem($item);
+                }
+
+                $value->setValue($item->getAttr($attribute->getName()));
+
+                $this->em->persist($value);
+            } else {
+                continue;
             }
         }
 

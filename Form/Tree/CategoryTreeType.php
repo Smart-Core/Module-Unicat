@@ -36,10 +36,10 @@ class CategoryTreeType extends DoctrineType
         };
 
         $resolver->setDefaults([
-            'property'  => 'form_title',
-            'loader'    => $loader,
-            'class'     => $this->structure->getConfiguration()->getCategoryClass(),
-            'required'  => false,
+            'choice_label' => 'form_title',
+            'class'        => $this->structure->getConfiguration()->getCategoryClass(),
+            'loader'       => $loader,
+            'required'     => false,
         ]);
     }
 

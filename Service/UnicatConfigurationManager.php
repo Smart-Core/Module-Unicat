@@ -4,7 +4,6 @@ namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
 use SmartCore\Bundle\MediaBundle\Service\CollectionService;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
@@ -23,59 +22,48 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UnicatConfigurationManager
 {
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var \Doctrine\Common\Persistence\ManagerRegistry */
     protected $doctrine;
 
-    /**
-     * @var EntityManager
-     */
+    /** @var \Doctrine\Common\Persistence\ObjectManager */
     protected $em;
 
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var \Symfony\Component\Form\FormFactoryInterface */
     protected $formFactory;
 
-    /**
-     * @var CollectionService
-     */
+    /** @var \SmartCore\Bundle\MediaBundle\Service\CollectionService */
     protected $mc;
 
-    /**
-     * @var UnicatConfiguration
-     */
+    /** @var \SmartCore\Module\Unicat\Entity\UnicatConfiguration */
     protected $configuration;
 
-    /**
-     * @var SecurityContextInterface
-     */
-    protected $securityContext;
+    /** @var \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface */
+    protected $securityToken;
 
     /**
      * @param ManagerRegistry $doctrine
      * @param FormFactoryInterface $formFactory
      * @param UnicatConfiguration $configuration
      * @param CollectionService $mc
+     * @param TokenStorageInterface $securityToken
      */
     public function __construct(
         ManagerRegistry $doctrine,
         FormFactoryInterface $formFactory,
         UnicatConfiguration $configuration,
         CollectionService $mc,
-        SecurityContextInterface $securityContext
+        TokenStorageInterface $securityToken
     ) {
         $this->doctrine    = $doctrine;
         $this->em          = $doctrine->getManager();
         $this->formFactory = $formFactory;
         $this->mc          = $mc;
         $this->configuration = $configuration;
-        $this->securityContext = $securityContext;
+        $this->securityToken = $securityToken;
     }
 
     /**

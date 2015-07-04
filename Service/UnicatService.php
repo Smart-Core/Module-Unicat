@@ -4,7 +4,6 @@ namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
-use SmartCore\Bundle\MediaBundle\Service\CollectionService;
 use SmartCore\Bundle\MediaBundle\Service\MediaCloudService;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
@@ -19,40 +18,28 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UnicatService
 {
     use ContainerAwareTrait;
 
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var \Doctrine\Common\Persistence\ManagerRegistry */
     protected $doctrine;
 
-    /**
-     * @var EntityManager
-     */
+    /** @var \Doctrine\Common\Persistence\ObjectManager  */
     protected $em;
 
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var \Symfony\Component\Form\FormFactoryInterface */
     protected $formFactory;
 
-    /**
-     * @var CollectionService
-     */
+    /** @var \SmartCore\Bundle\MediaBundle\Service\CollectionService */
     protected $mc;
 
-    /**
-     * @var SecurityContextInterface
-     */
-    protected $securityContext;
+    /** @var \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface */
+    protected $securityToken;
 
-    /**
-     * @var UnicatConfigurationManager[]
-     */
+    /** @var UnicatConfigurationManager[] */
     protected $ucm;
 
     /** @var UnicatConfiguration|null */
@@ -62,20 +49,20 @@ class UnicatService
      * @param EntityManager $em
      * @param FormFactoryInterface $formFactory
      * @param MediaCloudService $mediaCloud
-     * @param SecurityContextInterface $securityContext
+     * @param TokenStorageInterface $securityToken
      */
     public function __construct(
         ManagerRegistry $doctrine,
         FormFactoryInterface $formFactory,
         MediaCloudService $mediaCloud,
-        SecurityContextInterface $securityContext
+        TokenStorageInterface $securityToken
     ) {
         $this->currentConfiguration = null;
         $this->doctrine    = $doctrine;
         $this->em          = $doctrine->getManager();
         $this->formFactory = $formFactory;
         $this->mc          = $mediaCloud->getCollection(1); // @todo настройку медиаколлекции. @important
-        $this->securityContext = $securityContext;
+        $this->securityToken = $securityToken;
     }
 
     /**
@@ -122,7 +109,7 @@ class UnicatService
         $this->setCurrentConfiguration($configuration);
 
         if (!isset($this->ucm[$configuration->getId()])) {
-            $this->ucm[$configuration->getId()] = new UnicatConfigurationManager($this->doctrine, $this->formFactory, $configuration, $this->mc, $this->securityContext);
+            $this->ucm[$configuration->getId()] = new UnicatConfigurationManager($this->doctrine, $this->formFactory, $configuration, $this->mc, $this->securityToken);
         }
 
         return $this->ucm[$configuration->getId()];

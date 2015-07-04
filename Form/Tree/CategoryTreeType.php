@@ -6,7 +6,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use Symfony\Bridge\Doctrine\Form\Type\DoctrineType;
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CategoryTreeType extends DoctrineType
 {
@@ -27,9 +27,9 @@ class CategoryTreeType extends DoctrineType
         return $this;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
-        parent::setDefaultOptions($resolver);
+        parent::configureOptions($resolver);
 
         $loader = function (Options $options) {
             return $this->getLoader($options['em'], $options['query_builder'], $options['class']);

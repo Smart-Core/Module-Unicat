@@ -10,7 +10,7 @@ use SmartCore\Module\Unicat\Form\Tree\CategoryTreeType;
 use SmartCore\Module\Unicat\Model\CategoryModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Yaml;
 
 class CategoryFormType extends AbstractType
@@ -75,7 +75,7 @@ class CategoryFormType extends AbstractType
         }
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => $this->configuration->getCategoryClass(),

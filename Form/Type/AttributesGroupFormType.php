@@ -5,7 +5,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AttributesGroupFormType extends AbstractType
 {
@@ -30,7 +30,7 @@ class AttributesGroupFormType extends AbstractType
         ;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => $this->configuration->getAttributesGroupClass(),

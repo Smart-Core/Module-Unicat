@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigurationSettingsFormType extends AbstractType
 {
@@ -35,7 +35,7 @@ class ConfigurationSettingsFormType extends AbstractType
         ;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => 'SmartCore\Module\Unicat\Entity\UnicatConfiguration',

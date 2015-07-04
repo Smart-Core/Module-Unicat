@@ -5,7 +5,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class StructureFormType extends AbstractType
 {
@@ -26,7 +26,7 @@ class StructureFormType extends AbstractType
         ;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => 'SmartCore\Module\Unicat\Entity\UnicatStructure',

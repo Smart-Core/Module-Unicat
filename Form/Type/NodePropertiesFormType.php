@@ -11,7 +11,7 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
     {
         $configurations = [];
         foreach ($this->em->getRepository('UnicatModule:UnicatConfiguration')->findAll() as $configuration) {
-            $configurations[$configuration->getId()] = $configuration;
+            $configurations[$configuration->getId()] = (string) $configuration;
         }
 
         $builder

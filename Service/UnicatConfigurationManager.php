@@ -775,7 +775,7 @@ class UnicatConfigurationManager
      */
     protected function getUserId()
     {
-        if (null === $token = $this->securityContext->getToken()) {
+        if (null === $token = $this->securityToken->getToken()) {
             return 0;
         }
 

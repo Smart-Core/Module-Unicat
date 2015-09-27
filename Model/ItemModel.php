@@ -49,6 +49,13 @@ class ItemModel
     protected $slug;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=64, unique=true, nullable=true)
+     */
+    protected $uuid;
+
+    /**
      * @var array
      *
      * @ORM\Column(type="array")
@@ -141,6 +148,20 @@ class ItemModel
     public function setCategories($categories)
     {
         $this->categories = $categories;
+
+        return $this;
+    }
+
+    /**
+     * @param CategoryModel $category
+     *
+     * @return $this
+     */
+    public function addCategory(CategoryModel $category)
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
 
         return $this;
     }
@@ -288,5 +309,25 @@ class ItemModel
     public function getMeta()
     {
         return empty($this->meta) ? [] : $this->meta;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return $this
+     */
+    public function setUuid($uuid)
+    {
+        $this->uuid = $uuid;
+
+        return $this;
     }
 }

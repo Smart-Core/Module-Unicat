@@ -382,7 +382,7 @@ class UnicatConfigurationManager
      */
     public function getCategory($id)
     {
-        return $this->em->getRepository($this->configuration->getCategoryClass())->find($id);
+        return $this->getCategoryRepository()->find($id);
     }
 
     /**

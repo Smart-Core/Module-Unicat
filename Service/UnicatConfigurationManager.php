@@ -249,6 +249,14 @@ class UnicatConfigurationManager
     }
 
     /**
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    public function getItemRepository()
+    {
+        return $this->em->getRepository($this->configuration->getItemClass());
+    }
+
+    /**
      * @return UnicatStructure
      */
     public function getDefaultStructure()

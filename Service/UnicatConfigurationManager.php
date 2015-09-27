@@ -292,13 +292,28 @@ class UnicatConfigurationManager
      */
     public function getAttributeEditForm(AttributeModel $attribute, array $options = [])
     {
-        return $this->getAttributeForm($attribute, $options)
+        $form = $this->getAttributeForm($attribute, $options)
             ->remove('name')
             ->remove('type')
             ->remove('is_dedicated_table')
             ->remove('update_all_records_with_default_value')
             ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+        ;
+
+        $count = $this->em->getRepository($this->configuration->getItemClass())->count();
+        if (empty($count)) {
+            $form->add('delete', 'submit', [
+                'attr' => [
+                    'class' => 'btn-danger',
+                    'formnovalidate' => 'formnovalidate',
+                    'onclick' => "return confirm('Вы уверены, что хотите удалить атрибут?')",
+                ]
+            ]);
+        }
+
+        $form->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+
+        return $form;
     }
 
     /**

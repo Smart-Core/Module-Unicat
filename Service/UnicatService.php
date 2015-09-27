@@ -66,6 +66,32 @@ class UnicatService
     }
 
     /**
+     * @param $object
+     * @param bool $isFlush
+     */
+    protected function persist($object, $isFlush = false)
+    {
+        $this->em->persist($object);
+
+        if ($isFlush) {
+            $this->em->flush($object);
+        }
+    }
+
+    /**
+     * @param $object
+     * @param bool $isFlush
+     */
+    protected function remove($object, $isFlush = false)
+    {
+        $this->em->remove($object);
+
+        if ($isFlush) {
+            $this->em->flush($object);
+        }
+    }
+
+    /**
      * @param UnicatConfiguration $currentConfiguration
      *
      * @return $this
@@ -194,8 +220,7 @@ class UnicatService
      */
     public function createCategory(CategoryModel $category)
     {
-        $this->em->persist($category);
-        $this->em->flush($category);
+        $this->persist($category, true);
 
         return $this;
     }
@@ -286,8 +311,7 @@ class UnicatService
             }
         }
 
-        $this->em->persist($category);
-        $this->em->flush($category);
+        $this->persist($category, true);
 
         return $this;
     }
@@ -299,8 +323,7 @@ class UnicatService
      */
     public function updateAttribute(AttributeModel $entity)
     {
-        $this->em->persist($entity);
-        $this->em->flush($entity);
+        $this->persist($entity, true);
 
         return $this;
     }
@@ -314,8 +337,7 @@ class UnicatService
     {
         throw new \Exception('@todo решить что сделать с вложенными категориями, а также с сопряженными записями');
 
-        $this->em->remove($category);
-        $this->em->flush($category);
+        $this->remove($category, true);
 
         return $this;
     }
@@ -329,8 +351,7 @@ class UnicatService
     {
         throw new \Exception('@todo надо решить как поступать с данными записей');
 
-        $this->em->remove($entity);
-        $this->em->flush($entity);
+        $this->remove($entity, true);
 
         return $this;
     }

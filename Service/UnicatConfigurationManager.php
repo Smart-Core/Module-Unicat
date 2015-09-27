@@ -375,7 +375,6 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param UnicatStructure $structure
      * @param int $id
      *
      * @return CategoryModel|null

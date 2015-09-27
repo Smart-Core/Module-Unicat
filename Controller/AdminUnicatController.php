@@ -57,8 +57,7 @@ class AdminUnicatController extends Controller
                         ->setUserId($this->getUser())
                     ;
 
-                    $em->persist($uc);
-                    $em->flush($uc);
+                    $this->persist($uc, true);
 
                     $this->addFlash('success', 'Конфигурация <b>'.$uc->getName().'</b> создана.');
                 }
@@ -99,7 +98,7 @@ class AdminUnicatController extends Controller
 
     /**
      * @param Request $request
-     * @param $configuration
+     * @param int     $configuration
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -126,15 +125,15 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('UnicatModule:Admin:configuration_settings.html.twig', [
+            'form' => $form->createView(),
             'configuration' => $configuration,
-            'form'          => $form->createView(),
         ]);
     }
 
     /**
      * @param Request $request
-     * @param string $configuration
-     * @param int $default_category_id
+     * @param string  $configuration
+     * @param int     $default_category_id
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
@@ -166,7 +165,7 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('UnicatModule:Admin:item_create.html.twig', [
-            'form'       => $form->createView(),
+            'form' => $form->createView(),
             'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
         ]);
     }
@@ -205,7 +204,7 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('UnicatModule:Admin:item_edit.html.twig', [
-            'form'       => $form->createView(),
+            'form' => $form->createView(),
             'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
         ]);
     }

@@ -74,7 +74,8 @@ class ItemModel
      */
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
+        $this->categories       = new ArrayCollection();
+        $this->categoriesSingle = new ArrayCollection();
         $this->created_at = new \DateTime();
         $this->is_enabled = true;
         $this->position   = 0;
@@ -187,6 +188,20 @@ class ItemModel
     }
 
     /**
+     * @param CategoryModel $category
+     *
+     * @return $this
+     */
+    public function addCategorySingle(CategoryModel $category)
+    {
+        if (!$this->categoriesSingle->contains($category)) {
+            $this->categoriesSingle->add($category);
+        }
+
+        return $this;
+    }
+
+    /**
      * @return CategoryModel[]
      */
     public function getCategoriesSingle()
@@ -234,6 +249,18 @@ class ItemModel
     public function getAttr($name)
     {
         return $this->getAttribute($name);
+    }
+
+    /**
+     * Short alias for hasAttribute.
+     *
+     * @param string $name
+     *
+     * @return mixed|null
+     */
+    public function hasAttr($name)
+    {
+        return $this->hasAttribute($name);
     }
 
     /**

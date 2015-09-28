@@ -97,7 +97,7 @@ class UnicatConfigurationManager
            SELECT i
            FROM $itemEntity AS i
            WHERE i.is_enabled = 1
-           ORDER BY i.position ASC
+           ORDER BY i.position ASC, i.id DESC
         ");
     }
 
@@ -172,7 +172,7 @@ class UnicatConfigurationManager
            JOIN i.categoriesSingle AS cs
            WHERE cs.id = :category
            AND i.is_enabled = 1
-           ORDER BY i.position ASC
+           ORDER BY i.position ASC, i.id DESC
         ")->setParameter('category', $category->getId());
     }
 

@@ -4,6 +4,9 @@ namespace SmartCore\Module\Unicat\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\RadBundle\Controller\Controller;
+use Pagerfanta\Exception\NotValidCurrentPageException;
+use Pagerfanta\Pagerfanta;
+use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationSettingsFormType;
@@ -15,6 +18,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminUnicatController extends Controller
 {
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
     public function indexAction(Request $request)
     {
         /** @var \Doctrine\ORM\EntityManager $em */
@@ -73,26 +82,39 @@ class AdminUnicatController extends Controller
     }
 
     /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @param string $configuration
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function configurationAction($configuration)
+    public function configurationAction(Request $request, $configuration)
     {
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getDoctrine()->getManager();
 
-        $configuration = $this->get('unicat')->getConfiguration($configuration);
+        //$configuration = $this->get('unicat')->getConfiguration($configuration); // @todo переделать на $ucm->getAttributeRepository()
+        $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 
         if (empty($configuration)) {
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
 
+        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter(
+            $ucm->getItemRepository()->getFindByQuery([], ['id' => 'DESC'])
+        ));
+        $pagerfanta->setMaxPerPage(20);
+
+        try {
+            $pagerfanta->setCurrentPage($request->query->get('page', 1));
+        } catch (NotValidCurrentPageException $e) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('UnicatModule:Admin:configuration.html.twig', [
-            'configuration'     => $configuration,
-            'attributes_groups' => $em->getRepository($configuration->getAttributesGroupClass())->findAll(),
-            'attributes'        => $em->getRepository($configuration->getAttributeClass())->findAll(),
-            'items'             => $em->getRepository($configuration->getItemClass())->findBy([], ['id' => 'DESC']),
+            'configuration'     => $ucm->getConfiguration(),
+            'attributes_groups' => $em->getRepository($ucm->getConfiguration()->getAttributesGroupClass())->findAll(),
+            'attributes'        => $em->getRepository($ucm->getConfiguration()->getAttributeClass())->findAll(),
+            'pagerfanta'        => $pagerfanta, // items
         ]);
     }
 

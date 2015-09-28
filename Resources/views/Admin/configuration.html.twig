@@ -1,6 +1,6 @@
 {% extends '@UnicatModule/Admin/_layout.html.twig' %}
 
-{#{% block title %}&laquo;{{ configuration.title }}&raquo; Unicat / {{ parent() }}{% endblock %}#}
+{% block title %}{{ parent() }} {% if pagerfanta.haveToPaginate %} [Страница: {{ pagerfanta.currentPage }} из {{ pagerfanta.nbPages }}]{% endif %}{% endblock %}
 
 {% block content %}
 
@@ -13,7 +13,9 @@
 
     <h2>{{ 'Records'|trans }}</h2>
 
-    <p>Всего: <b>{{ items|length }}</b></p>
+    <p>Всего: <b>{{ pagerfanta.count }}</b>
+        {% if pagerfanta.haveToPaginate %} &nbsp;&nbsp; Страница: {{ pagerfanta.currentPage }} Записей на страницу: {{ pagerfanta.maxPerPage }}{% endif %}
+    </p>
 
     <table class="table table-bordered table-hover">
         <thead><tr>
@@ -25,7 +27,7 @@
             <th>{{ 'Created at'|trans }}</th>
         </tr></thead>
         <tbody>
-        {% for item in items %}
+        {% for item in pagerfanta %}
             <tr>
                 <td>{{ item.id }}</td>
                 <td><a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>{{ item.slug }}</a>
@@ -40,6 +42,11 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% if pagerfanta.haveToPaginate %}
+        Страница: {{ pagerfanta.currentPage }} Записей на страницу: {{ pagerfanta.maxPerPage }}
+        {{ pagerfanta(pagerfanta, 'twitter_bootstrap_translated', {'css_container_class': 'pagination pagination-centered', 'proximity': 5}) }}
+    {% endif %}
 
     </div>
 </div>

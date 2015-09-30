@@ -17,6 +17,7 @@ class UnicatController extends Controller
     use NodeTrait;
 
     protected $configuration_id;
+    protected $use_item_id_as_slug;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response
@@ -170,7 +171,7 @@ class UnicatController extends Controller
             ]);
         }
 
-        $item = $ucm->findItem($itemSlug);
+        $item = $ucm->findItem($itemSlug, $this->use_item_id_as_slug);
 
         if (empty($item)) {
             throw $this->createNotFoundException();

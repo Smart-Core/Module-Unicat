@@ -178,12 +178,17 @@ class UnicatConfigurationManager
 
     /**
      * @param string|int $val
+     * @param bool $use_item_id_as_slug
      *
      * @return ItemModel|null
      */
-    public function findItem($val)
+    public function findItem($val, $use_item_id_as_slug = true)
     {
-        $key = intval($val) ? 'id' : 'slug';
+        $key = 'slug';
+
+        if ($use_item_id_as_slug and intval($val)) {
+            $key = 'id';
+        }
 
         return $this->em->getRepository($this->configuration->getItemClass())->findOneBy([$key => $val]);
     }

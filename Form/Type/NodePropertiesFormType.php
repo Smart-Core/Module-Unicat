@@ -17,8 +17,12 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
         $builder
             ->add('configuration_id', 'choice', [
                 'choices'  => $configurations,
-                'required' => false,
                 'label'    => 'Configuration',
+                'required' => false,
+            ])
+            ->add('use_item_id_as_slug', 'checkbox', [
+                'label'    => 'Использовать ID записей в качестве URI',
+                'required' => false,
             ])
         ;
     }

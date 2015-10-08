@@ -96,7 +96,7 @@ class UnicatModule extends Bundle
         if ($this->hasAdmin()) {
             $extras = [
                 'afterCode'  => '<i class="fa fa-angle-left pull-right"></i>',
-                'beforeCode' => '<i class="fa fa-angle-right"></i>',
+                'beforeCode' => '<i class="fa fa-cubes"></i>',
             ];
 
             $submenu = $menu->addChild($this->getShortName(), ['uri' => $this->container->get('router')->generate('cms_admin_index').$this->getShortName().'/'])

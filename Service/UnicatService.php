@@ -132,6 +132,10 @@ class UnicatService
 
         $configuration = $this->getConfiguration($configuration_id);
 
+        if (empty($configuration)) {
+            throw new \Exception('Конфигурации "'.$configuration_id.'"" не существует');
+        }
+
         $this->setCurrentConfiguration($configuration);
 
         if (!isset($this->ucm[$configuration->getId()])) {

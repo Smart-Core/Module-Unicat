@@ -70,6 +70,13 @@ class ItemModel
     protected $attributes;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="smallint", options={"default":0})
+     */
+    protected $type;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -214,7 +221,7 @@ class ItemModel
      *
      * @return $this
      */
-    public function setAttributes($attributes)
+    public function setAttributes(array $attributes)
     {
         $this->attributes = $attributes;
 
@@ -354,6 +361,26 @@ class ItemModel
     public function setUuid($uuid)
     {
         $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param int $type
+     *
+     * @return $this
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }

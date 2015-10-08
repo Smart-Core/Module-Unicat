@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat;
 
+use Knp\Menu\MenuItem;
 use SmartCore\Bundle\CMSBundle\Module\ModuleBundleTrait;
 use SmartCore\Module\Unicat\DependencyInjection\Compiler\FormPass;
 use SmartCore\Module\Unicat\DependencyInjection\UnicatExtension;
@@ -83,4 +84,40 @@ class UnicatModule extends Bundle
             'configuration_id',
         ];
     }
+
+    /**
+     * @param MenuItem $menu
+     * @param array $extras
+     *
+     * @return MenuItem
+     */
+    public function buildAdminMenu(MenuItem $menu, array $extras = ['beforeCode' => '<i class="fa fa-angle-right"></i>'])
+    {
+        if ($this->hasAdmin()) {
+            $extras = [
+                'afterCode'  => '<i class="fa fa-angle-left pull-right"></i>',
+                'beforeCode' => '<i class="fa fa-angle-right"></i>',
+            ];
+
+            $submenu = $menu->addChild($this->getShortName(), ['uri' => $this->container->get('router')->generate('cms_admin_index').$this->getShortName().'/'])
+                ->setAttribute('class', 'treeview')
+                ->setExtras($extras)
+            ;
+
+            $submenu->setChildrenAttribute('class', 'treeview-menu');
+
+            /** @var \Doctrine\ORM\EntityManager $em */
+            $em = $this->container->get('doctrine.orm.entity_manager');
+
+            foreach ($em->getRepository('UnicatModule:UnicatConfiguration')->findAll() as $uc) {
+                $submenu->addChild($uc->getTitle(), [
+                    'route' => 'unicat_admin.configuration',
+                    'routeParameters' => ['configuration' => $uc->getName()],
+                ])->setExtras(['beforeCode' => '<i class="fa fa-angle-right"></i>']);
+            }
+        }
+
+        return $menu;
+    }
+
 }

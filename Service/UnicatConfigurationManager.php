@@ -18,6 +18,7 @@ use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\AttributesGroupModel;
 use SmartCore\Module\Unicat\Model\CategoryModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
+use SmartCore\Module\Unicat\Model\ItemRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -254,7 +255,7 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @return \Doctrine\ORM\EntityRepository
+     * @return ItemRepository
      */
     public function getItemRepository()
     {

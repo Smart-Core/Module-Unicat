@@ -16,7 +16,7 @@ class UnicatStructure
     use ColumnTrait\Name;
     use ColumnTrait\Position;
     use ColumnTrait\TitleNotBlank;
-    use ColumnTrait\UserId;
+    use ColumnTrait\FosUser;
 
     /**
      * @var string
@@ -79,7 +79,6 @@ class UnicatStructure
         $this->created_at = new \DateTime();
         $this->position   = 0;
         $this->properties = null;
-        $this->user_id    = 0;
         $this->is_default_inheritance = false;
         $this->is_required = true;
         $this->is_tree     = true;

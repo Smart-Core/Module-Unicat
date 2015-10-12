@@ -23,7 +23,7 @@ class ItemModel
     use ColumnTrait\IsEnabled;
     use ColumnTrait\CreatedAt;
     use ColumnTrait\Position;
-    use ColumnTrait\UserId;
+    use ColumnTrait\FosUser;
 
     /**
      * @var CategoryModel[]
@@ -83,10 +83,9 @@ class ItemModel
     {
         $this->categories       = new ArrayCollection();
         $this->categoriesSingle = new ArrayCollection();
-        $this->created_at = new \DateTime();
-        $this->is_enabled = true;
-        $this->position   = 0;
-        $this->user_id    = 0;
+        $this->created_at       = new \DateTime();
+        $this->is_enabled       = true;
+        $this->position         = 0;
     }
 
     /**

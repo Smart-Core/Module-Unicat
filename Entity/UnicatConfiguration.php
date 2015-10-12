@@ -27,7 +27,7 @@ class UnicatConfiguration
     use ColumnTrait\CreatedAt;
     use ColumnTrait\NameUnique;
     use ColumnTrait\TitleNotBlank;
-    use ColumnTrait\UserId;
+    use ColumnTrait\FosUser;
 
     /**
      * Пространство имен сущностей, например: DemoSiteBundle\Entity\Catalog\.

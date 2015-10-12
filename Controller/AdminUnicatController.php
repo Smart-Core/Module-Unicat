@@ -63,7 +63,7 @@ class AdminUnicatController extends Controller
                     $retval = $application->run($applicationInput, $applicationOutput);
 
                     $uc->setEntitiesNamespace($namespace.'\\')
-                        ->setUserId($this->getUser())
+                        ->setUser($this->getUser())
                     ;
 
                     $this->persist($uc, true);
@@ -164,7 +164,7 @@ class AdminUnicatController extends Controller
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
         $newItem = $ucm->createItemEntity();
-        $newItem->setUserId($this->getUser());
+        $newItem->setUser($this->getUser());
 
         if ($default_category_id) {
             $newItem->setCategories(new ArrayCollection([$ucm->getCategoryRepository()->find($default_category_id)]));

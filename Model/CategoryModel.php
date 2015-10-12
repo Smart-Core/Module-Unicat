@@ -28,7 +28,7 @@ abstract class CategoryModel
     use ColumnTrait\CreatedAt;
     use ColumnTrait\Position;
     use ColumnTrait\Title;
-    use ColumnTrait\UserId;
+    use ColumnTrait\FosUser;
 
     /**
      * @ORM\Column(type="string", length=32)
@@ -98,7 +98,6 @@ abstract class CategoryModel
         $this->meta             = [];
         $this->position         = 0;
         $this->properties       = null;
-        $this->user_id          = 0;
     }
 
     /**

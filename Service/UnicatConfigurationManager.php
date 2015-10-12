@@ -280,7 +280,7 @@ class UnicatConfigurationManager
         $attribute = $this->configuration->createAttribute();
         $attribute
             ->setGroup($this->em->getRepository($this->configuration->getAttributesGroupClass())->find($groupId))
-            ->setUserId($this->getUserId())
+            ->setUser($this->getUser())
         ;
 
         return $this->getAttributeForm($attribute, $options)
@@ -364,7 +364,7 @@ class UnicatConfigurationManager
         $category
             ->setStructure($structure)
             ->setIsInheritance($structure->getIsDefaultInheritance())
-            ->setUserId($this->getUserId())
+            ->setUser($this->getUser())
         ;
 
         if ($parent_category) {
@@ -801,7 +801,7 @@ class UnicatConfigurationManager
     /**
      * @return int
      */
-    protected function getUserId()
+    protected function getUser()
     {
         if (null === $token = $this->securityToken->getToken()) {
             return 0;
@@ -811,6 +811,6 @@ class UnicatConfigurationManager
             return 0;
         }
 
-        return $user->getId();
+        return $user;
     }
 }

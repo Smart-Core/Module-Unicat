@@ -236,25 +236,27 @@ class ItemModel
     }
 
     /**
-     * @param string $name
+     * @param string     $name
+     * @param mixed|null $default
      *
      * @return mixed|null
      */
-    public function getAttribute($name)
+    public function getAttribute($name, $default = null)
     {
-        return (isset($this->attributes[$name])) ? $this->attributes[$name] : null;
+        return (isset($this->attributes[$name])) ? $this->attributes[$name] : $default;
     }
 
     /**
      * Short alias for getAttribute.
      *
-     * @param string $name
+     * @param string     $name
+     * @param mixed|null $default
      *
      * @return mixed|null
      */
-    public function getAttr($name)
+    public function getAttr($name, $default = null)
     {
-        return $this->getAttribute($name);
+        return $this->getAttribute($name, $default);
     }
 
     /**

@@ -18,6 +18,7 @@ class UnicatController extends Controller
 
     protected $configuration_id;
     protected $use_item_id_as_slug;
+    protected $use_layout_for_items;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response
@@ -187,6 +188,10 @@ class UnicatController extends Controller
         $this->node->addFrontControl('edit')
             ->setTitle('Редактировать')
             ->setUri($this->generateUrl('unicat_admin.item_edit', ['configuration' => $ucm->getConfiguration()->getName(), 'id' => $item->getId()]));
+
+        if (!empty($this->use_layout_for_items)) {
+            $this->get('cms.context')->setTemplate($this->use_layout_for_items);
+        }
 
         return $this->render('UnicatModule::item.html.twig', [
             'mode'          => 'view',

@@ -7,25 +7,25 @@ use Knp\Menu\ItemInterface;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
-class CategoryMenu extends ContainerAware
+class TaxonMenu extends ContainerAware
 {
     /**
      * @param FactoryInterface $factory
-     * @param array $options
+     * @param array            $options
      *
      * @return ItemInterface
      */
     public function tree(FactoryInterface $factory, array $options)
     {
-        if (!isset($options['categoryClass'])) {
-            throw new \Exception('Надо указать categoryClass в опциях');
+        if (!isset($options['taxonClass'])) {
+            throw new \Exception('Надо указать taxonClass в опциях');
         }
 
         if (!isset($options['routeName'])) {
             throw new \Exception('Надо указать routeName в опциях');
         }
 
-        $menu = $factory->createItem('categories');
+        $menu = $factory->createItem('taxons');
 
         if (!empty($options['css_class'])) {
             $menu->setChildrenAttribute('class', $options['css_class']);
@@ -54,43 +54,43 @@ class CategoryMenu extends ContainerAware
     /**
      * Рекурсивное построение дерева.
      *
-     * @param ItemInterface $menu
+     * @param ItemInterface   $menu
      * @param TaxonModel|null $parent
-     * @param array $options
+     * @param array           $options
      */
     protected function addChild(ItemInterface $menu, TaxonModel $parent = null, array $options)
     {
-        $categories = $this->container->get('doctrine.orm.entity_manager')->getRepository($options['categoryClass'])->findBy([
+        $taxons = $this->container->get('doctrine.orm.entity_manager')->getRepository($options['taxonClass'])->findBy([
                 'parent'     => $parent,
                 'is_enabled' => true,
                 'structure'  => $options['structure'],
             ], ['position' => 'ASC']);
 
-        /** @var TaxonModel $category */
-        foreach ($categories as $category) {
-            $uri = $this->container->get('router')->generate($options['routeName'], ['slug' => $category->getSlugFull()]).'/';
-            $menu->addChild($category->getTitle(), ['uri' => $uri]);
+        /** @var TaxonModel $taxon */
+        foreach ($taxons as $taxon) {
+            $uri = $this->container->get('router')->generate($options['routeName'], ['slug' => $taxon->getSlugFull()]).'/';
+            $menu->addChild($taxon->getTitle(), ['uri' => $uri]);
 
             /** @var ItemInterface $sub_menu */
-            $sub_menu = $menu[$category->getTitle()];
+            $sub_menu = $menu[$taxon->getTitle()];
 
-            $this->addChild($sub_menu, $category, $options);
+            $this->addChild($sub_menu, $taxon, $options);
         }
     }
 
     /**
      * @param FactoryInterface $factory
-     * @param array $options
+     * @param array            $options
      *
      * @return ItemInterface
      */
     public function adminTree(FactoryInterface $factory, array $options)
     {
-        if (!isset($options['categoryClass'])) {
-            throw new \Exception('Надо указать categoryClass в опциях');
+        if (!isset($options['taxonClass'])) {
+            throw new \Exception('Надо указать taxonClass в опциях');
         }
 
-        $menu = $factory->createItem('categories');
+        $menu = $factory->createItem('taxons');
         $this->addChildToAdminTree($menu, null, $options);
 
         return $menu;
@@ -99,34 +99,34 @@ class CategoryMenu extends ContainerAware
     /**
      * Рекурсивное построение дерева для админки.
      *
-     * @param ItemInterface $menu
+     * @param ItemInterface   $menu
      * @param TaxonModel|null $parent
-     * @param array $options
+     * @param array           $options
      */
     protected function addChildToAdminTree(ItemInterface $menu, TaxonModel $parent = null, $options)
     {
-        $categories = $this->container->get('doctrine')->getManager()->getRepository($options['categoryClass'])->findBy([
+        $taxons = $this->container->get('doctrine')->getManager()->getRepository($options['taxonClass'])->findBy([
                 'parent'    => $parent,
                 'structure' => $options['structure'],
             ], ['position' => 'ASC']);
 
-        /** @var TaxonModel $category */
-        foreach ($categories as $category) {
-            $uri = $this->container->get('router')->generate('unicat_admin.category', [
-                'id'            => $category->getId(),
-                'structure_id'  => $category->getStructure()->getId(),
-                'configuration' => $category->getStructure()->getConfiguration()->getName(),
+        /** @var TaxonModel $taxon */
+        foreach ($taxons as $taxon) {
+            $uri = $this->container->get('router')->generate('unicat_admin.taxon', [
+                'id'            => $taxon->getId(),
+                'structure_id'  => $taxon->getStructure()->getId(),
+                'configuration' => $taxon->getStructure()->getConfiguration()->getName(),
             ]);
-            $newItem = $menu->addChild($category->getTitle(), ['uri' => $uri]);
+            $newItem = $menu->addChild($taxon->getTitle(), ['uri' => $uri]);
 
-            if (false === $category->getIsEnabled()) {
+            if (false === $taxon->getIsEnabled()) {
                 $newItem->setAttribute('style', 'text-decoration: line-through;');
             }
 
             /** @var ItemInterface $sub_menu */
-            $sub_menu = $menu[$category->getTitle()];
+            $sub_menu = $menu[$taxon->getTitle()];
 
-            $this->addChildToAdminTree($sub_menu, $category, $options);
+            $this->addChildToAdminTree($sub_menu, $taxon, $options);
         }
     }
 }

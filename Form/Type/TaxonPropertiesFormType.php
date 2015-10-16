@@ -5,7 +5,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class CategoryPropertiesFormType extends AbstractType
+class TaxonPropertiesFormType extends AbstractType
 {
     protected $properties;
 
@@ -34,6 +34,6 @@ class CategoryPropertiesFormType extends AbstractType
 
     public function getName()
     {
-        return 'unicat_category_properties';
+        return 'unicat_taxon_properties';
     }
 }

@@ -100,7 +100,7 @@ class UnicatConfiguration
      *
      * @deprecated
      */
-    public function getCategoryClass()
+    public function getTaxonClass()
     {
         return $this->entities_namespace.'Taxon';
     }
@@ -138,9 +138,9 @@ class UnicatConfiguration
      *
      * @deprecated
      */
-    public function createCategory()
+    public function createTaxon()
     {
-        $class = $this->getCategoryClass();
+        $class = $this->getTaxonClass();
 
         return new $class();
     }

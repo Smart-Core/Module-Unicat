@@ -29,7 +29,7 @@ class ItemModel
      * @var TaxonModel[]
      *
      * ORM\ManyToMany(targetEntity="Taxon", inversedBy="items", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * ORM\JoinTable(name="unicat_items_categories_relations")
+     * ORM\JoinTable(name="unicat_items_taxons_relations")
      */
     protected $taxons;
 
@@ -37,7 +37,7 @@ class ItemModel
      * @var TaxonModel[]
      *
      * ORM\ManyToMany(targetEntity="Taxon", inversedBy="itemsSingle", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * ORM\JoinTable(name="unicat_items_categories_relations_single")
+     * ORM\JoinTable(name="unicat_items_taxons_relations_single")
      */
     protected $taxonsSingle;
 
@@ -148,23 +148,11 @@ class ItemModel
     }
 
     /**
-     * @param mixed $categories
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function setCategories($categories)
-    {
-        $this->taxons = $categories;
-
-        return $this;
-    }
-
-    /**
-     * @param TaxonModel $category
-     *
-     * @return $this
-     */
-    public function addCategory(TaxonModel $taxon)
+    public function addTaxon(TaxonModel $taxon)
     {
         if (!$this->taxons->contains($taxon)) {
             $this->taxons->add($taxon);
@@ -176,9 +164,21 @@ class ItemModel
     /**
      * @return TaxonModel[]
      */
-    public function getCategories()
+    public function getTaxons()
     {
         return $this->taxons;
+    }
+
+    /**
+     * @param TaxonModel[] $taxons
+     *
+     * @return $this
+     */
+    public function setTaxons($taxons)
+    {
+        $this->taxons = $taxons;
+
+        return $this;
     }
 
     /**
@@ -186,7 +186,7 @@ class ItemModel
      *
      * @return $this
      */
-    public function setCategoriesSingle($taxonsSingle)
+    public function setTaxonsSingle($taxonsSingle)
     {
         $this->taxonsSingle = $taxonsSingle;
 
@@ -198,7 +198,7 @@ class ItemModel
      *
      * @return $this
      */
-    public function addCategorySingle(TaxonModel $taxon)
+    public function addTaxonSingle(TaxonModel $taxon)
     {
         if (!$this->taxonsSingle->contains($taxon)) {
             $this->taxonsSingle->add($taxon);
@@ -210,7 +210,7 @@ class ItemModel
     /**
      * @return TaxonModel[]
      */
-    public function getCategoriesSingle()
+    public function getTaxonsSingle()
     {
         return $this->taxonsSingle;
     }

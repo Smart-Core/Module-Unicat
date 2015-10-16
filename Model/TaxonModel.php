@@ -73,12 +73,12 @@ abstract class TaxonModel
     protected $structure;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Item", mappedBy="categories", fetch="EXTRA_LAZY")
+     * @ORM\ManyToMany(targetEntity="Item", mappedBy="taxons", fetch="EXTRA_LAZY")
      */
     protected $items;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Item", mappedBy="categoriesSingle", fetch="EXTRA_LAZY")
+     * @ORM\ManyToMany(targetEntity="Item", mappedBy="taxonsSingle", fetch="EXTRA_LAZY")
      */
     protected $itemsSingle;
 

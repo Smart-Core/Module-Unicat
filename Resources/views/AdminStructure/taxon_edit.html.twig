@@ -1,15 +1,15 @@
 {% extends '@UnicatModule/Admin/_layout.html.twig' %}
 
-{% block title %}{{ 'Edit category'|trans }} &laquo;{{ category.title }}&raquo; / {{ parent() }}{% endblock %}
+{% block title %}{{ 'Edit taxon'|trans }} &laquo;{{ taxon.title }}&raquo; / {{ parent() }}{% endblock %}
 
 {% block content %}
 
 <div class="box box-primary">
     <div class="box-header with-border">
 
-    <h3>{{ 'Edit category'|trans }} &laquo;{{ category.title }}&raquo;</h3>
+    <h3>{{ 'Edit taxon'|trans }} &laquo;{{ taxon.title }}&raquo;</h3>
 
-        <a href="../"><i class="fa fa-arrow-circle-o-left"></i> Назад к просмотру всех категорий</a>
+        <a href="../"><i class="fa fa-arrow-circle-o-left"></i> Назад к просмотру всех taxons</a>
 
     {{ form_start(form, {'attr':{'class': 'form-horizontal well'}}) }}
     {{ form_errors(form) }}

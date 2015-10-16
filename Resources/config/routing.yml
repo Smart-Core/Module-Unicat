@@ -19,15 +19,15 @@ unicat.item:
     requirements:
         itemSlug: '.+'
 
-unicat.category_root:
+unicat.taxon_root:
     path: /
     defaults:
-        _controller: UnicatModule:Unicat:category
+        _controller: UnicatModule:Unicat:taxon
 
-unicat.category:
+unicat.taxon:
     path: /{slug}
     defaults:
-        _controller: UnicatModule:Unicat:category
+        _controller: UnicatModule:Unicat:taxon
         slug: null
     requirements:
         slug: '.+'

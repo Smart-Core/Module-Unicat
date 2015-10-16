@@ -21,15 +21,15 @@ class UnicatWidgetController extends Controller
     protected $configuration_id;
 
     /**
-     * @param int $depth
+     * @param int    $depth
      * @param string $css_class
      * @param string $template
-     * @param bool $selected_inheritance
-     * @param int $structure
+     * @param bool   $selected_inheritance
+     * @param int    $structure
      *
      * @return Response
      */
-    public function categoryTreeAction(
+    public function taxonTreeAction(
         $css_class = null,
         $depth = null,
         $template = 'knp_menu.html.twig',
@@ -42,25 +42,25 @@ class UnicatWidgetController extends Controller
         $this->get('request')->attributes->set('__selected_inheritance', $selected_inheritance);
 
         // @todo cache
-        $categoryTree = $this->renderView('UnicatModule::category_tree.html.twig', [
-            'categoryClass' => $ucm->getCategoryClass(),
+        $taxonTree = $this->renderView('UnicatModule::taxon_tree.html.twig', [
+            'taxonClass'    => $ucm->getTaxonClass(),
             'css_class'     => $css_class,
             'depth'         => $depth,
-            'routeName'     => 'unicat.category',
+            'routeName'     => 'unicat.taxon',
             'structure'     => empty($structure) ? $ucm->getDefaultStructure() : $ucm->getStructure($structure),
             'template'      => $template,
         ]);
 
         $this->get('request')->attributes->remove('__selected_inheritance');
 
-        return new Response($categoryTree);
+        return new Response($taxonTree);
     }
 
     /**
      * @param array $criteria
      * @param array $orderBy
-     * @param int $limit
-     * @param null $offset
+     * @param int   $limit
+     * @param null  $offset
      *
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
@@ -78,13 +78,13 @@ class UnicatWidgetController extends Controller
         }
 
         return $this->render('UnicatModule::items.html.twig', [
-            'mode'              => 'list',
-            'attributes'        => $ucm->getAttributes(),
-            'configuration'     => $ucm->getConfiguration(),
-            'lastCategory'      => null,
-            'childenCategories' => null,
-            'pagerfanta'        => $pagerfanta,
-            'slug'              => null,
+            'mode'          => 'list',
+            'attributes'    => $ucm->getAttributes(),
+            'configuration' => $ucm->getConfiguration(),
+            'lastTaxon'     => null,
+            'childenTaxons' => null,
+            'pagerfanta'    => $pagerfanta,
+            'slug'          => null,
         ]);
     }
 }

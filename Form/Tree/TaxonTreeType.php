@@ -8,7 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\DoctrineType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class CategoryTreeType extends DoctrineType
+class TaxonTreeType extends DoctrineType
 {
     /**
      * @var UnicatStructure
@@ -37,7 +37,7 @@ class CategoryTreeType extends DoctrineType
 
         $resolver->setDefaults([
             'choice_label' => 'form_title',
-            'class'        => $this->structure->getConfiguration()->getCategoryClass(),
+            'class'        => $this->structure->getConfiguration()->getTaxonClass(),
             'loader'       => $loader,
             'required'     => false,
         ]);
@@ -45,11 +45,11 @@ class CategoryTreeType extends DoctrineType
 
     public function getLoader(ObjectManager $manager, $queryBuilder, $class)
     {
-        return new CategoryLoader($manager, $this->structure, $class);
+        return new TaxonLoader($manager, $this->structure, $class);
     }
 
     public function getName()
     {
-        return 'unicat_category_tree';
+        return 'unicat_taxon_tree';
     }
 }

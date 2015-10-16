@@ -6,7 +6,7 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
-use SmartCore\Module\Unicat\Form\Tree\CategoryTreeType;
+use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
@@ -61,20 +61,20 @@ class ItemFormType extends AbstractType
                 'required'  => $structure->getIsRequired(),
                 'expanded'  => $structure->isMultipleEntries() ? true : false,
                 'multiple'  => $structure->isMultipleEntries() ? true : false,
-                'class'     => $this->configuration->getCategoryClass(),
+                'class'     => $this->configuration->getTaxonClass(),
             ];
 
             if ('single' === $structure->getEntries() and isset($options['data'])) {
-                /** @var TaxonModel $category */
-                foreach ($options['data']->getCategories() as $category) {
-                    if ($category->getStructure()->getName() === $structure->getName()) {
-                        $optionsCat['data'] = $category;
+                /** @var TaxonModel $taxon */
+                foreach ($options['data']->getTaxons() as $taxon) {
+                    if ($taxon->getStructure()->getName() === $structure->getName()) {
+                        $optionsCat['data'] = $taxon;
                     }
                 }
             }
 
-            $categoryTreeType = (new CategoryTreeType($this->doctrine))->setStructure($structure);
-            $builder->add('structure:'.$structure->getName(), $categoryTreeType, $optionsCat);
+            $taxonTreeType = (new TaxonTreeType($this->doctrine))->setStructure($structure);
+            $builder->add('structure:'.$structure->getName(), $taxonTreeType, $optionsCat);
         }
 
         /** @var $attribute AttributeModel */

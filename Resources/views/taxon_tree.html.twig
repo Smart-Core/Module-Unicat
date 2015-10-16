@@ -6,12 +6,12 @@
     {% set template = 'knp_menu.html.twig' %}
 {% endif %}
 
-{% set menuItem = knp_menu_get('UnicatModule:CategoryMenu:tree', [], {
-    'categoryClass': categoryClass,
-    'css_class': css_class,
-    'depth': depth,
-    'routeName': routeName,
-    'structure': structure,
+{% set menuItem = knp_menu_get('UnicatModule:TaxonMenu:tree', [], {
+    'taxonClass': taxonClass,
+    'css_class':  css_class,
+    'depth':      depth,
+    'routeName':  routeName,
+    'structure':  structure,
 }) %}
 
 {{ knp_menu_render(menuItem, {

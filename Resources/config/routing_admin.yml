@@ -46,10 +46,10 @@ unicat_admin.structure_edit:
     requirements:
         id: \d+
 
-unicat_admin.category:
-    path: /{configuration}/structure/{structure_id}/category_{id}/
+unicat_admin.taxon:
+    path: /{configuration}/structure/{structure_id}/taxon_{id}/
     defaults:
-        _controller: UnicatModule:AdminStructure:categoryEdit
+        _controller: UnicatModule:AdminStructure:taxonEdit
     requirements:
         id: \d+
         structure_id: \d+
@@ -86,10 +86,10 @@ unicat_admin.item_create:
     defaults:
         _controller: UnicatModule:AdminUnicat:itemCreate
 
-unicat_admin.item_create_in_category:
-    path: /{configuration}/item_create/{default_category_id}/
+unicat_admin.item_create_in_taxon:
+    path: /{configuration}/item_create/{default_taxon_id}/
     requirements:
-        default_category_id: \d+
+        default_taxon_id: \d+
     defaults:
         _controller: UnicatModule:AdminUnicat:itemCreate
 

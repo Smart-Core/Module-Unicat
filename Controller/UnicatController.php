@@ -25,17 +25,17 @@ class UnicatController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return $this->categoryAction($request);
+        return $this->taxonAction($request);
     }
 
     /**
-     * @param Request $request
-     * @param null $slug
+     * @param Request  $request
+     * @param null     $slug
      * @param int|null $page
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function categoryAction(Request $request, $slug = null, $page = null)
+    public function taxonAction(Request $request, $slug = null, $page = null)
     {
         if (null === $page) {
             $page = $request->query->get('page', 1);
@@ -43,36 +43,36 @@ class UnicatController extends Controller
 
         $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
 
-        $requestedCategories = $ucm->findCategoriesBySlug($slug, $ucm->getDefaultStructure());
+        $requestedTaxons = $ucm->findTaxonsBySlug($slug, $ucm->getDefaultStructure());
 
-        foreach ($requestedCategories as $category) {
-            $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.category', ['slug' => $category->getSlugFull()]).'/', $category->getTitle());
+        foreach ($requestedTaxons as $taxon) {
+            $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.taxon', ['slug' => $taxon->getSlugFull()]).'/', $taxon->getTitle());
         }
 
-        $lastCategory = end($requestedCategories);
+        $lastTaxon = end($requestedTaxons);
 
-        if ($lastCategory instanceof TaxonModel) {
-            $this->get('html')->setMetas($lastCategory->getMeta());
-            $childenCategories = $ucm->getCategoryRepository()->findBy([
+        if ($lastTaxon instanceof TaxonModel) {
+            $this->get('html')->setMetas($lastTaxon->getMeta());
+            $childenTaxons = $ucm->getTaxonRepository()->findBy([
                 'is_enabled' => true,
-                'parent'     => $lastCategory,
+                'parent'     => $lastTaxon,
                 'structure'  => $ucm->getDefaultStructure(),
             ], ['position' => 'ASC']);
         } else {
-            $childenCategories = $ucm->getCategoryRepository()->findBy([
+            $childenTaxons = $ucm->getTaxonRepository()->findBy([
                 'is_enabled' => true,
                 'parent'     => null,
                 'structure'  => $ucm->getDefaultStructure(),
             ], ['position' => 'ASC']);
         }
 
-        $this->buuldFrontControlForCategory($ucm, $lastCategory);
+        $this->buildFrontControlForTaxon($ucm, $lastTaxon);
 
         $pagerfanta = null;
 
         if ($slug) {
-            if ($lastCategory) {
-                $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($ucm->getFindItemsInCategoryQuery($lastCategory)));
+            if ($lastTaxon) {
+                $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($ucm->getFindItemsInTaxonQuery($lastTaxon)));
             }
         } elseif ($ucm->getConfiguration()->isInheritance()) {
             $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($ucm->getFindAllItemsQuery()));
@@ -89,48 +89,48 @@ class UnicatController extends Controller
         }
 
         return $this->render('UnicatModule::items.html.twig', [
-            'mode'              => 'list',
-            'attributes'        => $ucm->getAttributes(),
-            'configuration'     => $ucm->getConfiguration(),
-            'lastCategory'      => $lastCategory,
-            'childenCategories' => $childenCategories,
-            'pagerfanta'        => $pagerfanta,
-            'slug'              => $slug,
+            'mode'          => 'list',
+            'attributes'    => $ucm->getAttributes(),
+            'configuration' => $ucm->getConfiguration(),
+            'lastTaxon'     => $lastTaxon,
+            'childenTaxons' => $childenTaxons,
+            'pagerfanta'    => $pagerfanta,
+            'slug'          => $slug,
         ]);
     }
 
     /**
      * @param UnicatConfigurationManager $ucm
-     * @param TaxonModel|false $lastCategory
+     * @param TaxonModel|false           $lastTaxon
      *
      * @throws \Exception
      */
-    protected function buuldFrontControlForCategory(UnicatConfigurationManager $ucm, $lastCategory = false)
+    protected function buildFrontControlForTaxon(UnicatConfigurationManager $ucm, $lastTaxon = false)
     {
         $this->node->addFrontControl('create_item')
             ->setTitle('Добавить запись')
-            ->setUri($this->generateUrl('unicat_admin.item_create_in_category', [
-                'configuration'       => $ucm->getConfiguration()->getName(),
-                'default_category_id' => empty($lastCategory) ? 0 : $lastCategory->getId(),
+            ->setUri($this->generateUrl('unicat_admin.item_create_in_taxon', [
+                'configuration'    => $ucm->getConfiguration()->getName(),
+                'default_taxon_id' => empty($lastTaxon) ? 0 : $lastTaxon->getId(),
             ]));
 
-        if (!empty($lastCategory)) {
-            $this->node->addFrontControl('create_category')
+        if (!empty($lastTaxon)) {
+            $this->node->addFrontControl('create_taxon')
                 ->setIsDefault(false)
-                ->setTitle('Создать категорию')
+                ->setTitle('Создать Taxon')
                 ->setUri($this->generateUrl('unicat_admin.structure_with_parent_id', [
                     'configuration' => $ucm->getConfiguration()->getName(),
-                    'parent_id'     => empty($lastCategory) ? 0 : $lastCategory->getId(),
-                    'id'            => $lastCategory->getStructure()->getId(),
+                    'parent_id'     => empty($lastTaxon) ? 0 : $lastTaxon->getId(),
+                    'id'            => $lastTaxon->getStructure()->getId(),
                 ]));
 
-            $this->node->addFrontControl('edit_category')
+            $this->node->addFrontControl('edit_taxon')
                 ->setIsDefault(false)
-                ->setTitle('Редактировать категорию')
-                ->setUri($this->generateUrl('unicat_admin.category', [
+                ->setTitle('Редактировать Taxon')
+                ->setUri($this->generateUrl('unicat_admin.taxon', [
                     'configuration' => $ucm->getConfiguration()->getName(),
-                    'id'            => $lastCategory->getId(),
-                    'structure_id'  => $lastCategory->getStructure()->getId(),
+                    'id'            => $lastTaxon->getId(),
+                    'structure_id'  => $lastTaxon->getStructure()->getId(),
                 ]));
         }
 
@@ -150,22 +150,22 @@ class UnicatController extends Controller
     {
         $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
 
-        $requestedCategories = $ucm->findCategoriesBySlug($structureSlug, $ucm->getDefaultStructure());
+        $requestedTaxons = $ucm->findTaxonsBySlug($structureSlug, $ucm->getDefaultStructure());
 
-        foreach ($requestedCategories as $category) {
-            $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.category', ['slug' => $category->getSlugFull()]).'/', $category->getTitle());
+        foreach ($requestedTaxons as $taxon) {
+            $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.taxon', ['slug' => $taxon->getSlugFull()]).'/', $taxon->getTitle());
         }
 
-        $lastCategory = end($requestedCategories);
+        $lastTaxon = end($requestedTaxons);
 
-        if ($lastCategory instanceof TaxonModel) {
-            $childenCategories = $ucm->getCategoryRepository()->findBy([
+        if ($lastTaxon instanceof TaxonModel) {
+            $childenTaxons = $ucm->getTaxonRepository()->findBy([
                 'is_enabled' => true,
-                'parent'     => $lastCategory,
+                'parent'     => $lastTaxon,
                 'structure'  => $ucm->getDefaultStructure(),
             ]);
         } else {
-            $childenCategories = $ucm->getCategoryRepository()->findBy([
+            $childenTaxons = $ucm->getTaxonRepository()->findBy([
                 'is_enabled' => true,
                 'parent'     => null,
                 'structure'  => $ucm->getDefaultStructure(),
@@ -181,7 +181,7 @@ class UnicatController extends Controller
         $this->get('html')->setMetas($item->getMeta());
 
         $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.item', [
-                'slug' => empty($lastCategory) ? '' : $lastCategory->getSlugFull(),
+                'slug' => empty($lastTaxon) ? '' : $lastTaxon->getSlugFull(),
                 'itemSlug' => $item->getSlug(),
             ]).'/', $item->getAttribute('title'));
 
@@ -197,8 +197,8 @@ class UnicatController extends Controller
             'mode'          => 'view',
             'attributes'    => $ucm->getAttributes(),
             'item'          => $item,
-//            'lastCategory'      => $lastCategory,
-//            'childenCategories' => $childenCategories,
+//            'lastTaxon'      => $lastTaxon,
+//            'childenTaxons' => $childenTaxons,
         ]);
     }
 }

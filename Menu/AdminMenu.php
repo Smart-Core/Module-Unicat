@@ -28,9 +28,9 @@ class AdminMenu extends ContainerAware
         $item = $menu->addChild($options['configuration']->getTitle(), ['route' => 'unicat_admin.configuration', 'routeParameters' => ['configuration' => $configuration]]);
         //$item->setLinkAttribute('class', 'btn');
 
-        $menu->addChild('Structures',   ['route' => 'unicat_admin.structures_index',    'routeParameters' => ['configuration' => $configuration]]);
+        $menu->addChild('Taxonomy',     ['route' => 'unicat_admin.structures_index',    'routeParameters' => ['configuration' => $configuration]]);
         $menu->addChild('Attributes',   ['route' => 'unicat_admin.attributes_index',    'routeParameters' => ['configuration' => $configuration]]);
-        $menu->addChild('Link names',   ['uri' => '#']);
+        //$menu->addChild('Link names',   ['uri' => '#']); // @todo
         //$menu->addChild('Link names',   ['route' => 'unicat_admin.properties_index',    'routeParameters' => ['configuration' => $configuration]]);
         $menu->addChild('Settings',     ['route' => 'unicat_admin.configuration.settings', 'routeParameters' => ['configuration' => $configuration]]);
 

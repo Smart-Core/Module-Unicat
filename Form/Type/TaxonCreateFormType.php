@@ -4,7 +4,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use Symfony\Component\Form\FormBuilderInterface;
 
-class CategoryCreateFormType extends CategoryFormType
+class TaxonCreateFormType extends TaxonFormType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -20,6 +20,6 @@ class CategoryCreateFormType extends CategoryFormType
 
     public function getName()
     {
-        return 'unicat_category_'.$this->configuration->getName().'_create';
+        return 'unicat_taxon_'.$this->configuration->getName().'_create';
     }
 }

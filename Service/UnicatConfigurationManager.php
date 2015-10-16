@@ -9,10 +9,10 @@ use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use SmartCore\Module\Unicat\Form\Type\AttributeFormType;
 use SmartCore\Module\Unicat\Form\Type\AttributesGroupFormType;
-use SmartCore\Module\Unicat\Form\Type\CategoryCreateFormType;
-use SmartCore\Module\Unicat\Form\Type\CategoryFormType;
 use SmartCore\Module\Unicat\Form\Type\ItemFormType;
 use SmartCore\Module\Unicat\Form\Type\StructureFormType;
+use SmartCore\Module\Unicat\Form\Type\TaxonCreateFormType;
+use SmartCore\Module\Unicat\Form\Type\TaxonFormType;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\AttributesGroupModel;
@@ -144,18 +144,18 @@ class UnicatConfigurationManager
         return $qb->getQuery();
     }
     /**
-     * @param TaxonModel $category
-     * @param array $order
+     * @param TaxonModel $taxon
+     * @param array      $order
      *
      * @return ItemModel[]|null
      */
-    public function findItemsInCategory(TaxonModel $category, array $order = ['position' => 'ASC'])
+    public function findItemsInTaxon(TaxonModel $taxon, array $order = ['position' => 'ASC'])
     {
-        return $this->getFindItemsInCategoryQuery($category, $order)->getResult();
+        return $this->getFindItemsInTaxonQuery($taxon, $order)->getResult();
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      * @param array $order
      *
      * @return \Doctrine\ORM\Query
@@ -163,18 +163,18 @@ class UnicatConfigurationManager
      * @todo сделать настройку сортировки
      * @todo вынести в Repository
      */
-    public function getFindItemsInCategoryQuery(TaxonModel $category, array $order = ['position' => 'ASC'])
+    public function getFindItemsInTaxonQuery(TaxonModel $taxon, array $order = ['position' => 'ASC'])
     {
         $itemEntity = $this->configuration->getItemClass();
 
         return $this->em->createQuery("
            SELECT i
            FROM $itemEntity AS i
-           JOIN i.categoriesSingle AS cs
-           WHERE cs.id = :category
+           JOIN i.taxonsSingle AS cs
+           WHERE cs.id = :taxon
            AND i.is_enabled = 1
            ORDER BY i.position ASC, i.id DESC
-        ")->setParameter('category', $category->getId());
+        ")->setParameter('taxon', $taxon->getId());
     }
 
     /**
@@ -202,56 +202,56 @@ class UnicatConfigurationManager
      *
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function findCategoriesBySlug($slug = null, UnicatStructure $structure = null)
+    public function findTaxonsBySlug($slug = null, UnicatStructure $structure = null)
     {
-        $categories = [];
+        $taxons = [];
         $parent = null;
-        foreach (explode('/', $slug) as $categoryName) {
-            if (strlen($categoryName) == 0) {
+        foreach (explode('/', $slug) as $taxonName) {
+            if (strlen($taxonName) == 0) {
                 break;
             }
 
-            /* @var TaxonModel $category */
+            /* @var TaxonModel $taxon */
             if ($structure) {
-                $category = $this->getCategoryRepository()->findOneBy([
+                $taxon = $this->getTaxonRepository()->findOneBy([
                     'is_enabled' => true,
-                    'parent' => $parent,
-                    'slug'   => $categoryName,
-                    'structure' => $structure,
+                    'parent'     => $parent,
+                    'slug'       => $taxonName,
+                    'structure'  => $structure,
                 ]);
             } else {
-                $category = $this->getCategoryRepository()->findOneBy([
+                $taxon = $this->getTaxonRepository()->findOneBy([
                     'is_enabled' => true,
-                    'parent' => $parent,
-                    'slug'   => $categoryName,
+                    'parent'     => $parent,
+                    'slug'       => $taxonName,
                 ]);
             }
 
-            if ($category) {
-                $categories[] = $category;
-                $parent = $category;
+            if ($taxon) {
+                $taxons[] = $taxon;
+                $parent = $taxon;
             } else {
                 throw new NotFoundHttpException();
             }
         }
 
-        return $categories;
+        return $taxons;
     }
 
     /**
      * @return \Doctrine\ORM\EntityRepository
      */
-    public function getCategoryRepository()
+    public function getTaxonRepository()
     {
-        return $this->em->getRepository($this->configuration->getCategoryClass());
+        return $this->em->getRepository($this->configuration->getTaxonClass());
     }
 
     /**
      * @return string
      */
-    public function getCategoryClass()
+    public function getTaxonClass()
     {
-        return $this->configuration->getCategoryClass();
+        return $this->configuration->getTaxonClass();
     }
 
     /**
@@ -346,44 +346,44 @@ class UnicatConfigurationManager
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getCategoryForm($data = null, array $options = [])
+    public function getTaxonForm($data = null, array $options = [])
     {
-        return $this->formFactory->create(new CategoryFormType($this->configuration, $this->doctrine), $data, $options);
+        return $this->formFactory->create(new TaxonFormType($this->configuration, $this->doctrine), $data, $options);
     }
 
     /**
      * @param UnicatStructure $structure
      * @param array           $options
-     * @param TaxonModel|null $parent_category
+     * @param TaxonModel|null $parent_taxon
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getCategoryCreateForm(UnicatStructure $structure, array $options = [], TaxonModel $parent_category = null)
+    public function getTaxonCreateForm(UnicatStructure $structure, array $options = [], TaxonModel $parent_taxon = null)
     {
-        $category = $this->configuration->createCategory();
-        $category
+        $taxon = $this->configuration->createTaxon();
+        $taxon
             ->setStructure($structure)
             ->setIsInheritance($structure->getIsDefaultInheritance())
             ->setUser($this->getUser())
         ;
 
-        if ($parent_category) {
-            $category->setParent($parent_category);
+        if ($parent_taxon) {
+            $taxon->setParent($parent_taxon);
         }
 
-        return $this->formFactory->create(new CategoryCreateFormType($structure->getConfiguration(), $this->doctrine), $category, $options)
+        return $this->formFactory->create(new TaxonCreateFormType($structure->getConfiguration(), $this->doctrine), $taxon, $options)
             ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']]);
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      * @param array      $options
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getCategoryEditForm(TaxonModel $category, array $options = [])
+    public function getTaxonEditForm(TaxonModel $taxon, array $options = [])
     {
-        return $this->getCategoryForm($category, $options)
+        return $this->getTaxonForm($taxon, $options)
             ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
             ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
@@ -393,9 +393,9 @@ class UnicatConfigurationManager
      *
      * @return TaxonModel|null
      */
-    public function getCategory($id)
+    public function getTaxon($id)
     {
-        return $this->getCategoryRepository()->find($id);
+        return $this->getTaxonRepository()->find($id);
     }
 
     /**
@@ -664,7 +664,7 @@ class UnicatConfigurationManager
             }
         }
 
-        //@todo $structuresColection = $this->em->getRepository($configuration->getCategoryClass())->findIn($structures);
+        //@todo $structuresCollection = $this->em->getRepository($configuration->getTaxonClass())->findIn($structures);
 
         $pd = $request->request->get($form->getName());
 
@@ -696,19 +696,19 @@ class UnicatConfigurationManager
 
         $list_string = substr($list_string, 0, strlen($list_string) - 1);
 
-        //$structuresColection = new ArrayCollection(); // @todo наследуемые категории.
-        $structuresSingleColection = new ArrayCollection();
+        //$structuresCollection = new ArrayCollection(); // @todo наследуемые категории.
+        $structuresSingleCollection = new ArrayCollection();
 
         if (!empty($list_string)) {
-            $structuresSingleColection = $this->em->createQuery("
+            $structuresSingleCollection = $this->em->createQuery("
                 SELECT c
-                FROM {$this->configuration->getCategoryClass()} c
+                FROM {$this->configuration->getTaxonClass()} c
                 WHERE c.id IN({$list_string})
             ")->getResult();
         }
 
-        $item->setCategories($structuresSingleColection)
-            ->setCategoriesSingle($structuresSingleColection);
+        $item->setTaxons($structuresSingleCollection)
+            ->setTaxonsSingle($structuresSingleCollection);
 
         $this->em->persist($item);
         $this->em->flush();
@@ -747,14 +747,14 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function updateCategory(TaxonModel $category)
+    public function updateTaxon(TaxonModel $taxon)
     {
-        $this->em->persist($category);
-        $this->em->flush($category);
+        $this->em->persist($taxon);
+        $this->em->flush($taxon);
 
         return $this;
     }

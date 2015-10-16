@@ -6,14 +6,14 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
-use SmartCore\Module\Unicat\Form\Tree\CategoryTreeType;
+use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Yaml;
 
-class CategoryFormType extends AbstractType
+class TaxonFormType extends AbstractType
 {
     /**
      * @var ManagerRegistry
@@ -37,10 +37,10 @@ class CategoryFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var TaxonModel $category */
-        $category = $options['data'];
+        /** @var TaxonModel $taxon */
+        $taxon = $options['data'];
 
-        $categoryTreeType = (new CategoryTreeType($this->doctrine))->setStructure($category->getStructure());
+        $taxonTreeType = (new TaxonTreeType($this->doctrine))->setStructure($taxon->getStructure());
 
         $builder
             ->add('is_enabled',     null, ['required' => false])
@@ -48,18 +48,18 @@ class CategoryFormType extends AbstractType
             ->add('slug')
             ->add('is_inheritance', null, ['required' => false])
             ->add('position')
-            ->add('parent', $categoryTreeType)
+            ->add('parent', $taxonTreeType)
             ->add('meta', new MetaFormType(), ['label' => 'Meta tags'])
         ;
 
-        if (!$category->getStructure()->isTree()) {
+        if (!$taxon->getStructure()->isTree()) {
             $builder->remove('parent');
         }
 
         $structure = null;
 
-        if (is_object($category) and $category->getStructure() instanceof UnicatStructure) {
-            $structure = $category->getStructure();
+        if (is_object($taxon) and $taxon->getStructure() instanceof UnicatStructure) {
+            $structure = $taxon->getStructure();
         }
 
         if ($structure) {
@@ -68,7 +68,7 @@ class CategoryFormType extends AbstractType
             if (is_array($properties)) {
                 $builder->add($builder->create(
                     'properties',
-                    new CategoryPropertiesFormType($properties),
+                    new TaxonPropertiesFormType($properties),
                     ['required' => false]
                 ));
             }
@@ -78,12 +78,12 @@ class CategoryFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getCategoryClass(),
+            'data_class' => $this->configuration->getTaxonClass(),
         ]);
     }
 
     public function getName()
     {
-        return 'unicat_category_'.$this->configuration->getName();
+        return 'unicat_taxon_'.$this->configuration->getName();
     }
 }

@@ -66,8 +66,8 @@ class UnicatModule extends Bundle
     public function getWidgets()
     {
         return [
-            'category_tree' => [
-                'class' => 'UnicatWidget:categoryTree',
+            'taxon_tree' => [
+                'class' => 'UnicatWidget:taxonTree',
             ],
             'get_items' => [
                 'class' => 'UnicatWidget:getItems',

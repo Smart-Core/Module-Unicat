@@ -218,13 +218,13 @@ class UnicatService
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function createCategory(TaxonModel $category)
+    public function createTaxon(TaxonModel $taxon)
     {
-        $this->persist($category, true);
+        $this->persist($taxon, true);
 
         return $this;
     }
@@ -300,22 +300,22 @@ class UnicatService
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function updateCategory(TaxonModel $category)
+    public function updateTaxon(TaxonModel $taxon)
     {
-        $properties = $category->getProperties();
+        $properties = $taxon->getProperties();
 
         foreach ($properties as $propertyName => $propertyValue) {
             if ($propertyValue instanceof UploadedFile) {
                 $fileId = $this->mc->upload($propertyValue);
-                $category->setProperty($propertyName, $fileId);
+                $taxon->setProperty($propertyName, $fileId);
             }
         }
 
-        $this->persist($category, true);
+        $this->persist($taxon, true);
 
         return $this;
     }
@@ -333,15 +333,15 @@ class UnicatService
     }
 
     /**
-     * @param TaxonModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function deleteCategory(TaxonModel $category)
+    public function deleteTaxon(TaxonModel $taxon)
     {
-        throw new \Exception('@todo решить что сделать с вложенными категориями, а также с сопряженными записями');
+        throw new \Exception('@todo решить что сделать с вложенными Taxons, а также с сопряженными записями');
 
-        $this->remove($category, true);
+        $this->remove($taxon, true);
 
         return $this;
     }

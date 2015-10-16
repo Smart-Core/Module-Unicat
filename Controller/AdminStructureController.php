@@ -10,21 +10,21 @@ class AdminStructureController extends Controller
 {
     /**
      * @param Request $request
-     * @param int $structure_id
-     * @param int $id
-     * @param string $configuration
+     * @param int     $structure_id
+     * @param int     $id
+     * @param string  $configuration
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function categoryEditAction(Request $request, $structure_id, $id, $configuration)
+    public function taxonEditAction(Request $request, $structure_id, $id, $configuration)
     {
         $unicat = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm    = $unicat->getConfigurationManager($configuration);
 
         $structure = $ucm->getStructure($structure_id);
-        $category  = $ucm->getCategory($id);
+        $taxon     = $ucm->getTaxon($id);
 
-        $form = $ucm->getCategoryEditForm($category);
+        $form = $ucm->getTaxonEditForm($taxon);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -34,23 +34,23 @@ class AdminStructureController extends Controller
             }
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
-                $unicat->updateCategory($form->getData());
+                $unicat->updateTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория обновлена');
 
                 return $this->redirectToStructureAdmin($ucm->getConfiguration(), $structure_id);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
-                $unicat->deleteCategory($form->getData());
+                $unicat->deleteTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория удалена');
 
                 return $this->redirectToStructureAdmin($ucm->getConfiguration(), $structure_id);
             }
         }
 
-        return $this->render('UnicatModule:AdminStructure:category_edit.html.twig', [
+        return $this->render('UnicatModule:AdminStructure:taxon_edit.html.twig', [
             'configuration' => $structure->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
-            'category'      => $category,
+            'taxon'         => $taxon,
             'form'          => $form->createView(),
             'structure'     => $structure,
         ]);
@@ -88,14 +88,14 @@ class AdminStructureController extends Controller
         $ucm        = $unicat->getConfigurationManager($configuration);
         $structure  = $unicat->getStructure($id);
 
-        $parent_category = $parent_id ? $ucm->getCategoryRepository()->find($parent_id) : null;
+        $parentTaxon = $parent_id ? $ucm->getTaxonRepository()->find($parent_id) : null;
 
-        $form = $ucm->getCategoryCreateForm($structure, [], $parent_category);
+        $form = $ucm->getTaxonCreateForm($structure, [], $parentTaxon);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                $unicat->createCategory($form->getData());
+                $unicat->createTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория создана');
 
                 return $this->redirectToStructureAdmin($ucm->getConfiguration(), $id);

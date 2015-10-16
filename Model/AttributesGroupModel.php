@@ -53,7 +53,7 @@ class AttributesGroupModel
      *
      * @return $this
      */
-    public function setCategory(TaxonModel $taxon = null)
+    public function setTaxon(TaxonModel $taxon = null)
     {
         $this->taxon = $taxon;
 
@@ -63,7 +63,7 @@ class AttributesGroupModel
     /**
      * @return TaxonModel
      */
-    public function getCategory()
+    public function getTaxon()
     {
         return $this->taxon;
     }

@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use Symfony\Bridge\Doctrine\Form\ChoiceList\EntityLoaderInterface;
 
-class CategoryLoader implements EntityLoaderInterface
+class TaxonLoader implements EntityLoaderInterface
 {
     /**
      * @var EntityRepository

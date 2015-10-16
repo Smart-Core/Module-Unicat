@@ -23,7 +23,7 @@ class DoctrineEntityGenerator extends Generator
         $entities = [
             'Attribute',
             'AttributesGroup',
-            'Category',
+            'Taxon',
             'Item',
         ];
 

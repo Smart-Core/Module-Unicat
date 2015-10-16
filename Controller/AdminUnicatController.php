@@ -155,19 +155,19 @@ class AdminUnicatController extends Controller
     /**
      * @param Request $request
      * @param string  $configuration
-     * @param int     $default_category_id
+     * @param int     $default_taxon_id
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function itemCreateAction(Request $request, $configuration, $default_category_id = null)
+    public function itemCreateAction(Request $request, $configuration, $default_taxon_id = null)
     {
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
         $newItem = $ucm->createItemEntity();
         $newItem->setUser($this->getUser());
 
-        if ($default_category_id) {
-            $newItem->setCategories(new ArrayCollection([$ucm->getCategoryRepository()->find($default_category_id)]));
+        if ($default_taxon_id) {
+            $newItem->setTaxons(new ArrayCollection([$ucm->getTaxonRepository()->find($default_taxon_id)]));
         }
 
         $form = $ucm->getItemCreateForm($newItem);

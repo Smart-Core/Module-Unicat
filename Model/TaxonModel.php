@@ -21,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *
  * @UniqueEntity(fields={"slug", "parent", "structure"}, message="В каждой подкатегории должен быть уникальный сегмент URI")
  */
-abstract class CategoryModel
+abstract class TaxonModel
 {
     use ColumnTrait\Id;
     use ColumnTrait\IsEnabled;
@@ -53,15 +53,15 @@ abstract class CategoryModel
     protected $properties;
 
     /**
-     * @ORM\OneToMany(targetEntity="Category", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="Taxon", mappedBy="parent")
      * @ORM\OrderBy({"position" = "ASC"})
      */
     protected $children;
 
     /**
-     * @var CategoryModel
+     * @var TaxonModel
      *
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="children", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Taxon", inversedBy="children", cascade={"persist"})
      **/
     protected $parent;
 
@@ -129,11 +129,11 @@ abstract class CategoryModel
     }
 
     /**
-     * @param CategoryModel|null  $parent
+     * @param TaxonModel|null  $parent
      *
      * @return $this
      */
-    public function setParent(CategoryModel $parent = null)
+    public function setParent(TaxonModel $parent = null)
     {
         $this->parent = $parent;
 
@@ -141,7 +141,7 @@ abstract class CategoryModel
     }
 
     /**
-     * @return CategoryModel
+     * @return TaxonModel
      */
     public function getParent()
     {

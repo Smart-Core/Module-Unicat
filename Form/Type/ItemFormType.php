@@ -7,8 +7,8 @@ use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\CategoryTreeType;
-use SmartCore\Module\Unicat\Model\CategoryModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -65,7 +65,7 @@ class ItemFormType extends AbstractType
             ];
 
             if ('single' === $structure->getEntries() and isset($options['data'])) {
-                /** @var CategoryModel $category */
+                /** @var TaxonModel $category */
                 foreach ($options['data']->getCategories() as $category) {
                     if ($category->getStructure()->getName() === $structure->getName()) {
                         $optionsCat['data'] = $category;

@@ -16,9 +16,9 @@ use SmartCore\Module\Unicat\Form\Type\StructureFormType;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\AttributesGroupModel;
-use SmartCore\Module\Unicat\Model\CategoryModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\ItemRepository;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -144,18 +144,18 @@ class UnicatConfigurationManager
         return $qb->getQuery();
     }
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      * @param array $order
      *
      * @return ItemModel[]|null
      */
-    public function findItemsInCategory(CategoryModel $category, array $order = ['position' => 'ASC'])
+    public function findItemsInCategory(TaxonModel $category, array $order = ['position' => 'ASC'])
     {
         return $this->getFindItemsInCategoryQuery($category, $order)->getResult();
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      * @param array $order
      *
      * @return \Doctrine\ORM\Query
@@ -163,7 +163,7 @@ class UnicatConfigurationManager
      * @todo сделать настройку сортировки
      * @todo вынести в Repository
      */
-    public function getFindItemsInCategoryQuery(CategoryModel $category, array $order = ['position' => 'ASC'])
+    public function getFindItemsInCategoryQuery(TaxonModel $category, array $order = ['position' => 'ASC'])
     {
         $itemEntity = $this->configuration->getItemClass();
 
@@ -198,7 +198,7 @@ class UnicatConfigurationManager
      * @param string $slug
      * @param UnicatStructure $structure
      *
-     * @return CategoryModel[]
+     * @return TaxonModel[]
      *
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
@@ -211,7 +211,7 @@ class UnicatConfigurationManager
                 break;
             }
 
-            /* @var CategoryModel $category */
+            /* @var TaxonModel $category */
             if ($structure) {
                 $category = $this->getCategoryRepository()->findOneBy([
                     'is_enabled' => true,
@@ -353,12 +353,12 @@ class UnicatConfigurationManager
 
     /**
      * @param UnicatStructure $structure
-     * @param array $options
-     * @param CategoryModel|null $parent_category
+     * @param array           $options
+     * @param TaxonModel|null $parent_category
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getCategoryCreateForm(UnicatStructure $structure, array $options = [], CategoryModel $parent_category = null)
+    public function getCategoryCreateForm(UnicatStructure $structure, array $options = [], TaxonModel $parent_category = null)
     {
         $category = $this->configuration->createCategory();
         $category
@@ -376,12 +376,12 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param CategoryModel $category
-     * @param array $options
+     * @param TaxonModel $category
+     * @param array      $options
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getCategoryEditForm(CategoryModel $category, array $options = [])
+    public function getCategoryEditForm(TaxonModel $category, array $options = [])
     {
         return $this->getCategoryForm($category, $options)
             ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
@@ -391,7 +391,7 @@ class UnicatConfigurationManager
     /**
      * @param int $id
      *
-     * @return CategoryModel|null
+     * @return TaxonModel|null
      */
     public function getCategory($id)
     {
@@ -747,11 +747,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      *
      * @return $this
      */
-    public function updateCategory(CategoryModel $category)
+    public function updateCategory(TaxonModel $category)
     {
         $this->em->persist($category);
         $this->em->flush($category);

@@ -3,11 +3,11 @@
 namespace {{ namespace }};
 
 use Doctrine\ORM\Mapping as ORM;
-use SmartCore\Module\Unicat\Model\CategoryModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="{{ table_prefix ~ configuration_name }}_categories",
+ * @ORM\Table(name="{{ table_prefix ~ configuration_name }}_taxons",
  *      indexes={
  *          @ORM\Index(columns={"is_enabled"}),
  *          @ORM\Index(columns={"position"})
@@ -17,6 +17,6 @@ use SmartCore\Module\Unicat\Model\CategoryModel;
  *      }
  * )
  */
-class Category extends CategoryModel
+class Category extends TaxonModel
 {
 }

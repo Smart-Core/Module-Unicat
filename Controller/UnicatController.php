@@ -7,7 +7,7 @@ use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
-use SmartCore\Module\Unicat\Model\CategoryModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use SmartCore\Module\Unicat\Service\UnicatConfigurationManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,7 +51,7 @@ class UnicatController extends Controller
 
         $lastCategory = end($requestedCategories);
 
-        if ($lastCategory instanceof CategoryModel) {
+        if ($lastCategory instanceof TaxonModel) {
             $this->get('html')->setMetas($lastCategory->getMeta());
             $childenCategories = $ucm->getCategoryRepository()->findBy([
                 'is_enabled' => true,
@@ -101,7 +101,7 @@ class UnicatController extends Controller
 
     /**
      * @param UnicatConfigurationManager $ucm
-     * @param CategoryModel|false $lastCategory
+     * @param TaxonModel|false $lastCategory
      *
      * @throws \Exception
      */
@@ -158,7 +158,7 @@ class UnicatController extends Controller
 
         $lastCategory = end($requestedCategories);
 
-        if ($lastCategory instanceof CategoryModel) {
+        if ($lastCategory instanceof TaxonModel) {
             $childenCategories = $ucm->getCategoryRepository()->findBy([
                 'is_enabled' => true,
                 'parent'     => $lastCategory,

@@ -7,7 +7,7 @@ use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use SmartCore\Module\Unicat\Form\Tree\CategoryTreeType;
-use SmartCore\Module\Unicat\Model\CategoryModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,7 +37,7 @@ class CategoryFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /** @var CategoryModel $category */
+        /** @var TaxonModel $category */
         $category = $options['data'];
 
         $categoryTreeType = (new CategoryTreeType($this->doctrine))->setStructure($category->getStructure());

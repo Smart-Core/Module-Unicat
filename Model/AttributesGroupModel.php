@@ -26,11 +26,11 @@ class AttributesGroupModel
     protected $attributes;
 
     /**
-     * @var CategoryModel
+     * @var TaxonModel
      *
-     * @ORM\ManyToOne(targetEntity="Category")
+     * @ORM\ManyToOne(targetEntity="Taxon")
      **/
-    protected $category;
+    protected $taxon;
 
     /**
      * @var UnicatConfiguration
@@ -49,23 +49,23 @@ class AttributesGroupModel
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function setCategory(CategoryModel $category = null)
+    public function setCategory(TaxonModel $taxon = null)
     {
-        $this->category = $category;
+        $this->taxon = $taxon;
 
         return $this;
     }
 
     /**
-     * @return CategoryModel
+     * @return TaxonModel
      */
     public function getCategory()
     {
-        return $this->category;
+        return $this->taxon;
     }
 
     /**

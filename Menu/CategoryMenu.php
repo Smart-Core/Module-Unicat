@@ -4,7 +4,7 @@ namespace SmartCore\Module\Unicat\Menu;
 
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
-use SmartCore\Module\Unicat\Model\CategoryModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
 class CategoryMenu extends ContainerAware
@@ -55,10 +55,10 @@ class CategoryMenu extends ContainerAware
      * Рекурсивное построение дерева.
      *
      * @param ItemInterface $menu
-     * @param CategoryModel|null $parent
+     * @param TaxonModel|null $parent
      * @param array $options
      */
-    protected function addChild(ItemInterface $menu, CategoryModel $parent = null, array $options)
+    protected function addChild(ItemInterface $menu, TaxonModel $parent = null, array $options)
     {
         $categories = $this->container->get('doctrine.orm.entity_manager')->getRepository($options['categoryClass'])->findBy([
                 'parent'     => $parent,
@@ -66,7 +66,7 @@ class CategoryMenu extends ContainerAware
                 'structure'  => $options['structure'],
             ], ['position' => 'ASC']);
 
-        /** @var CategoryModel $category */
+        /** @var TaxonModel $category */
         foreach ($categories as $category) {
             $uri = $this->container->get('router')->generate($options['routeName'], ['slug' => $category->getSlugFull()]).'/';
             $menu->addChild($category->getTitle(), ['uri' => $uri]);
@@ -100,17 +100,17 @@ class CategoryMenu extends ContainerAware
      * Рекурсивное построение дерева для админки.
      *
      * @param ItemInterface $menu
-     * @param CategoryModel|null $parent
+     * @param TaxonModel|null $parent
      * @param array $options
      */
-    protected function addChildToAdminTree(ItemInterface $menu, CategoryModel $parent = null, $options)
+    protected function addChildToAdminTree(ItemInterface $menu, TaxonModel $parent = null, $options)
     {
         $categories = $this->container->get('doctrine')->getManager()->getRepository($options['categoryClass'])->findBy([
                 'parent'    => $parent,
                 'structure' => $options['structure'],
             ], ['position' => 'ASC']);
 
-        /** @var CategoryModel $category */
+        /** @var TaxonModel $category */
         foreach ($categories as $category) {
             $uri = $this->container->get('router')->generate('unicat_admin.category', [
                 'id'            => $category->getId(),

@@ -26,20 +26,20 @@ class ItemModel
     use ColumnTrait\FosUser;
 
     /**
-     * @var CategoryModel[]
+     * @var TaxonModel[]
      *
-     * ORM\ManyToMany(targetEntity="Category", inversedBy="items", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * ORM\ManyToMany(targetEntity="Taxon", inversedBy="items", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      * ORM\JoinTable(name="unicat_items_categories_relations")
      */
-    protected $categories;
+    protected $taxons;
 
     /**
-     * @var CategoryModel[]
+     * @var TaxonModel[]
      *
-     * ORM\ManyToMany(targetEntity="Category", inversedBy="itemsSingle", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * ORM\ManyToMany(targetEntity="Taxon", inversedBy="itemsSingle", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      * ORM\JoinTable(name="unicat_items_categories_relations_single")
      */
-    protected $categoriesSingle;
+    protected $taxonsSingle;
 
     /**
      * @var string
@@ -81,11 +81,11 @@ class ItemModel
      */
     public function __construct()
     {
-        $this->categories       = new ArrayCollection();
-        $this->categoriesSingle = new ArrayCollection();
-        $this->created_at       = new \DateTime();
-        $this->is_enabled       = true;
-        $this->position         = 0;
+        $this->taxons       = new ArrayCollection();
+        $this->taxonsSingle = new ArrayCollection();
+        $this->created_at   = new \DateTime();
+        $this->is_enabled   = true;
+        $this->position     = 0;
     }
 
     /**
@@ -98,12 +98,12 @@ class ItemModel
         if (false !== strpos($name, 'structure:')) {
             $structureName = str_replace('structure:', '', $name);
 
-            if ($this->categories->count() > 0) {
+            if ($this->taxons->count() > 0) {
                 $structureCollection = new ArrayCollection();
 
-                foreach ($this->categories as $category) {
-                    if ($category->getStructure()->getName() == $structureName) {
-                        $structureCollection->add($category);
+                foreach ($this->taxons as $taxon) {
+                    if ($taxon->getStructure()->getName() == $structureName) {
+                        $structureCollection->add($taxon);
                     }
                 }
 
@@ -154,65 +154,65 @@ class ItemModel
      */
     public function setCategories($categories)
     {
-        $this->categories = $categories;
+        $this->taxons = $categories;
 
         return $this;
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      *
      * @return $this
      */
-    public function addCategory(CategoryModel $category)
+    public function addCategory(TaxonModel $taxon)
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
+        if (!$this->taxons->contains($taxon)) {
+            $this->taxons->add($taxon);
         }
 
         return $this;
     }
 
     /**
-     * @return CategoryModel[]
+     * @return TaxonModel[]
      */
     public function getCategories()
     {
-        return $this->categories;
+        return $this->taxons;
     }
 
     /**
-     * @param CategoryModel[] $categoriesSingle
+     * @param TaxonModel[] $taxonsSingle
      *
      * @return $this
      */
-    public function setCategoriesSingle($categoriesSingle)
+    public function setCategoriesSingle($taxonsSingle)
     {
-        $this->categoriesSingle = $categoriesSingle;
+        $this->taxonsSingle = $taxonsSingle;
 
         return $this;
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $taxon
      *
      * @return $this
      */
-    public function addCategorySingle(CategoryModel $category)
+    public function addCategorySingle(TaxonModel $taxon)
     {
-        if (!$this->categoriesSingle->contains($category)) {
-            $this->categoriesSingle->add($category);
+        if (!$this->taxonsSingle->contains($taxon)) {
+            $this->taxonsSingle->add($taxon);
         }
 
         return $this;
     }
 
     /**
-     * @return CategoryModel[]
+     * @return TaxonModel[]
      */
     public function getCategoriesSingle()
     {
-        return $this->categoriesSingle;
+        return $this->taxonsSingle;
     }
 
     /**

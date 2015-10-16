@@ -6,9 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
 use SmartCore\Bundle\MediaBundle\Entity\Collection;
-use SmartCore\Module\Unicat\Model\CategoryModel;
-use SmartCore\Module\Unicat\Model\AttributesGroupModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
+use SmartCore\Module\Unicat\Model\AttributesGroupModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -102,7 +102,7 @@ class UnicatConfiguration
      */
     public function getCategoryClass()
     {
-        return $this->entities_namespace.'Category';
+        return $this->entities_namespace.'Taxon';
     }
 
     /**
@@ -134,7 +134,7 @@ class UnicatConfiguration
     }
 
     /**
-     * @return CategoryModel
+     * @return TaxonModel
      *
      * @deprecated
      */

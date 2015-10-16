@@ -10,8 +10,8 @@ use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use SmartCore\Module\Unicat\Generator\DoctrineValueEntityGenerator;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
-use SmartCore\Module\Unicat\Model\CategoryModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -218,11 +218,11 @@ class UnicatService
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      *
      * @return $this
      */
-    public function createCategory(CategoryModel $category)
+    public function createCategory(TaxonModel $category)
     {
         $this->persist($category, true);
 
@@ -300,11 +300,11 @@ class UnicatService
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      *
      * @return $this
      */
-    public function updateCategory(CategoryModel $category)
+    public function updateCategory(TaxonModel $category)
     {
         $properties = $category->getProperties();
 
@@ -333,11 +333,11 @@ class UnicatService
     }
 
     /**
-     * @param CategoryModel $category
+     * @param TaxonModel $category
      *
      * @return $this
      */
-    public function deleteCategory(CategoryModel $category)
+    public function deleteCategory(TaxonModel $category)
     {
         throw new \Exception('@todo решить что сделать с вложенными категориями, а также с сопряженными записями');
 

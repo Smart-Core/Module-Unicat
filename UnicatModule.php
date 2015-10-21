@@ -119,5 +119,4 @@ class UnicatModule extends Bundle
 
         return $menu;
     }
-
 }

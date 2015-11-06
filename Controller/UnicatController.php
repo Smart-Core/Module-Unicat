@@ -87,7 +87,7 @@ class UnicatController extends Controller
             }
         }
 
-        return $this->render('UnicatModule::items.html.twig', [
+        return $this->get('twig')->render('UnicatModule::items.html.twig', [
             'mode'          => 'list',
             'attributes'    => $ucm->getAttributes(),
             'configuration' => $ucm->getConfiguration(),
@@ -188,7 +188,7 @@ class UnicatController extends Controller
             ->setTitle('Редактировать')
             ->setUri($this->generateUrl('unicat_admin.item_edit', ['configuration' => $ucm->getConfiguration()->getName(), 'id' => $item->getId()]));
 
-        return $this->render('UnicatModule::item.html.twig', [
+        return $this->get('twig')->render('UnicatModule::item.html.twig', [
             'mode'          => 'view',
             'attributes'    => $ucm->getAttributes(),
             'item'          => $item,

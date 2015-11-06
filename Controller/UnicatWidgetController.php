@@ -8,6 +8,7 @@ use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Bundle\CMSBundle\Module\CacheTrait;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UnicatWidgetController extends Controller
@@ -21,15 +22,17 @@ class UnicatWidgetController extends Controller
     protected $configuration_id;
 
     /**
-     * @param int    $depth
-     * @param string $css_class
-     * @param string $template
-     * @param bool   $selected_inheritance
-     * @param int    $structure
+     * @param Request $request
+     * @param int     $depth
+     * @param string  $css_class
+     * @param string  $template
+     * @param bool    $selected_inheritance
+     * @param int     $structure
      *
      * @return Response
      */
     public function taxonTreeAction(
+        Request $request,
         $css_class = null,
         $depth = null,
         $template = 'knp_menu.html.twig',
@@ -39,10 +42,10 @@ class UnicatWidgetController extends Controller
         $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
 
         // Хак для Menu\RequestVoter
-        $this->get('request')->attributes->set('__selected_inheritance', $selected_inheritance);
+        $request->attributes->set('__selected_inheritance', $selected_inheritance);
 
         // @todo cache
-        $taxonTree = $this->renderView('UnicatModule::taxon_tree.html.twig', [
+        $taxonTree = $this->get('twig')->render('UnicatModule::taxon_tree.html.twig', [
             'taxonClass'    => $ucm->getTaxonClass(),
             'css_class'     => $css_class,
             'depth'         => $depth,
@@ -51,7 +54,7 @@ class UnicatWidgetController extends Controller
             'template'      => $template,
         ]);
 
-        $this->get('request')->attributes->remove('__selected_inheritance');
+        $request->attributes->remove('__selected_inheritance');
 
         return new Response($taxonTree);
     }
@@ -77,7 +80,7 @@ class UnicatWidgetController extends Controller
             return $this->createNotFoundException('Такой страницы не найдено');
         }
 
-        return $this->render('UnicatModule::items.html.twig', [
+        return $this->get('twig')->render('UnicatModule::items.html.twig', [
             'mode'          => 'list',
             'attributes'    => $ucm->getAttributes(),
             'configuration' => $ucm->getConfiguration(),

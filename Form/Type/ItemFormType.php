@@ -66,7 +66,7 @@ class ItemFormType extends AbstractType
             ];
 
             /** @var TaxonModel $taxon */
-            foreach ($options['data']->getTaxons() as $taxon) {
+            foreach ($options['data']->getTaxonsSingle() as $taxon) {
                 if ($taxon->getStructure()->getName() === $structure->getName()) {
                     if ($structure->isMultipleEntries()) {
                         $optionsCat['data'][] = $taxon;

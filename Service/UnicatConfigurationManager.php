@@ -321,7 +321,7 @@ class UnicatConfigurationManager
                     'class' => 'btn-danger',
                     'formnovalidate' => 'formnovalidate',
                     'onclick' => "return confirm('Вы уверены, что хотите удалить атрибут?')",
-                ]
+                ],
             ]);
         }
 
@@ -648,7 +648,8 @@ class UnicatConfigurationManager
         $this->em->persist($item);
         $this->em->flush();
 
-        // @todo если item уже существует, то сделать сохранение в один проход.
+        // @todo если item уже существует, то сделать сохранение в один проход, но придумать как сделать обновление таксономии.
+
         // Вторым проходом обрабатываются атрибуты с внешних таблиц т.к. при создании новой записи нужно сгенерировать ID
         foreach ($this->getAttributes() as $attribute) {
             if ($attribute->getIsDedicatedTable()) {
@@ -671,16 +672,11 @@ class UnicatConfigurationManager
             }
         }
 
-        //$taxonsCollection = new ArrayCollection(); // @todo наследуемые категории.
-
         $pd = $request->request->get($form->getName());
 
         $taxons = [];
         foreach ($pd as $key => $val) {
             if (false !== strpos($key, 'structure:')) {
-                //$name = str_replace('structure:', '', $key);
-                //$taxons[$name] = $val;
-
                 if (is_array($val)) {
                     foreach ($val as $val2) {
                         $taxons[] = $val2;
@@ -692,33 +688,47 @@ class UnicatConfigurationManager
         }
 
         //$request->request->set($form->getName(), $pd);
-
         //$taxonsCollection = $this->em->getRepository($this->getTaxonClass())->findIn($taxons);
-
-        // @todo убрать выборку структур в StructureRepository (Entity)
 
         $taxons_ids = implode(',', $taxons);
 
         if (!empty($taxons_ids)) {
+            // @todo убрать в Repository
             $taxonsSingle = $this->em->createQuery("
                 SELECT c
                 FROM {$this->getTaxonClass()} c
                 WHERE c.id IN({$taxons_ids})
             ")->getResult();
 
-            $item
-                ->setTaxons($taxonsSingle)
-                ->setTaxonsSingle($taxonsSingle)
-            ;
+            $item->setTaxonsSingle($taxonsSingle);
+
+            $taxonsInherited = [];
+            foreach ($taxonsSingle as $taxon) {
+                $this->getTaxonsInherited($taxonsInherited, $taxon);
+            }
+
+            $item->setTaxons($taxonsInherited);
         }
-//        ld($taxonsSingle);
-//        ld($item);
-//        ldd($taxons_ids);
 
         $this->em->persist($item);
         $this->em->flush();
 
         return $this;
+    }
+
+    /**
+     * Рекурсивный обход всех сложенных таксонов.
+     *
+     * @param array      $taxonsInherited
+     * @param TaxonModel $taxon
+     */
+    protected function getTaxonsInherited(&$taxonsInherited, TaxonModel $taxon)
+    {
+        if ($taxon->getParent()) {
+            $this->getTaxonsInherited($taxonsInherited, $taxon->getParent());
+        }
+
+        $taxonsInherited[$taxon->getId()] = $taxon;
     }
 
     /**

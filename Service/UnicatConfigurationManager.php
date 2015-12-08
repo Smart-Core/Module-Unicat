@@ -639,9 +639,16 @@ class UnicatConfigurationManager
             }
         }
 
-        $this->em->persist($item);
-        $this->em->flush($item);
+        // Удаление всех связей, чтобы потом просто назначить новые.
+        $item
+            ->clearTaxon()
+            ->clearTaxonSingle()
+        ;
 
+        $this->em->persist($item);
+        $this->em->flush();
+
+        // @todo если item уже существует, то сделать сохранение в один проход.
         // Вторым проходом обрабатываются атрибуты с внешних таблиц т.к. при создании новой записи нужно сгенерировать ID
         foreach ($this->getAttributes() as $attribute) {
             if ($attribute->getIsDedicatedTable()) {
@@ -664,7 +671,7 @@ class UnicatConfigurationManager
             }
         }
 
-        //@todo $taxonsCollection = $this->em->getRepository($configuration->getTaxonClass())->findIn($taxons);
+        //$taxonsCollection = new ArrayCollection(); // @todo наследуемые категории.
 
         $pd = $request->request->get($form->getName());
 
@@ -684,38 +691,29 @@ class UnicatConfigurationManager
             }
         }
 
-        $request->request->set($form->getName(), $pd);
+        //$request->request->set($form->getName(), $pd);
+
+        //$taxonsCollection = $this->em->getRepository($this->getTaxonClass())->findIn($taxons);
 
         // @todo убрать выборку структур в StructureRepository (Entity)
-        $list_string = '';
-        foreach ($taxons as $node_id) {
-            if (!empty($node_id)) {
-                $list_string .= $node_id.',';
-            }
-        }
 
-        $list_string = substr($list_string, 0, strlen($list_string) - 1);
+        $taxons_ids = implode(',', $taxons);
 
-        $taxonsCollection = new ArrayCollection(); // @todo наследуемые категории.
-        $taxonsSingleCollection = new ArrayCollection();
-
-        if (!empty($list_string)) {
-            $taxonsSingleCollection = $this->em->createQuery("
+        if (!empty($taxons_ids)) {
+            $taxonsSingle = $this->em->createQuery("
                 SELECT c
-                FROM {$this->configuration->getTaxonClass()} c
-                WHERE c.id IN({$list_string})
+                FROM {$this->getTaxonClass()} c
+                WHERE c.id IN({$taxons_ids})
             ")->getResult();
+
+            $item
+                ->setTaxons($taxonsSingle)
+                ->setTaxonsSingle($taxonsSingle)
+            ;
         }
-
-        ld($taxonsCollection);
-        ld($taxonsSingleCollection);
-
-        $item
-            ->setTaxons($taxonsSingleCollection)
-            ->setTaxonsSingle($taxonsSingleCollection)
-        ;
-
-        ldd($item);
+//        ld($taxonsSingle);
+//        ld($item);
+//        ldd($taxons_ids);
 
         $this->em->persist($item);
         $this->em->flush();

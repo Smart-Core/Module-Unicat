@@ -163,6 +163,30 @@ class ItemModel
     }
 
     /**
+     * @param TaxonModel $taxon
+     *
+     * @return $this
+     */
+    public function removeTaxon(TaxonModel $taxon)
+    {
+        if (!$this->taxons->contains($taxon)) {
+            $this->taxons->removeElement($taxon);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function clearTaxon()
+    {
+        $this->taxons->clear();
+
+        return $this;
+    }
+
+    /**
      * @return TaxonModel[]
      */
     public function getTaxons()
@@ -204,6 +228,30 @@ class ItemModel
         if (!$this->taxonsSingle->contains($taxon)) {
             $this->taxonsSingle->add($taxon);
         }
+
+        return $this;
+    }
+
+    /**
+     * @param TaxonModel $taxon
+     *
+     * @return $this
+     */
+    public function removeTaxonSingle(TaxonModel $taxon)
+    {
+        if (!$this->taxonsSingle->contains($taxon)) {
+            $this->taxonsSingle->removeElement($taxon);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function clearTaxonSingle()
+    {
+        $this->taxonsSingle->clear();
 
         return $this;
     }

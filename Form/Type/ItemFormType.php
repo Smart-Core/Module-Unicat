@@ -63,14 +63,17 @@ class ItemFormType extends AbstractType
                 'expanded'  => $structure->isMultipleEntries(),
                 'multiple'  => $structure->isMultipleEntries(),
                 'class'     => $this->configuration->getTaxonClass(),
-                'data'      => new ArrayCollection(),
             ];
 
-            if ($structure->isMultipleEntries() and isset($options['data'])) {
-                /** @var TaxonModel $taxon */
-                foreach ($options['data']->getTaxons() as $taxon) {
-                    if ($taxon->getStructure()->getName() === $structure->getName()) {
-                        $optionsCat['data']->add($taxon);
+            /** @var TaxonModel $taxon */
+            foreach ($options['data']->getTaxons() as $taxon) {
+                if ($taxon->getStructure()->getName() === $structure->getName()) {
+                    if ($structure->isMultipleEntries()) {
+                        $optionsCat['data'][] = $taxon;
+                    } else {
+                        $optionsCat['data'] = $taxon;
+
+                        break;
                     }
                 }
             }

@@ -16,6 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * )
  *
  * @UniqueEntity(fields={"slug"}, message="Запись с таким сегментом URI уже существует.")
+ * @UniqueEntity(fields={"uuid"}, message="Запись с таким UUID уже существует.")
  */
 class ItemModel
 {

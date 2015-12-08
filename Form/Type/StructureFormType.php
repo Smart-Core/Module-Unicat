@@ -15,9 +15,7 @@ class StructureFormType extends AbstractType
             ->add('title',      null, ['attr'  => ['autofocus' => 'autofocus']])
             ->add('title_form', null, ['label' => 'Title in forms'])
             ->add('name')
-            ->add('entries', 'choice', [
-                'choices' => UnicatStructure::getEntriesChoices(),
-            ])
+            ->add('is_multiple_entries')
             ->add('is_required')
             ->add('is_default_inheritance', null, ['required' => false])
             ->add('is_tree',    null, ['required' => false])

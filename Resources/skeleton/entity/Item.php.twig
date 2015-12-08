@@ -27,7 +27,7 @@ class Item extends ItemModel
      * @var Taxon[]
      *
      * @ORM\ManyToMany(targetEntity="Taxon", inversedBy="itemsSingle", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="{{ table_prefix ~ configuration_name }}_items_taxon_relations_single")
+     * @ORM\JoinTable(name="{{ table_prefix ~ configuration_name }}_items_taxons_single_relations")
      */
     protected $taxonsSingle;
 }

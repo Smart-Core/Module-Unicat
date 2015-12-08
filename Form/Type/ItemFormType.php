@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
@@ -59,16 +60,17 @@ class ItemFormType extends AbstractType
             $optionsCat = [
                 'label'     => $structure->getTitleForm(),
                 'required'  => $structure->getIsRequired(),
-                'expanded'  => $structure->isMultipleEntries() ? true : false,
-                'multiple'  => $structure->isMultipleEntries() ? true : false,
+                'expanded'  => $structure->isMultipleEntries(),
+                'multiple'  => $structure->isMultipleEntries(),
                 'class'     => $this->configuration->getTaxonClass(),
+                'data'      => new ArrayCollection(),
             ];
 
-            if ('single' === $structure->getEntries() and isset($options['data'])) {
+            if ($structure->isMultipleEntries() and isset($options['data'])) {
                 /** @var TaxonModel $taxon */
                 foreach ($options['data']->getTaxons() as $taxon) {
                     if ($taxon->getStructure()->getName() === $structure->getName()) {
-                        $optionsCat['data'] = $taxon;
+                        $optionsCat['data']->add($taxon);
                     }
                 }
             }

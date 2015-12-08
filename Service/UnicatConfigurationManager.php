@@ -664,22 +664,22 @@ class UnicatConfigurationManager
             }
         }
 
-        //@todo $structuresCollection = $this->em->getRepository($configuration->getTaxonClass())->findIn($structures);
+        //@todo $taxonsCollection = $this->em->getRepository($configuration->getTaxonClass())->findIn($taxons);
 
         $pd = $request->request->get($form->getName());
 
-        $structures = [];
+        $taxons = [];
         foreach ($pd as $key => $val) {
             if (false !== strpos($key, 'structure:')) {
                 //$name = str_replace('structure:', '', $key);
-                //$structures[$name] = $val;
+                //$taxons[$name] = $val;
 
                 if (is_array($val)) {
                     foreach ($val as $val2) {
-                        $structures[] = $val2;
+                        $taxons[] = $val2;
                     }
                 } else {
-                    $structures[] = $val;
+                    $taxons[] = $val;
                 }
             }
         }
@@ -688,7 +688,7 @@ class UnicatConfigurationManager
 
         // @todo убрать выборку структур в StructureRepository (Entity)
         $list_string = '';
-        foreach ($structures as $node_id) {
+        foreach ($taxons as $node_id) {
             if (!empty($node_id)) {
                 $list_string .= $node_id.',';
             }
@@ -696,19 +696,26 @@ class UnicatConfigurationManager
 
         $list_string = substr($list_string, 0, strlen($list_string) - 1);
 
-        //$structuresCollection = new ArrayCollection(); // @todo наследуемые категории.
-        $structuresSingleCollection = new ArrayCollection();
+        $taxonsCollection = new ArrayCollection(); // @todo наследуемые категории.
+        $taxonsSingleCollection = new ArrayCollection();
 
         if (!empty($list_string)) {
-            $structuresSingleCollection = $this->em->createQuery("
+            $taxonsSingleCollection = $this->em->createQuery("
                 SELECT c
                 FROM {$this->configuration->getTaxonClass()} c
                 WHERE c.id IN({$list_string})
             ")->getResult();
         }
 
-        $item->setTaxons($structuresSingleCollection)
-            ->setTaxonsSingle($structuresSingleCollection);
+        ld($taxonsCollection);
+        ld($taxonsSingleCollection);
+
+        $item
+            ->setTaxons($taxonsSingleCollection)
+            ->setTaxonsSingle($taxonsSingleCollection)
+        ;
+
+        ldd($item);
 
         $this->em->persist($item);
         $this->em->flush();

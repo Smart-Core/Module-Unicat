@@ -26,15 +26,13 @@ class UnicatStructure
     protected $title_form;
 
     /**
-     * Вхождение записей в структуру: single или multi.
+     * Множественное вхождение записей в структуру.
      *
-     * @todo можно переделать на флажок (is_multiple_entries), если больше не предвидется вариантов.
+     * @var bool
      *
-     * @var string
-     *
-     * @ORM\Column(type="string", length=16)
+     * @ORM\Column(type="boolean")
      */
-    protected $entries;
+    protected $is_multiple_entries;
 
     /**
      * @var bool
@@ -80,26 +78,35 @@ class UnicatStructure
         $this->position   = 0;
         $this->properties = null;
         $this->is_default_inheritance = false;
+        $this->is_multiple_entries    = false;
         $this->is_required = true;
         $this->is_tree     = true;
     }
 
     /**
-     * @return string
+     * @return boolean
      */
-    public function getEntries()
+    public function getIsMultipleEntries()
     {
-        return $this->entries;
+        return $this->is_multiple_entries;
     }
 
     /**
-     * @param string $entries
+     * @return bool
+     */
+    public function isMultipleEntries()
+    {
+        return $this->is_multiple_entries;
+    }
+
+    /**
+     * @param boolean $is_multiple_entries
      *
      * @return $this
      */
-    public function setEntries($entries)
+    public function setIsMultipleEntries($is_multiple_entries)
     {
-        $this->entries = $entries;
+        $this->is_multiple_entries = $is_multiple_entries;
 
         return $this;
     }
@@ -250,24 +257,5 @@ class UnicatStructure
     public function getTitleForm()
     {
         return $this->title_form;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMultipleEntries()
-    {
-        return $this->entries === 'multi' ? true : false;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getEntriesChoices()
-    {
-        return [
-            'single' => 'single',
-            'multi'  => 'multi',
-        ];
     }
 }

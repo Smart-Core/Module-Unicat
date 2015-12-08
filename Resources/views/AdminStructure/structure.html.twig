@@ -19,7 +19,7 @@
 
         <div class="span8 col-md-8">
             {% set menuItem = knp_menu_get('UnicatModule:TaxonMenu:adminTree', [], {
-                'TtxonClass': structure.configuration.taxonClass,
+                'taxonClass': structure.configuration.taxonClass,
                 'structure': structure
             }) %}
             {{ knp_menu_render(menuItem, {

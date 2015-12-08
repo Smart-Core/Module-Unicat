@@ -21,7 +21,7 @@ class AttributeModel
     use ColumnTrait\CreatedAt;
     use ColumnTrait\Position;
     use ColumnTrait\TitleNotBlank;
-    use ColumnTrait\UserId;
+    use ColumnTrait\FosUser;
 
     /**
      * enum('string','text','date','datetime','img','file','select','multiselect','int','double','checkbox','password')
@@ -153,7 +153,6 @@ class AttributeModel
         $this->params           = [];
         $this->params_yaml      = null;
         $this->position         = 0;
-        $this->user_id          = 0;
         $this->open_tag         = '<p>';
         $this->close_tag        = '</p>';
     }

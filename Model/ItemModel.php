@@ -170,7 +170,7 @@ class ItemModel
     }
 
     /**
-     * @param TaxonModel[] $taxons
+     * @param TaxonModel[]|ArrayCollection $taxons
      *
      * @return $this
      */

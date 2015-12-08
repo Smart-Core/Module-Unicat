@@ -30,7 +30,7 @@ class UnicatConfigurationManager
     /** @var \Doctrine\Common\Persistence\ManagerRegistry */
     protected $doctrine;
 
-    /** @var \Doctrine\Common\Persistence\ObjectManager */
+    /** @var \Doctrine\ORM\EntityManager */
     protected $em;
 
     /** @var \Symfony\Component\Form\FormFactoryInterface */

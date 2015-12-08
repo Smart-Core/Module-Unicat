@@ -641,8 +641,8 @@ class UnicatConfigurationManager
 
         // Удаление всех связей, чтобы потом просто назначить новые.
         $item
-            ->clearTaxon()
-            ->clearTaxonSingle()
+            ->setTaxons([])
+            ->setTaxonsSingle([])
         ;
 
         $this->em->persist($item);

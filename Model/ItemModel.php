@@ -177,16 +177,6 @@ class ItemModel
     }
 
     /**
-     * @return $this
-     */
-    public function clearTaxon()
-    {
-        $this->taxons->clear();
-
-        return $this;
-    }
-
-    /**
      * @return TaxonModel[]
      */
     public function getTaxons()
@@ -242,16 +232,6 @@ class ItemModel
         if (!$this->taxonsSingle->contains($taxon)) {
             $this->taxonsSingle->removeElement($taxon);
         }
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function clearTaxonSingle()
-    {
-        $this->taxonsSingle->clear();
 
         return $this;
     }

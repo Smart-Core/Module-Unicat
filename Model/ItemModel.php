@@ -71,6 +71,8 @@ class ItemModel
     protected $attributes;
 
     /**
+     * @todo вспомнить для чего тип ;)
+     *
      * @var int
      *
      * @ORM\Column(type="smallint", options={"default":0})
@@ -87,6 +89,7 @@ class ItemModel
         $this->created_at   = new \DateTime();
         $this->is_enabled   = true;
         $this->position     = 0;
+        $this->type         = 0;
     }
 
     /**

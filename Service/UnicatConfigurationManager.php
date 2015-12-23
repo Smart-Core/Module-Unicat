@@ -88,7 +88,7 @@ class UnicatConfigurationManager
     /**
      * @param array|null $orderBy
      *
-     * @return ItemModel|null
+     * @return \Doctrine\ORM\Query
      */
     public function getFindAllItemsQuery($orderBy = null)
     {

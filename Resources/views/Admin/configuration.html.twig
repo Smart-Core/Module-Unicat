@@ -34,7 +34,15 @@
                 </td>
                 {% for attribute in attributes %}
                     {% if attribute.showInAdmin %}
-                        <td><a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>{{ item.attribute(attribute.name) }}</a></td>
+                        <td>
+                            <a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
+                            {% if attribute.type == 'image' %}
+                                {{ smart_media_img(item.attribute(attribute.name), '100_100') }}
+                            {% else %}
+                                {{ item.attribute(attribute.name) }}
+                            {% endif %}
+                            </a>
+                        </td>
                     {% endif %}
                 {% endfor %}
                 <td>{{ item.createdAt|date() }}</td>

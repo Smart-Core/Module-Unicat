@@ -125,9 +125,9 @@ class AttributeModel
      * @ORM\Column(type="string", unique=true)
      * @Assert\NotBlank()
      * @Assert\Regex(
-     *      pattern="/^[a-z_]+$/",
-     *      htmlPattern="^[a-z_]+$",
-     *      message="Имя может состоять только из латинских букв в нижнем регистре и символов подчеркивания."
+     *      pattern="/^[a-z][a-z0-9_]+$/",
+     *      htmlPattern="^[a-z][a-z0-9_]+$",
+     *      message="Имя может состоять только из латинских букв в нижнем регистре, символов подчеркивания и цифр, но первый символ должен быть буква."
      * )
      *
      * @todo перевод сообщения

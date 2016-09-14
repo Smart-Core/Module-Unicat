@@ -3,9 +3,9 @@
 namespace SmartCore\Module\Unicat\Controller;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Knp\RadBundle\Controller\Controller;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
+use Smart\CoreBundle\Controller\Controller;
 use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;

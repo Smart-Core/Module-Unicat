@@ -2,10 +2,10 @@
 
 namespace SmartCore\Module\Unicat\Controller;
 
-use Knp\RadBundle\Controller\Controller;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
+use Smart\CoreBundle\Controller\Controller;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use SmartCore\Module\Unicat\Service\UnicatConfigurationManager;

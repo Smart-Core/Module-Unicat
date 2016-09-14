@@ -2,7 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Controller;
 
-use Knp\RadBundle\Controller\Controller;
+use Smart\CoreBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminAttributesController extends Controller

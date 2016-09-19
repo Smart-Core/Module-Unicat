@@ -19,6 +19,7 @@ use SmartCore\Module\Unicat\Model\AttributesGroupModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\ItemRepository;
 use SmartCore\Module\Unicat\Model\TaxonModel;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -284,7 +285,7 @@ class UnicatConfigurationManager
         ;
 
         return $this->getAttributeForm($attribute, $options)
-            ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']]);
     }
 
     /**
@@ -311,12 +312,12 @@ class UnicatConfigurationManager
             ->remove('type')
             ->remove('is_dedicated_table')
             ->remove('update_all_records_with_default_value')
-            ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
+            ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
         ;
 
         $count = $this->em->getRepository($this->configuration->getItemClass())->count();
         if (empty($count)) {
-            $form->add('delete', 'submit', [
+            $form->add('delete', SubmitType::class, [
                 'attr' => [
                     'class' => 'btn-danger',
                     'formnovalidate' => 'formnovalidate',
@@ -325,7 +326,7 @@ class UnicatConfigurationManager
             ]);
         }
 
-        $form->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+        $form->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
 
         return $form;
     }
@@ -372,7 +373,7 @@ class UnicatConfigurationManager
         }
 
         return $this->formFactory->create(new TaxonCreateFormType($structure->getConfiguration(), $this->doctrine), $taxon, $options)
-            ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']]);
     }
 
     /**
@@ -384,8 +385,8 @@ class UnicatConfigurationManager
     public function getTaxonEditForm(TaxonModel $taxon, array $options = [])
     {
         return $this->getTaxonForm($taxon, $options)
-            ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -417,9 +418,9 @@ class UnicatConfigurationManager
     public function getItemEditForm($data = null, array $options = [])
     {
         return $this->getItemForm($data, $options)
-            ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('delete', 'submit', ['attr' => ['class' => 'btn btn-danger', 'onclick' => "return confirm('Вы уверены, что хотите удалить запись?')"]])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('delete', SubmitType::class, ['attr' => ['class' => 'btn btn-danger', 'onclick' => "return confirm('Вы уверены, что хотите удалить запись?')"]])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -430,6 +431,7 @@ class UnicatConfigurationManager
      */
     public function getItemForm($data = null, array $options = [])
     {
+        // @todo sf3.x
         return $this->formFactory->create(new ItemFormType($this->configuration, $this->doctrine), $data, $options);
     }
 
@@ -442,8 +444,8 @@ class UnicatConfigurationManager
     public function getItemCreateForm($data = null, array $options = [])
     {
         return $this->getItemForm($data, $options)
-            ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -457,8 +459,8 @@ class UnicatConfigurationManager
         $structure->setConfiguration($this->configuration);
 
         return $this->getStructureForm($structure, $options)
-            ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -469,8 +471,8 @@ class UnicatConfigurationManager
     public function getStructureEditForm($data = null, array $options = [])
     {
         return $this->getStructureForm($data, $options)
-            ->add('update', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -484,8 +486,8 @@ class UnicatConfigurationManager
         $group->setConfiguration($this->configuration);
 
         return $this->getAttributesGroupForm($group, $options)
-            ->add('create', 'submit', ['attr' => ['class' => 'btn btn-success']])
-            ->add('cancel', 'submit', ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
 
     /**
@@ -496,7 +498,7 @@ class UnicatConfigurationManager
      */
     public function getStructureForm($data = null, array $options = [])
     {
-        return $this->formFactory->create(new StructureFormType(), $data, $options);
+        return $this->formFactory->create(StructureFormType::class, $data, $options);
     }
 
     /**

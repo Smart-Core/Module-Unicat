@@ -4,6 +4,8 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -25,7 +27,7 @@ class AttributeFormType extends AbstractType
         $builder
             ->add('title', null, ['attr' => ['autofocus' => 'autofocus', 'placeholder' => 'Произвольная строка']])
             ->add('name',  null, ['attr' => ['placeholder' => 'Латинские буквы в нижем регистре и символы подчеркивания.']])
-            ->add('type', 'choice', [
+            ->add('type', ChoiceType::class, [
                 'choices' => [
                     'text'        => 'Text',
                     'textarea'    => 'Textarea',
@@ -43,7 +45,7 @@ class AttributeFormType extends AbstractType
             ->add('params_yaml',   null, ['attr' => ['data-editor' => 'yaml']])
             ->add('position')
             ->add('is_dedicated_table', null, ['required' => false])
-            ->add('update_all_records_with_default_value', 'text', [
+            ->add('update_all_records_with_default_value', TextType::class, [
                 'attr' => ['placeholder' => 'Пустое поле - не обновлять записи'],
                 'required' => false,
             ])

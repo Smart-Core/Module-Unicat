@@ -49,7 +49,7 @@ class TaxonFormType extends AbstractType
             ->add('is_inheritance', null, ['required' => false])
             ->add('position')
             ->add('parent', $taxonTreeType)
-            ->add('meta', new MetaFormType(), ['label' => 'Meta tags'])
+            ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
         if (!$taxon->getStructure()->isTree()) {

@@ -14,6 +14,7 @@ use SmartCore\Module\Unicat\Generator\DoctrineEntityGenerator;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminUnicatController extends Controller
@@ -29,8 +30,8 @@ class AdminUnicatController extends Controller
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getDoctrine()->getManager();
 
-        $form = $this->createForm(new ConfigurationFormType());
-        $form->add('create', 'submit', ['attr' => ['class' => 'btn-primary']]);
+        $form = $this->createForm(ConfigurationFormType::class);
+        $form->add('create', SubmitType::class, ['attr' => ['class' => 'btn-primary']]);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -132,7 +133,7 @@ class AdminUnicatController extends Controller
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
 
-        $form = $this->createForm(new ConfigurationSettingsFormType(), $configuration);
+        $form = $this->createForm(ConfigurationSettingsFormType::class, $configuration);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);

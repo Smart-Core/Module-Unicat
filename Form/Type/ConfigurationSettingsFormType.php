@@ -4,7 +4,9 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,7 +22,7 @@ class ConfigurationSettingsFormType extends AbstractType
             ->add('is_inheritance', null, ['required' => false])
             ->add('items_per_page')
             ->add('media_collection')
-            ->add('default_structure', 'entity', [
+            ->add('default_structure', EntityType::class, [
                 'class' => 'UnicatModule:UnicatStructure',
                 'query_builder' => function (EntityRepository $er) use ($configuration) {
                     return $er->createQueryBuilder('s')
@@ -31,14 +33,14 @@ class ConfigurationSettingsFormType extends AbstractType
                 'required' => false,
             ])
 
-            ->add('update', 'submit', ['attr' => ['class' => 'btn btn-primary']])
+            ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-primary']])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'SmartCore\Module\Unicat\Entity\UnicatConfiguration',
+            'data_class' => UnicatConfiguration::class,
         ]);
     }
 

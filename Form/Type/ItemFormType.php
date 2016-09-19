@@ -11,6 +11,7 @@ use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -53,7 +54,7 @@ class ItemFormType extends AbstractType
             ->add('slug', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('is_enabled')
             ->add('position')
-            ->add('meta', new MetaFormType(), ['label' => 'Meta tags'])
+            ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
         foreach ($this->configuration->getStructures() as $structure) {
@@ -103,11 +104,11 @@ class ItemFormType extends AbstractType
             }
 
             if ($attribute->isType('select')) {
-                $type = 'choice';
+                $type = ChoiceType::class;
             }
 
             if ($attribute->isType('multiselect')) {
-                $type = 'choice';
+                $type = ChoiceType::class;
                 $attributeOptions['expanded'] = true;
                 //$propertyOptions['multiple'] = true; // @todo FS#407 продумать мультиселект
             }

@@ -5,10 +5,12 @@ namespace SmartCore\Module\Unicat\Menu;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class AdminMenu extends ContainerAware
+class AdminMenu
 {
+    use ContainerAwareTrait;
+
     /**
      * @param FactoryInterface $factory
      * @param array $options

@@ -4,6 +4,6 @@ parameters:
 services:
     unicat:
         class: SmartCore\Module\Unicat\Service\UnicatService
-        arguments: [ @doctrine, @form.factory, @smart_media, @security.token_storage ]
+        arguments: [ "@doctrine", "@form.factory", "@smart_media", "@security.token_storage" ]
         calls:
-            - [ setContainer, [ @service_container ] ]
+            - [ setContainer, [ "@service_container" ] ]

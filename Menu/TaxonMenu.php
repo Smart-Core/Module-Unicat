@@ -6,8 +6,9 @@ use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
-class TaxonMenu
+class TaxonMenu implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 

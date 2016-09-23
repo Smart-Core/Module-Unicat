@@ -2,27 +2,29 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
+use Smart\CoreBundle\Form\TypeResolverTtait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TaxonPropertiesFormType extends AbstractType
 {
-    protected $properties;
+    use TypeResolverTtait;
 
-    public function __construct($properties)
+    public function configureOptions(OptionsResolver $resolver)
     {
-        $this->properties = $properties;
+        $resolver->setDefaults([
+            'properties'  => [],
+        ]);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        foreach ($this->properties as $name => $options) {
+        foreach ($options['properties'] as $name => $options) {
             if ('image' === $options) {
-                $type = new AttributeImageFormType();
+                $type = AttributeImageFormType::class;
             } elseif (isset($options['type'])) {
-                $type = $options['type'];
-            } else {
-                $type = $options;
+                $type = $this->resolveTypeName($options['type']);
             }
 
             $builder->add($name, $type, [
@@ -32,7 +34,7 @@ class TaxonPropertiesFormType extends AbstractType
         }
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_taxon_properties';
     }

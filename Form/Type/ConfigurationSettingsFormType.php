@@ -44,7 +44,7 @@ class ConfigurationSettingsFormType extends AbstractType
         ]);
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_configuration_settings';
     }

@@ -4,52 +4,47 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Smart\CoreBundle\Form\TypeResolverTtait;
 use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
+use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ItemFormType extends AbstractType
 {
-    /**
-     * @var ManagerRegistry
-     */
+    use TypeResolverTtait;
+
+    /** @var ManagerRegistry */
     protected $doctrine;
 
-    /**
-     * @var UnicatConfiguration
-     */
+    /** @var UnicatConfiguration */
     protected $configuration;
 
+    /** @var UnicatService  */
+    protected $unicat;
+
     /**
-     * @param UnicatConfiguration $configuration
+     * @param ManagerRegistry $doctrine
+     * @param UnicatService   $unicat
      */
-    public function __construct(UnicatConfiguration $configuration, ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine, UnicatService $unicat)
     {
         $this->doctrine = $doctrine;
-        $this->configuration = $configuration;
+        $this->unicat   = $unicat;
     }
 
-    /**
-     * @return UnicatConfiguration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $this->configuration = $options['unicat_configuration'];
+
         $builder
             ->add('slug', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('is_enabled')
@@ -79,12 +74,12 @@ class ItemFormType extends AbstractType
                 }
             }
 
-            $taxonTreeType = (new TaxonTreeType($this->doctrine))->setStructure($structure);
-            $builder->add('structure:'.$structure->getName(), $taxonTreeType, $optionsCat);
+            $optionsCat['unicat_structure'] = $structure;
+            $builder->add('structure:'.$structure->getName(), TaxonTreeType::class, $optionsCat);
         }
 
         /** @var $attribute AttributeModel */
-        foreach (Container::getContainer()->get('unicat')->getAttributes($this->configuration) as $attribute) {
+        foreach ($this->unicat->getAttributes($this->configuration) as $attribute) {
             $type = $attribute->getType();
             $propertyOptions = [
                 'required'  => $attribute->getIsRequired(),
@@ -96,7 +91,7 @@ class ItemFormType extends AbstractType
             if ($attribute->isType('image')) {
                 // @todo сделать виджет загрузки картинок.
                 //$type = 'genemu_jqueryimage';
-                $type = new AttributeImageFormType();
+                $type = AttributeImageFormType::class;
 
                 if (isset($options['data'])) {
                     $attributeOptions['data'] = $options['data']->getAttribute($attribute->getName());
@@ -127,6 +122,8 @@ class ItemFormType extends AbstractType
                 $attributeOptions['constraints'] = $constraintsObjects;
             }
 
+            $type = $this->resolveTypeName($type);
+
             $builder->add('attribute:'.$attribute->getName(), $type, $attributeOptions);
         }
     }
@@ -137,14 +134,14 @@ class ItemFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getItemClass(),
+            'data_class' => function (Options $options) {
+                return $options['unicat_configuration']->getItemClass();
+            },
+            'unicat_configuration' => null,
         ]);
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_item_'.$this->configuration->getName();
     }

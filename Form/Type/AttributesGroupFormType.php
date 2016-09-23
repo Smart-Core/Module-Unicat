@@ -5,25 +5,18 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AttributesGroupFormType extends AbstractType
 {
-    /**
-     * @var UnicatConfiguration
-     */
+    /** @var UnicatConfiguration */
     protected $configuration;
-
-    /**
-     * @param UnicatConfiguration $configuration
-     */
-    public function __construct(UnicatConfiguration $configuration)
-    {
-        $this->configuration = $configuration;
-    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $this->configuration = $options['unicat_configuration'];
+
         $builder
             ->add('title', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('name')
@@ -33,11 +26,14 @@ class AttributesGroupFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getAttributesGroupClass(),
+            'data_class' => function (Options $options) {
+                return $options['unicat_configuration']->getAttributesGroupClass();
+            },
+            'unicat_configuration' => null,
         ]);
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_attributes_group_'.$this->configuration->getName();
     }

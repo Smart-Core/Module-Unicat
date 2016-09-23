@@ -3,52 +3,81 @@
 namespace SmartCore\Module\Unicat\Form\Tree;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use Symfony\Bridge\Doctrine\Form\ChoiceList\DoctrineChoiceLoader;
 use Symfony\Bridge\Doctrine\Form\Type\DoctrineType;
+use Symfony\Component\Form\ChoiceList\Factory\CachingFactoryDecorator;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TaxonTreeType extends DoctrineType
 {
-    /**
-     * @var UnicatStructure
-     */
-    protected $structure;
-
-    /**
-     * @param UnicatStructure $structure
-     *
-     * @return $this
-     */
-    public function setStructure(UnicatStructure $structure)
-    {
-        $this->structure = $structure;
-
-        return $this;
-    }
-
     public function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
 
-        $loader = function (Options $options) {
-            return $this->getLoader($options['em'], $options['query_builder'], $options['class']);
+        $choiceLoader = function (Options $options) {
+            // Unless the choices are given explicitly, load them on demand
+            if (null === $options['choices']) {
+                $hash = null;
+                $qbParts = null;
+
+                // If there is no QueryBuilder we can safely cache DoctrineChoiceLoader,
+                // also if concrete Type can return important QueryBuilder parts to generate
+                // hash key we go for it as well
+                if (!$options['query_builder'] || false !== ($qbParts = $this->getQueryBuilderPartsForCachingHash($options['query_builder']))) {
+                    $hash = CachingFactoryDecorator::generateHash(array(
+                        $options['em'],
+                        $options['class'],
+                        $qbParts,
+                    ));
+
+                    if (isset($this->choiceLoaders[$hash])) {
+                        return $this->choiceLoaders[$hash];
+                    }
+                }
+
+                if (null !== $options['query_builder']) {
+                    $entityLoader = $this->getLoader($options['em'], $options['query_builder'], $options['class']);
+                } else {
+                    $queryBuilder = $options['em']->getRepository($options['class'])->createQueryBuilder('e');
+                    $entityLoader = $this->getLoader($options['em'], $queryBuilder, $options['class']);
+                }
+
+                // Inject option 'unicat_structure'
+                $entityLoader->setStructure($options['unicat_structure']);
+
+                $doctrineChoiceLoader = new DoctrineChoiceLoader(
+                    $options['em'],
+                    $options['class'],
+                    $options['id_reader'],
+                    $entityLoader
+                );
+
+                if ($hash !== null) {
+                    $this->choiceLoaders[$hash] = $doctrineChoiceLoader;
+                }
+
+                return $doctrineChoiceLoader;
+            }
         };
 
         $resolver->setDefaults([
-            'choice_label' => 'form_title',
-            'class'        => $this->structure->getConfiguration()->getTaxonClass(),
-            'loader'       => $loader,
-            'required'     => false,
+            'choice_label'  => 'form_title',
+            'class'         => function (Options $options) {
+                return $options['unicat_structure']->getConfiguration()->getTaxonClass();
+            },
+            'choice_loader' => $choiceLoader,
+            'required'      => false,
+            'unicat_structure' => null, // SmartCore\Module\Unicat\Entity\UnicatStructure
         ]);
     }
 
     public function getLoader(ObjectManager $manager, $queryBuilder, $class)
     {
-        return new TaxonLoader($manager, $this->structure, $class);
+        return new TaxonLoader($manager, $queryBuilder, $class);
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_taxon_tree';
     }

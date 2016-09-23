@@ -14,7 +14,7 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
     {
         $configurations = [];
         foreach ($this->em->getRepository('UnicatModule:UnicatConfiguration')->findAll() as $configuration) {
-            $configurations[$configuration->getId()] = (string) $configuration;
+            $configurations[(string) $configuration] = $configuration->getId();
         }
 
         $finder = new Finder();
@@ -33,7 +33,7 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
         ;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'smart_module_unicat_node_properties';
     }

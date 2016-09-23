@@ -18,7 +18,7 @@ class TaxonCreateFormType extends TaxonFormType
         ;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_taxon_'.$this->configuration->getName().'_create';
     }

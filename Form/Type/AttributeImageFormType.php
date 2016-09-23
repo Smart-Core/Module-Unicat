@@ -3,6 +3,7 @@
 namespace SmartCore\Module\Unicat\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AttributeImageFormType extends AbstractType
@@ -16,10 +17,10 @@ class AttributeImageFormType extends AbstractType
 
     public function getParent()
     {
-        return 'file';
+        return FileType::class;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_attribute_image';
     }

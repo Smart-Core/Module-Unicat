@@ -4,6 +4,30 @@ parameters:
 services:
     unicat:
         class: SmartCore\Module\Unicat\Service\UnicatService
-        arguments: [ "@doctrine", "@form.factory", "@smart_media", "@security.token_storage" ]
+        arguments: [ '@doctrine', '@form.factory', '@smart_media', '@security.token_storage' ]
         calls:
-            - [ setContainer, [ "@service_container" ] ]
+            - [ setContainer, [ '@service_container' ] ]
+
+    unicat.form.type.item:
+        class: SmartCore\Module\Unicat\Form\Type\ItemFormType
+        arguments: [ '@doctrine', '@unicat' ]
+        tags:
+            - { name: form.type }
+
+    unicat.form.type.taxon:
+        class: SmartCore\Module\Unicat\Form\Type\TaxonFormType
+        arguments: [ '@doctrine' ]
+        tags:
+            - { name: form.type }
+
+    unicat.form.type.taxon_create:
+        class: SmartCore\Module\Unicat\Form\Type\TaxonCreateFormType
+        arguments: [ '@doctrine' ]
+        tags:
+            - { name: form.type }
+
+    unicat.form.type.taxon_tree:
+        class: SmartCore\Module\Unicat\Form\Tree\TaxonTreeType
+        arguments: [ '@doctrine' ]
+        tags:
+            - { name: form.type }

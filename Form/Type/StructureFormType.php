@@ -27,11 +27,11 @@ class StructureFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'SmartCore\Module\Unicat\Entity\UnicatStructure',
+            'data_class' => UnicatStructure::class,
         ]);
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_structure';
     }

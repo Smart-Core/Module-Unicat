@@ -10,37 +10,30 @@ use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Yaml;
 
 class TaxonFormType extends AbstractType
 {
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var ManagerRegistry */
     protected $doctrine;
 
-    /**
-     * @var UnicatConfiguration
-     */
+    /** @var UnicatConfiguration */
     protected $configuration;
 
-    /**
-     * @param UnicatConfiguration $configuration
-     * @param ManagerRegistry $doctrine
-     */
-    public function __construct(UnicatConfiguration $configuration, ManagerRegistry $doctrine)
+    /** @param ManagerRegistry $doctrine */
+    public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
-        $this->configuration = $configuration;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $this->configuration = $options['unicat_configuration'];
+
         /** @var TaxonModel $taxon */
         $taxon = $options['data'];
-
-        $taxonTreeType = (new TaxonTreeType($this->doctrine))->setStructure($taxon->getStructure());
 
         $builder
             ->add('is_enabled',     null, ['required' => false])
@@ -48,7 +41,9 @@ class TaxonFormType extends AbstractType
             ->add('slug')
             ->add('is_inheritance', null, ['required' => false])
             ->add('position')
-            ->add('parent', $taxonTreeType)
+            ->add('parent', TaxonTreeType::class, [
+                'unicat_structure' => $taxon->getStructure(),
+            ])
             ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
@@ -66,11 +61,12 @@ class TaxonFormType extends AbstractType
             $properties = Yaml::parse($structure->getProperties());
 
             if (is_array($properties)) {
-                $builder->add($builder->create(
-                    'properties',
-                    new TaxonPropertiesFormType($properties),
-                    ['required' => false]
-                ));
+                $builder->add(
+                    $builder->create('properties', TaxonPropertiesFormType::class,[
+                        'required' => false,
+                        'properties' => $properties,
+                    ])
+                );
             }
         }
     }
@@ -78,11 +74,14 @@ class TaxonFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getTaxonClass(),
+            'data_class' => function (Options $options) {
+                return $options['unicat_configuration']->getTaxonClass();
+            },
+            'unicat_configuration' => null,
         ]);
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'unicat_taxon_'.$this->configuration->getName();
     }

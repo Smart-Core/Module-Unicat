@@ -296,7 +296,9 @@ class UnicatConfigurationManager
      */
     public function getAttributeForm($data = null, array $options = [])
     {
-        return $this->formFactory->create(new AttributeFormType($this->configuration), $data, $options);
+        $options['unicat_configuration'] = $this->configuration;
+
+        return $this->formFactory->create(AttributeFormType::class, $data, $options);
     }
 
     /**
@@ -342,14 +344,16 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param mixed $data    The initial data for the form
-     * @param array $options
+     * @param TaxonModel $data
+     * @param array      $options
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getTaxonForm($data = null, array $options = [])
+    public function getTaxonForm(TaxonModel $data, array $options = [])
     {
-        return $this->formFactory->create(new TaxonFormType($this->configuration, $this->doctrine), $data, $options);
+        $options['unicat_configuration'] = $data->getStructure()->getConfiguration();
+
+        return $this->formFactory->create(TaxonFormType::class, $data, $options);
     }
 
     /**
@@ -372,8 +376,12 @@ class UnicatConfigurationManager
             $taxon->setParent($parent_taxon);
         }
 
-        return $this->formFactory->create(new TaxonCreateFormType($structure->getConfiguration(), $this->doctrine), $taxon, $options)
-            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']]);
+        $options['unicat_configuration'] = $structure->getConfiguration();
+
+        return $this->formFactory->create(TaxonCreateFormType::class, $taxon, $options)
+            ->add('create', SubmitType::class, [
+                'attr' => ['class' => 'btn btn-success'],
+            ]);
     }
 
     /**
@@ -431,8 +439,10 @@ class UnicatConfigurationManager
      */
     public function getItemForm($data = null, array $options = [])
     {
-        // @todo sf3.x
-        return $this->formFactory->create(new ItemFormType($this->configuration, $this->doctrine), $data, $options);
+        $options['unicat_configuration'] = $this->configuration;
+
+        return $this->formFactory->create(ItemFormType::class, $data, $options);
+        //return $this->formFactory->create(new ItemFormType($this->configuration, $this->doctrine), $data, $options);
     }
 
     /**
@@ -509,7 +519,9 @@ class UnicatConfigurationManager
      */
     public function getAttributesGroupForm($data = null, array $options = [])
     {
-        return $this->formFactory->create(new AttributesGroupFormType($this->configuration), $data, $options);
+        $options['unicat_configuration'] = $this->configuration;
+
+        return $this->formFactory->create(AttributesGroupFormType::class, $data, $options);
     }
 
     /**

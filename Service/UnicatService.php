@@ -3,7 +3,6 @@
 namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
 use SmartCore\Bundle\MediaBundle\Service\MediaCloudService;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
@@ -27,7 +26,7 @@ class UnicatService
     /** @var \Doctrine\Common\Persistence\ManagerRegistry */
     protected $doctrine;
 
-    /** @var \Doctrine\Common\Persistence\ObjectManager  */
+    /** @var \Doctrine\ORM\EntityManager */
     protected $em;
 
     /** @var \Symfony\Component\Form\FormFactoryInterface */
@@ -44,6 +43,9 @@ class UnicatService
 
     /** @var UnicatConfiguration|null */
     protected $currentConfiguration;
+
+    /** @var UnicatConfiguration|null */
+    protected static $currentConfigurationStatic;
 
     /**
      * @param EntityManager $em
@@ -100,6 +102,8 @@ class UnicatService
     {
         $this->currentConfiguration = $currentConfiguration;
 
+        self::setCurrentConfigurationStatic($currentConfiguration);
+
         return $this;
     }
 
@@ -109,6 +113,24 @@ class UnicatService
     public function getCurrentConfiguration()
     {
         return $this->currentConfiguration;
+    }
+
+    /**
+     * @return null|UnicatConfiguration
+     */
+    public static function getCurrentConfigurationStatic()
+    {
+        return self::$currentConfigurationStatic;
+    }
+
+    /**
+     * @param null|UnicatConfiguration $currentConfigurationStatic
+     *
+     * @return $this
+     */
+    public static function setCurrentConfigurationStatic(UnicatConfiguration $currentConfigurationStatic)
+    {
+        self::$currentConfigurationStatic = $currentConfigurationStatic;
     }
 
     /**

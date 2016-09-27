@@ -3,11 +3,11 @@
 namespace SmartCore\Module\Unicat\Form\Type;
 
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AttributeFormType extends AbstractType
@@ -15,10 +15,13 @@ class AttributeFormType extends AbstractType
     /** @var UnicatConfiguration */
     protected $configuration;
 
+    public function __construct()
+    {
+        $this->configuration = UnicatService::getCurrentConfigurationStatic();
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $this->configuration = $options['unicat_configuration'];
-
         $builder
             ->add('title', null, ['attr' => ['autofocus' => 'autofocus', 'placeholder' => 'Произвольная строка']])
             ->add('name',  null, ['attr' => ['placeholder' => 'Латинские буквы в нижем регистре и символы подчеркивания.']])
@@ -59,10 +62,7 @@ class AttributeFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => function (Options $options) {
-                return $options['unicat_configuration']->getAttributeClass();
-            },
-            'unicat_configuration' => null,
+            'data_class' => $this->configuration->getAttributeClass(),
         ]);
     }
 

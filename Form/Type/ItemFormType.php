@@ -2,10 +2,8 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Smart\CoreBundle\Form\TypeResolverTtait;
-use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
@@ -15,7 +13,6 @@ use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ItemFormType extends AbstractType
@@ -37,14 +34,13 @@ class ItemFormType extends AbstractType
      */
     public function __construct(ManagerRegistry $doctrine, UnicatService $unicat)
     {
-        $this->doctrine = $doctrine;
-        $this->unicat   = $unicat;
+        $this->configuration = UnicatService::getCurrentConfigurationStatic();
+        $this->doctrine      = $doctrine;
+        $this->unicat        = $unicat;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $this->configuration = $options['unicat_configuration'];
-
         $builder
             ->add('slug', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('is_enabled')
@@ -134,10 +130,7 @@ class ItemFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => function (Options $options) {
-                return $options['unicat_configuration']->getItemClass();
-            },
-            'unicat_configuration' => null,
+            'data_class' => $this->configuration->getItemClass(),
         ]);
     }
 

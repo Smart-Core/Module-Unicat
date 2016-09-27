@@ -296,8 +296,6 @@ class UnicatConfigurationManager
      */
     public function getAttributeForm($data = null, array $options = [])
     {
-        $options['unicat_configuration'] = $this->configuration;
-
         return $this->formFactory->create(AttributeFormType::class, $data, $options);
     }
 
@@ -351,8 +349,6 @@ class UnicatConfigurationManager
      */
     public function getTaxonForm(TaxonModel $data, array $options = [])
     {
-        $options['unicat_configuration'] = $data->getStructure()->getConfiguration();
-
         return $this->formFactory->create(TaxonFormType::class, $data, $options);
     }
 
@@ -375,8 +371,6 @@ class UnicatConfigurationManager
         if ($parent_taxon) {
             $taxon->setParent($parent_taxon);
         }
-
-        $options['unicat_configuration'] = $structure->getConfiguration();
 
         return $this->formFactory->create(TaxonCreateFormType::class, $taxon, $options)
             ->add('create', SubmitType::class, [
@@ -439,10 +433,7 @@ class UnicatConfigurationManager
      */
     public function getItemForm($data = null, array $options = [])
     {
-        $options['unicat_configuration'] = $this->configuration;
-
         return $this->formFactory->create(ItemFormType::class, $data, $options);
-        //return $this->formFactory->create(new ItemFormType($this->configuration, $this->doctrine), $data, $options);
     }
 
     /**
@@ -519,8 +510,6 @@ class UnicatConfigurationManager
      */
     public function getAttributesGroupForm($data = null, array $options = [])
     {
-        $options['unicat_configuration'] = $this->configuration;
-
         return $this->formFactory->create(AttributesGroupFormType::class, $data, $options);
     }
 

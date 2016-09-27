@@ -8,9 +8,9 @@ use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatStructure;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\TaxonModel;
+use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Yaml;
 
@@ -25,13 +25,12 @@ class TaxonFormType extends AbstractType
     /** @param ManagerRegistry $doctrine */
     public function __construct(ManagerRegistry $doctrine)
     {
-        $this->doctrine = $doctrine;
+        $this->configuration = UnicatService::getCurrentConfigurationStatic();
+        $this->doctrine      = $doctrine;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $this->configuration = $options['unicat_configuration'];
-
         /** @var TaxonModel $taxon */
         $taxon = $options['data'];
 
@@ -63,7 +62,7 @@ class TaxonFormType extends AbstractType
             if (is_array($properties)) {
                 $builder->add(
                     $builder->create('properties', TaxonPropertiesFormType::class,[
-                        'required' => false,
+                        'required'   => false,
                         'properties' => $properties,
                     ])
                 );
@@ -74,10 +73,7 @@ class TaxonFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => function (Options $options) {
-                return $options['unicat_configuration']->getTaxonClass();
-            },
-            'unicat_configuration' => null,
+            'data_class' => $this->configuration->getTaxonClass(),
         ]);
     }
 

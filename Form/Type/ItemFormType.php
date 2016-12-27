@@ -71,8 +71,6 @@ class ItemFormType extends AbstractType
             }
 
             $optionsCat['unicat_structure'] = $structure;
-
-            ld($optionsCat);
             $builder->add('structure:'.$structure->getName(), TaxonTreeType::class, $optionsCat);
         }
 

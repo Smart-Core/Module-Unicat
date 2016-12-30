@@ -6,22 +6,22 @@ use Smart\CoreBundle\Controller\Controller;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\HttpFoundation\Request;
 
-class AdminStructureController extends Controller
+class AdminTaxonomyController extends Controller
 {
     /**
      * @param Request $request
-     * @param int     $structure_id
+     * @param int     $taxonomy_id
      * @param int     $id
      * @param string  $configuration
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function taxonEditAction(Request $request, $structure_id, $id, $configuration)
+    public function taxonEditAction(Request $request, $taxonomy_id, $id, $configuration)
     {
         $unicat = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm    = $unicat->getConfigurationManager($configuration);
 
-        $structure = $ucm->getStructure($structure_id);
+        $taxonomy = $ucm->getTaxonomy($taxonomy_id);
         $taxon     = $ucm->getTaxon($id);
 
         $form = $ucm->getTaxonEditForm($taxon);
@@ -30,29 +30,29 @@ class AdminStructureController extends Controller
             $form->handleRequest($request);
 
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirectToStructureAdmin($ucm->getConfiguration(), $structure_id);
+                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
             }
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория обновлена');
 
-                return $this->redirectToStructureAdmin($ucm->getConfiguration(), $structure_id);
+                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория удалена');
 
-                return $this->redirectToStructureAdmin($ucm->getConfiguration(), $structure_id);
+                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
             }
         }
 
-        return $this->render('UnicatModule:AdminStructure:taxon_edit.html.twig', [
-            'configuration' => $structure->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+        return $this->render('UnicatModule:AdminTaxonomy:taxon_edit.html.twig', [
+            'configuration' => $taxonomy->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
             'taxon'         => $taxon,
             'form'          => $form->createView(),
-            'structure'     => $structure,
+            'taxonomy'     => $taxonomy,
         ]);
     }
 
@@ -69,7 +69,7 @@ class AdminStructureController extends Controller
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
 
-        return $this->render('UnicatModule:AdminStructure:index.html.twig', [
+        return $this->render('UnicatModule:AdminTaxonomy:index.html.twig', [
             'configuration'     => $configuration,
         ]);
     }
@@ -82,15 +82,15 @@ class AdminStructureController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function structureAction(Request $request, $id, $configuration, $parent_id = null)
+    public function taxonomyAction(Request $request, $id, $configuration, $parent_id = null)
     {
         $unicat     = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm        = $unicat->getConfigurationManager($configuration);
-        $structure  = $unicat->getStructure($id);
+        $taxonomy  = $unicat->getTaxonomy($id);
 
         $parentTaxon = $parent_id ? $ucm->getTaxonRepository()->find($parent_id) : null;
 
-        $form = $ucm->getTaxonCreateForm($structure, [], $parentTaxon);
+        $form = $ucm->getTaxonCreateForm($taxonomy, [], $parentTaxon);
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -98,14 +98,14 @@ class AdminStructureController extends Controller
                 $unicat->createTaxon($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Категория создана');
 
-                return $this->redirectToStructureAdmin($ucm->getConfiguration(), $id);
+                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $id);
             }
         }
 
-        return $this->render('UnicatModule:AdminStructure:structure.html.twig', [
-            'configuration' => $structure->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+        return $this->render('UnicatModule:AdminTaxonomy:taxonomy.html.twig', [
+            'configuration' => $taxonomy->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
             'form'          => $form->createView(),
-            'structure'     => $structure,
+            'taxonomy'     => $taxonomy,
         ]);
     }
 
@@ -118,24 +118,24 @@ class AdminStructureController extends Controller
     public function createAction(Request $request, $configuration)
     {
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
-        $form = $ucm->getStructureCreateForm();
+        $form = $ucm->getTaxonomyCreateForm();
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
 
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirect($this->generateUrl('unicat_admin.structures_index', ['configuration' => $configuration]));
+                return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
 
             if ($form->get('create')->isClicked() and $form->isValid()) {
-                $ucm->updateStructure($form->getData());
+                $ucm->updateTaxonomy($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Структура создана');
 
-                return $this->redirect($this->generateUrl('unicat_admin.structures_index', ['configuration' => $configuration]));
+                return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
         }
 
-        return $this->render('UnicatModule:AdminStructure:create.html.twig', [
+        return $this->render('UnicatModule:AdminTaxonomy:create.html.twig', [
             'form'          => $form->createView(),
             'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
         ]);
@@ -151,24 +151,24 @@ class AdminStructureController extends Controller
     public function editAction(Request $request, $id, $configuration)
     {
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
-        $form = $ucm->getStructureEditForm($ucm->getStructure($id));
+        $form = $ucm->getTaxonomyEditForm($ucm->getTaxonomy($id));
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
 
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirect($this->generateUrl('unicat_admin.structures_index', ['configuration' => $configuration]));
+                return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
-                $ucm->updateStructure($form->getData());
+                $ucm->updateTaxonomy($form->getData());
                 $this->get('session')->getFlashBag()->add('success', 'Структура обновлена');
 
-                return $this->redirect($this->generateUrl('unicat_admin.structures_index', ['configuration' => $configuration]));
+                return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
         }
 
-        return $this->render('UnicatModule:AdminStructure:edit.html.twig', [
+        return $this->render('UnicatModule:AdminTaxonomy:edit.html.twig', [
             'form'          => $form->createView(),
             'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
         ]);
@@ -176,17 +176,17 @@ class AdminStructureController extends Controller
 
     /**
      * @param UnicatConfiguration $configuration
-     * @param int $structure_id
+     * @param int $taxonomy_id
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    protected function redirectToStructureAdmin(UnicatConfiguration $configuration, $structure_id)
+    protected function redirectToTaxonomyAdmin(UnicatConfiguration $configuration, $taxonomy_id)
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
         $url = $request->query->has('redirect_to')
             ? $request->query->get('redirect_to')
-            : $this->generateUrl('unicat_admin.structure', ['id' => $structure_id, 'configuration' => $configuration->getName()]);
+            : $this->generateUrl('unicat_admin.taxonomy', ['id' => $taxonomy_id, 'configuration' => $configuration->getName()]);
 
         return $this->redirect($url);
     }

@@ -13,46 +13,46 @@ unicat_admin.configuration.settings:
     defaults:
         _controller: UnicatModule:AdminUnicat:configurationSettings
 
-# Structure
-unicat_admin.structures_index:
-    path: /{configuration}/structure/
+# Taxonomy
+unicat_admin.taxonomies_index:
+    path: /{configuration}/taxonomy/
     defaults:
-        _controller: UnicatModule:AdminStructure:index
+        _controller: UnicatModule:AdminTaxonomy:index
 
-unicat_admin.structure_create:
-    path: /{configuration}/structure/create/
+unicat_admin.taxonomy_create:
+    path: /{configuration}/taxonomy/create/
     defaults:
-        _controller: UnicatModule:AdminStructure:create
+        _controller: UnicatModule:AdminTaxonomy:create
 
-unicat_admin.structure:
-    path: /{configuration}/structure/{id}/
+unicat_admin.taxonomy:
+    path: /{configuration}/taxonomy/{id}/
     defaults:
-        _controller: UnicatModule:AdminStructure:structure
+        _controller: UnicatModule:AdminTaxonomy:taxonomy
     requirements:
         id: \d+
 
-unicat_admin.structure_with_parent_id:
-    path: /{configuration}/structure/{id}/{parent_id}/
+unicat_admin.taxonomy_with_parent_id:
+    path: /{configuration}/taxonomy/{id}/{parent_id}/
     defaults:
-        _controller: UnicatModule:AdminStructure:structure
+        _controller: UnicatModule:AdminTaxonomy:taxonomy
     requirements:
         parent_id: \d+
         id: \d+
 
-unicat_admin.structure_edit:
-    path: /{configuration}/structure/{id}/edit/
+unicat_admin.taxonomy_edit:
+    path: /{configuration}/taxonomy/{id}/edit/
     defaults:
-        _controller: UnicatModule:AdminStructure:edit
+        _controller: UnicatModule:AdminTaxonomy:edit
     requirements:
         id: \d+
 
 unicat_admin.taxon:
-    path: /{configuration}/structure/{structure_id}/taxon_{id}/
+    path: /{configuration}/taxonomy/{taxonomy_id}/taxon_{id}/
     defaults:
-        _controller: UnicatModule:AdminStructure:taxonEdit
+        _controller: UnicatModule:AdminTaxonomy:taxonEdit
     requirements:
         id: \d+
-        structure_id: \d+
+        taxonomy_id: \d+
 
 # Attributes
 unicat_admin.attributes_index:

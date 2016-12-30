@@ -4,7 +4,7 @@ namespace SmartCore\Module\Unicat\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          ORM\Index(name="position",   columns={"position"})
  *      },
  *      uniqueConstraints={
- *          ORM\UniqueConstraint(name="slug_parent_structure", columns={"slug", "parent_id", "structure_id"}),
+ *          ORM\UniqueConstraint(name="slug_parent_taxonomy", columns={"slug", "parent_id", "taxonomy_id"}),
  *      }
  * )
  *
- * @UniqueEntity(fields={"slug", "parent", "structure"}, message="В каждой подкатегории должен быть уникальный сегмент URI")
+ * @UniqueEntity(fields={"slug", "parent", "taxonomy"}, message="В каждой подкатегории должен быть уникальный сегмент URI")
  */
 abstract class TaxonModel
 {
@@ -66,11 +66,11 @@ abstract class TaxonModel
     protected $parent;
 
     /**
-     * @var UnicatStructure
+     * @var UnicatTaxonomy
      *
-     * @ORM\ManyToOne(targetEntity="SmartCore\Module\Unicat\Entity\UnicatStructure")
+     * @ORM\ManyToOne(targetEntity="SmartCore\Module\Unicat\Entity\UnicatTaxonomy")
      **/
-    protected $structure;
+    protected $taxonomy;
 
     /**
      * @ORM\ManyToMany(targetEntity="Item", mappedBy="taxons", fetch="EXTRA_LAZY")
@@ -169,23 +169,23 @@ abstract class TaxonModel
     }
 
     /**
-     * @param UnicatStructure $structure
+     * @param UnicatTaxonomy $taxonomy
      *
      * @return $this
      */
-    public function setStructure(UnicatStructure $structure)
+    public function setTaxonomy(UnicatTaxonomy $taxonomy)
     {
-        $this->structure = $structure;
+        $this->taxonomy = $taxonomy;
 
         return $this;
     }
 
     /**
-     * @return UnicatStructure
+     * @return UnicatTaxonomy
      */
-    public function getStructure()
+    public function getTaxonomy()
     {
-        return $this->structure;
+        return $this->taxonomy;
     }
 
     /**

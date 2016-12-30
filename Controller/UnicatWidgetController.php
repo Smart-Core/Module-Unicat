@@ -27,7 +27,7 @@ class UnicatWidgetController extends Controller
      * @param string  $css_class
      * @param string  $template
      * @param bool    $selected_inheritance
-     * @param int     $structure
+     * @param int     $taxonomy
      *
      * @return Response
      */
@@ -37,7 +37,7 @@ class UnicatWidgetController extends Controller
         $depth = null,
         $template = 'knp_menu.html.twig',
         $selected_inheritance = false,
-        $structure = null
+        $taxonomy = null
     ) {
         $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
 
@@ -50,7 +50,7 @@ class UnicatWidgetController extends Controller
             'css_class'     => $css_class,
             'depth'         => $depth,
             'routeName'     => 'unicat.taxon',
-            'structure'     => empty($structure) ? $ucm->getDefaultStructure() : $ucm->getStructure($structure),
+            'taxonomy'     => empty($taxonomy) ? $ucm->getDefaultTaxonomy() : $ucm->getTaxonomy($taxonomy),
             'template'      => $template,
         ]);
 

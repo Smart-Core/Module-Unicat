@@ -4,7 +4,7 @@ namespace SmartCore\Module\Unicat\Form\Tree;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bridge\Doctrine\Form\ChoiceList\EntityLoaderInterface;
 
@@ -19,8 +19,8 @@ class TaxonLoader implements EntityLoaderInterface
     /** @var int */
     protected $level;
 
-    /** @var UnicatStructure */
-    protected $structure;
+    /** @var UnicatTaxonomy */
+    protected $taxonomy;
 
     /**
      * @param ObjectManager $em
@@ -33,13 +33,13 @@ class TaxonLoader implements EntityLoaderInterface
     }
 
     /**
-     * @param UnicatStructure $structure
+     * @param UnicatTaxonomy $taxonomy
      *
      * @return $this
      */
-    public function setStructure(UnicatStructure $structure)
+    public function setTaxonomy($taxonomy)
     {
-        $this->structure = $structure;
+        $this->taxonomy = $taxonomy;
 
         return $this;
     }
@@ -73,7 +73,7 @@ class TaxonLoader implements EntityLoaderInterface
         $this->level++;
 
         $taxons = $this->repo->findBy(
-            ['parent' => $parent, 'structure' => $this->structure],
+            ['parent' => $parent, 'taxonomy' => $this->taxonomy],
             ['position' => 'ASC']
         );
 

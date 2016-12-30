@@ -6,11 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\MediaBundle\Service\CollectionService;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Form\Type\AttributeFormType;
 use SmartCore\Module\Unicat\Form\Type\AttributesGroupFormType;
 use SmartCore\Module\Unicat\Form\Type\ItemFormType;
-use SmartCore\Module\Unicat\Form\Type\StructureFormType;
+use SmartCore\Module\Unicat\Form\Type\TaxonomyFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonCreateFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonFormType;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
@@ -197,13 +197,13 @@ class UnicatConfigurationManager
 
     /**
      * @param string $slug
-     * @param UnicatStructure $structure
+     * @param UnicatTaxonomy $taxonomy
      *
      * @return TaxonModel[]
      *
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function findTaxonsBySlug($slug = null, UnicatStructure $structure = null)
+    public function findTaxonsBySlug($slug = null, UnicatTaxonomy $taxonomy = null)
     {
         $taxons = [];
         $parent = null;
@@ -213,12 +213,12 @@ class UnicatConfigurationManager
             }
 
             /* @var TaxonModel $taxon */
-            if ($structure) {
+            if ($taxonomy) {
                 $taxon = $this->getTaxonRepository()->findOneBy([
                     'is_enabled' => true,
                     'parent'     => $parent,
                     'slug'       => $taxonName,
-                    'structure'  => $structure,
+                    'taxonomy'  => $taxonomy,
                 ]);
             } else {
                 $taxon = $this->getTaxonRepository()->findOneBy([
@@ -264,11 +264,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @return UnicatStructure
+     * @return UnicatTaxonomy
      */
-    public function getDefaultStructure()
+    public function getDefaultTaxonomy()
     {
-        return $this->configuration->getDefaultStructure();
+        return $this->configuration->getDefaultTaxonomy();
     }
 
     /**
@@ -353,18 +353,18 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param UnicatStructure $structure
+     * @param UnicatTaxonomy $taxonomy
      * @param array           $options
      * @param TaxonModel|null $parent_taxon
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getTaxonCreateForm(UnicatStructure $structure, array $options = [], TaxonModel $parent_taxon = null)
+    public function getTaxonCreateForm(UnicatTaxonomy $taxonomy, array $options = [], TaxonModel $parent_taxon = null)
     {
         $taxon = $this->configuration->createTaxon();
         $taxon
-            ->setStructure($structure)
-            ->setIsInheritance($structure->getIsDefaultInheritance())
+            ->setTaxonomy($taxonomy)
+            ->setIsInheritance($taxonomy->getIsDefaultInheritance())
             ->setUser($this->getUser())
         ;
 
@@ -454,12 +454,12 @@ class UnicatConfigurationManager
      *
      * @return $this|\Symfony\Component\Form\Form
      */
-    public function getStructureCreateForm(array $options = [])
+    public function getTaxonomyCreateForm(array $options = [])
     {
-        $structure = new UnicatStructure();
-        $structure->setConfiguration($this->configuration);
+        $taxonomy = new UnicatTaxonomy();
+        $taxonomy->setConfiguration($this->configuration);
 
-        return $this->getStructureForm($structure, $options)
+        return $this->getTaxonomyForm($taxonomy, $options)
             ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
             ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
@@ -469,9 +469,9 @@ class UnicatConfigurationManager
      *
      * @return $this|\Symfony\Component\Form\Form
      */
-    public function getStructureEditForm($data = null, array $options = [])
+    public function getTaxonomyEditForm($data = null, array $options = [])
     {
-        return $this->getStructureForm($data, $options)
+        return $this->getTaxonomyForm($data, $options)
             ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
             ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']]);
     }
@@ -497,9 +497,9 @@ class UnicatConfigurationManager
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getStructureForm($data = null, array $options = [])
+    public function getTaxonomyForm($data = null, array $options = [])
     {
-        return $this->formFactory->create(StructureFormType::class, $data, $options);
+        return $this->formFactory->create(TaxonomyFormType::class, $data, $options);
     }
 
     /**
@@ -516,11 +516,11 @@ class UnicatConfigurationManager
     /**
      * @param int $id
      *
-     * @return UnicatStructure
+     * @return UnicatTaxonomy
      */
-    public function getStructure($id)
+    public function getTaxonomy($id)
     {
-        return $this->em->getRepository('UnicatModule:UnicatStructure')->find($id);
+        return $this->em->getRepository('UnicatModule:UnicatTaxonomy')->find($id);
     }
 
     /**
@@ -679,7 +679,7 @@ class UnicatConfigurationManager
 
         $taxons = [];
         foreach ($pd as $key => $val) {
-            if (false !== strpos($key, 'structure:')) {
+            if (false !== strpos($key, 'taxonomy:')) {
                 if (is_array($val)) {
                     foreach ($val as $val2) {
                         $taxons[] = $val2;
@@ -804,11 +804,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param UnicatStructure $entity
+     * @param UnicatTaxonomy $entity
      *
      * @return $this
      */
-    public function updateStructure(UnicatStructure $entity)
+    public function updateTaxonomy(UnicatTaxonomy $entity)
     {
         $this->em->persist($entity);
         $this->em->flush($entity);

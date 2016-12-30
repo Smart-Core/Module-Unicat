@@ -66,7 +66,7 @@ class TaxonMenu implements ContainerAwareInterface
         $taxons = $this->container->get('doctrine.orm.entity_manager')->getRepository($options['taxonClass'])->findBy([
                 'parent'     => $parent,
                 'is_enabled' => true,
-                'structure'  => $options['structure'],
+                'taxonomy'  => $options['taxonomy'],
             ], ['position' => 'ASC']);
 
         /** @var TaxonModel $taxon */
@@ -110,15 +110,15 @@ class TaxonMenu implements ContainerAwareInterface
     {
         $taxons = $this->container->get('doctrine')->getManager()->getRepository($options['taxonClass'])->findBy([
                 'parent'    => $parent,
-                'structure' => $options['structure'],
+                'taxonomy' => $options['taxonomy'],
             ], ['position' => 'ASC']);
 
         /** @var TaxonModel $taxon */
         foreach ($taxons as $taxon) {
             $uri = $this->container->get('router')->generate('unicat_admin.taxon', [
                 'id'            => $taxon->getId(),
-                'structure_id'  => $taxon->getStructure()->getId(),
-                'configuration' => $taxon->getStructure()->getConfiguration()->getName(),
+                'taxonomy_id'  => $taxon->getTaxonomy()->getId(),
+                'configuration' => $taxon->getTaxonomy()->getConfiguration()->getName(),
             ]);
             $newItem = $menu->addChild($taxon->getTitle(), ['uri' => $uri]);
 

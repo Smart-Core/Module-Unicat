@@ -43,8 +43,8 @@ class TaxonTreeType extends DoctrineType
                     $entityLoader = $this->getLoader($options['em'], $queryBuilder, $options['class']);
                 }
 
-                // Inject option 'unicat_structure'
-                $entityLoader->setStructure($options['unicat_structure']);
+                // Inject option 'unicat_taxonomy'
+                $entityLoader->setTaxonomy($options['unicat_taxonomy']);
 
                 $doctrineChoiceLoader = new DoctrineChoiceLoader(
                     $options['em'],
@@ -64,11 +64,11 @@ class TaxonTreeType extends DoctrineType
         $resolver->setDefaults([
             'choice_label'  => 'form_title',
             'class'         => function (Options $options) {
-                return $options['unicat_structure']->getConfiguration()->getTaxonClass();
+                return $options['unicat_taxonomy']->getConfiguration()->getTaxonClass();
             },
             'choice_loader' => $choiceLoader,
             'required'      => false,
-            'unicat_structure' => null, // SmartCore\Module\Unicat\Entity\UnicatStructure
+            'unicat_taxonomy' => null, // SmartCore\Module\Unicat\Entity\UnicatTaxonomy
         ]);
     }
 

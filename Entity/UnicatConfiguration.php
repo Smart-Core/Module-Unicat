@@ -62,21 +62,21 @@ class UnicatConfiguration
     protected $media_collection;
 
     /**
-     * @var UnicatStructure
+     * @var UnicatTaxonomy
      *
-     * @ORM\ManyToOne(targetEntity="UnicatStructure")
+     * @ORM\ManyToOne(targetEntity="UnicatTaxonomy")
      */
-    protected $default_structure;
+    protected $default_taxonomy;
 
     /**
-     * @var UnicatStructure[]
+     * @var UnicatTaxonomy[]
      *
-     * @ORM\OneToMany(targetEntity="UnicatStructure", mappedBy="configuration")
+     * @ORM\OneToMany(targetEntity="UnicatTaxonomy", mappedBy="configuration")
      */
-    protected $structures;
+    protected $taxonomies;
 
     /**
-     * Constructor.
+     * UnicatConfiguration constructor.
      */
     public function __construct()
     {
@@ -84,7 +84,7 @@ class UnicatConfiguration
         $this->is_inheritance       = true;
         $this->items_per_page       = 10;
         $this->entities_namespace   = null;
-        $this->structures           = new ArrayCollection();
+        $this->taxonomies           = new ArrayCollection();
     }
 
     /**
@@ -238,43 +238,43 @@ class UnicatConfiguration
     }
 
     /**
-     * @param UnicatStructure[]|ArrayCollection $structures
+     * @return UnicatTaxonomy[]
+     */
+    public function getTaxonomies()
+    {
+        return $this->taxonomies;
+    }
+
+    /**
+     * @param UnicatTaxonomy[]|ArrayCollection $taxonomies
      *
      * @return $this
      */
-    public function setStructures($structures)
+    public function setTaxonomies($taxonomies)
     {
-        $this->structures = $structures;
+        $this->taxonomies = $taxonomies;
 
         return $this;
     }
 
     /**
-     * @return UnicatStructure[]
+     * @return UnicatTaxonomy
      */
-    public function getStructures()
+    public function getDefaultTaxonomy(): UnicatTaxonomy
     {
-        return $this->structures;
+        return $this->default_taxonomy;
     }
 
     /**
-     * @param UnicatStructure $default_structure
+     * @param UnicatTaxonomy $default_taxonomy
      *
      * @return $this
      */
-    public function setDefaultStructure(UnicatStructure $default_structure = null)
+    public function setDefaultTaxonomy($default_taxonomy)
     {
-        $this->default_structure = $default_structure;
+        $this->default_taxonomy = $default_taxonomy;
 
         return $this;
-    }
-
-    /**
-     * @return UnicatStructure
-     */
-    public function getDefaultStructure()
-    {
-        return $this->default_structure;
     }
 
     /**

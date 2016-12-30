@@ -5,7 +5,7 @@ namespace SmartCore\Module\Unicat\Service;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\MediaBundle\Service\MediaCloudService;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Generator\DoctrineValueEntityGenerator;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
 use SmartCore\Module\Unicat\Model\AttributeModel;
@@ -232,11 +232,11 @@ class UnicatService
     /**
      * @param int $id
      *
-     * @return UnicatStructure
+     * @return UnicatTaxonomy
      */
-    public function getStructure($id)
+    public function getTaxonomy($id)
     {
-        return $this->em->getRepository('UnicatModule:UnicatStructure')->find($id);
+        return $this->em->getRepository('UnicatModule:UnicatTaxonomy')->find($id);
     }
 
     /**

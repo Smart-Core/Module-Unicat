@@ -4,16 +4,16 @@
     {% if attr.isShowIn(mode) and item.hasAttribute(attr.name) %}
         {# @todo сделать линки более универсальные #}
         {% if attr.isLink and mode == 'list' %}
-            {% set is_found_default_structure = false %}
+            {% set is_found_default_taxonomy = false %}
             {% for taxon in item.taxons %}
-                {% if configuration.defaultStructure.id == taxon.structure.id and is_found_default_structure == false %}
+                {% if configuration.defaultTaxonomy.id == taxon.taxonomy.id and is_found_default_taxonomy == false %}
                     {{ attr.openTag }}
-                        <a href="{{ path('unicat.item_in_structure', {'structureSlug': taxon.slugFull, 'itemSlug': item.slug}) }}">{{ item.attribute(attr.name) }}</a>
+                        <a href="{{ path('unicat.item_in_taxonomy', {'taxonomySlug': taxon.slugFull, 'itemSlug': item.slug}) }}">{{ item.attribute(attr.name) }}</a>
                     {{ attr.closeTag }}
-                    {% set is_found_default_structure = true %}
+                    {% set is_found_default_taxonomy = true %}
                 {% endif %}
             {% endfor %}
-            {% if is_found_default_structure == false %}
+            {% if is_found_default_taxonomy == false %}
                 {% if attr.type == 'image' %}
                     {{ attr.openTag }}<a href="{{ path('unicat.item', {'itemSlug': item.slug}) }}">{{ smart_media_img(item.attribute(attr.name), attr.params.filter) }}</a>{{ attr.closeTag }}
                 {% else %}

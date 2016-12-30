@@ -2,12 +2,12 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class StructureFormType extends AbstractType
+class TaxonomyFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -27,12 +27,12 @@ class StructureFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => UnicatStructure::class,
+            'data_class' => UnicatTaxonomy::class,
         ]);
     }
 
     public function getBlockPrefix()
     {
-        return 'unicat_structure';
+        return 'unicat_taxonomies';
     }
 }

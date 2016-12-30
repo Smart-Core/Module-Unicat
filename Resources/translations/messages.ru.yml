@@ -4,8 +4,8 @@ Categogy: Категория
 Configuration settings: Настройки конфигурации
 Create attributes group: Создать группу атрибутов
 Create record: Создать запись
-Create structure: Создать структуру
-Default structure: Структура по умолчанию
+Create taxonomy: Создать структуру
+Default taxonomy: Структура по умолчанию
 Edit record: Редактировать запись
 Edit attribute: Редактировать атрибут
 Is default inheritance: Наследуемость по умолчанию
@@ -16,10 +16,10 @@ Property: Свойство
 Attributes group: Группа атрибутов
 Attributes groups: Группы атрибутов
 Attributes group create: Создание группы свойств
-Structures: Структуры
-Structure create: Создание структуры
-Structure edit: Редактирование структуры
 Taxonomy: Таксономия
+Taxonomy create: Создание таксономии
+Taxonomy edit: Редактирование таксономии
+Taxonomies: Таксономии
 Title in forms: Заголовок в формах
 Unicat: Юникат
 Unicat configurations: Конфигурации юниката

@@ -1,6 +1,6 @@
 {% extends '@UnicatModule/Admin/configuration.html.twig' %}
 
-{% block title %}{{ 'Structure'|trans }} &laquo;{{ structure.title }}&raquo; / {{ parent() }}{% endblock %}
+{% block title %}{{ 'Taxonomy'|trans }} &laquo;{{ taxonomy.title }}&raquo; / {{ parent() }}{% endblock %}
 
 {% block content %}
 
@@ -10,7 +10,7 @@
         <div class="row">
 
         <div class="col-md-12">
-            <h3>{{ 'Structure'|trans }} &laquo;{{ structure.title }}&raquo;</h3>
+            <h3>{{ 'Taxonomy'|trans }} &laquo;{{ taxonomy.title }}&raquo;</h3>
         </div>
 
         <div class="span3 col-md-4">
@@ -19,8 +19,8 @@
 
         <div class="span8 col-md-8">
             {% set menuItem = knp_menu_get('UnicatModule:TaxonMenu:adminTree', [], {
-                'taxonClass': structure.configuration.taxonClass,
-                'structure': structure
+                'taxonClass': taxonomy.configuration.taxonClass,
+                'taxonomy': taxonomy
             }) %}
             {{ knp_menu_render(menuItem, {
                 'currentClass': 'active',

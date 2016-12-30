@@ -99,19 +99,19 @@ class ItemModel
      */
     public function __get($name)
     {
-        if (false !== strpos($name, 'structure:')) {
-            $structureName = str_replace('structure:', '', $name);
+        if (false !== strpos($name, 'taxonomy:')) {
+            $taxonomyName = str_replace('taxonomy:', '', $name);
 
             if ($this->taxons->count() > 0) {
-                $structureCollection = new ArrayCollection();
+                $taxonomyCollection = new ArrayCollection();
 
                 foreach ($this->taxons as $taxon) {
-                    if ($taxon->getStructure()->getName() == $structureName) {
-                        $structureCollection->add($taxon);
+                    if ($taxon->getTaxonomy()->getName() == $taxonomyName) {
+                        $taxonomyCollection->add($taxon);
                     }
                 }
 
-                return $structureCollection;
+                return $taxonomyCollection;
             }
         }
 

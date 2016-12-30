@@ -7,9 +7,9 @@ use Smart\CoreBundle\Doctrine\ColumnTrait;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="unicat__structures")
+ * @ORM\Table(name="unicat__taxonomies")
  */
-class UnicatStructure
+class UnicatTaxonomy
 {
     use ColumnTrait\Id;
     use ColumnTrait\CreatedAt;
@@ -65,7 +65,7 @@ class UnicatStructure
     /**
      * @var UnicatConfiguration
      *
-     * @ORM\ManyToOne(targetEntity="UnicatConfiguration", inversedBy="structures")
+     * @ORM\ManyToOne(targetEntity="UnicatConfiguration", inversedBy="taxonomies")
      */
     protected $configuration;
 

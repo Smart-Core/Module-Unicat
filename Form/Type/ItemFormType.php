@@ -48,19 +48,19 @@ class ItemFormType extends AbstractType
             ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
-        foreach ($this->configuration->getStructures() as $structure) {
+        foreach ($this->configuration->getTaxonomies() as $taxonomy) {
             $optionsCat = [
-                'label'     => $structure->getTitleForm(),
-                'required'  => $structure->getIsRequired(),
-                'expanded'  => $structure->isMultipleEntries(),
-                'multiple'  => $structure->isMultipleEntries(),
+                'label'     => $taxonomy->getTitleForm(),
+                'required'  => $taxonomy->getIsRequired(),
+                'expanded'  => $taxonomy->isMultipleEntries(),
+                'multiple'  => $taxonomy->isMultipleEntries(),
                 'class'     => $this->configuration->getTaxonClass(),
             ];
 
             /** @var TaxonModel $taxon */
             foreach ($options['data']->getTaxonsSingle() as $taxon) {
-                if ($taxon->getStructure()->getName() === $structure->getName()) {
-                    if ($structure->isMultipleEntries()) {
+                if ($taxon->getTaxonomy()->getName() === $taxonomy->getName()) {
+                    if ($taxonomy->isMultipleEntries()) {
                         $optionsCat['data'][] = $taxon;
                     } else {
                         $optionsCat['data'] = $taxon;
@@ -70,8 +70,8 @@ class ItemFormType extends AbstractType
                 }
             }
 
-            $optionsCat['unicat_structure'] = $structure;
-            $builder->add('structure:'.$structure->getName(), TaxonTreeType::class, $optionsCat);
+            $optionsCat['unicat_taxonomy'] = $taxonomy;
+            $builder->add('taxonomy:'.$taxonomy->getName(), TaxonTreeType::class, $optionsCat);
         }
 
         /** @var $attribute AttributeModel */

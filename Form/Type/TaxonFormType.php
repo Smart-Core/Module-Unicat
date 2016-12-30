@@ -5,7 +5,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
-use SmartCore\Module\Unicat\Entity\UnicatStructure;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use SmartCore\Module\Unicat\Service\UnicatService;
@@ -41,23 +41,23 @@ class TaxonFormType extends AbstractType
             ->add('is_inheritance', null, ['required' => false])
             ->add('position')
             ->add('parent', TaxonTreeType::class, [
-                'unicat_structure' => $taxon->getStructure(),
+                'unicat_taxonomy' => $taxon->getTaxonomy(),
             ])
             ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
-        if (!$taxon->getStructure()->isTree()) {
+        if (!$taxon->getTaxonomy()->isTree()) {
             $builder->remove('parent');
         }
 
-        $structure = null;
+        $taxonomy = null;
 
-        if (is_object($taxon) and $taxon->getStructure() instanceof UnicatStructure) {
-            $structure = $taxon->getStructure();
+        if (is_object($taxon) and $taxon->getTaxonomy() instanceof UnicatTaxonomy) {
+            $taxonomy = $taxon->getTaxonomy();
         }
 
-        if ($structure) {
-            $properties = Yaml::parse($structure->getProperties());
+        if ($taxonomy) {
+            $properties = Yaml::parse($taxonomy->getProperties());
 
             if (is_array($properties)) {
                 $builder->add(

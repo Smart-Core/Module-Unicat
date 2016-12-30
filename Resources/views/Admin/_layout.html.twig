@@ -11,7 +11,7 @@
     {% set __si = app.request.attributes.set('__selected_inheritance', false) %}
 
     {% set configurationMenu = knp_menu_get('UnicatModule:AdminMenu:configuration', [], {
-        'taxonClass': structure.configuration.taxonClass,
+        'taxonClass': taxonomy.configuration.taxonClass,
         'configuration': configuration,
     }) %}
 

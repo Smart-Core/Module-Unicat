@@ -86,7 +86,7 @@ class AdminTaxonomyController extends Controller
     {
         $unicat     = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm        = $unicat->getConfigurationManager($configuration);
-        $taxonomy  = $unicat->getTaxonomy($id);
+        $taxonomy   = $unicat->getTaxonomy($id);
 
         $parentTaxon = $parent_id ? $ucm->getTaxonRepository()->find($parent_id) : null;
 

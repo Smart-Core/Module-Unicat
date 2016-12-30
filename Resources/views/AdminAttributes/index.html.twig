@@ -26,7 +26,7 @@
                 <td>{{ item.id }}</td>
                 <td><a href="{{ path('unicat_admin.attributes', {'configuration': configuration.name, 'group_id': item.id}) }}">{{ item.title }}</a></td>
                 <td><a href="{{ path('unicat_admin.attributes', {'configuration': configuration.name, 'group_id': item.id}) }}">{{ item.name }}</a></td>
-                <td>{{ item.createdAt|date() }}</td>
+                <td>{{ item.createdAt|localizeddate() }}</td>
             </tr>
         {% endfor %}
         </tbody>

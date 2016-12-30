@@ -45,7 +45,7 @@
                         </td>
                     {% endif %}
                 {% endfor %}
-                <td>{{ item.createdAt|date() }}</td>
+                <td>{{ item.createdAt|localizeddate() }}</td>
             </tr>
         {% endfor %}
         </tbody>

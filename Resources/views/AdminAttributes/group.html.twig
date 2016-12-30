@@ -44,7 +44,7 @@
                     {% if item.showInView  %}<span class="label label-success">view</span>{% endif %}
                 </td>
                 <td>{{ item.isDedicatedTable }}</td>
-                <td>{{ item.createdAt|date() }}</td>
+                <td>{{ item.createdAt|localizeddate() }}</td>
             </tr>
         {% endfor %}
         </tbody>

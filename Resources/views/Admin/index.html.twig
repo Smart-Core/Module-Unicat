@@ -27,7 +27,7 @@
                 <td><a href="{{ path('unicat_admin.configuration', {'configuration': item.name}) }}">{{ item.title }}</a></td>
                 <td><a href="{{ path('unicat_admin.configuration', {'configuration': item.name}) }}">{{ item.name }}</a></td>
                 <td>{{ item.entitiesNamespace }}</td>
-                <td>{{ item.createdAt|date() }}</td>
+                <td>{{ item.createdAt|localizeddate() }}</td>
             </tr>
         {% endfor %}
         </tbody>

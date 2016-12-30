@@ -35,7 +35,7 @@ class AdminAttributesController extends Controller
      */
     public function createGroupAction(Request $request, $configuration)
     {
-        $urm = $this->get('unicat')->getConfigurationManager($configuration);
+        $urm  = $this->get('unicat')->getConfigurationManager($configuration);
         $form = $urm->getAttributesGroupCreateForm();
 
         if ($request->isMethod('POST')) {

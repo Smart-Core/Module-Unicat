@@ -135,6 +135,10 @@ class AdminUnicatController extends Controller
 
         $form = $this->createForm(ConfigurationSettingsFormType::class, $configuration);
 
+        if (!empty($configuration->getMediaCollection())) {
+            $form->remove('media_collection');
+        }
+
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
 

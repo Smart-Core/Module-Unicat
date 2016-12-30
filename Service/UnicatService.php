@@ -48,7 +48,7 @@ class UnicatService
     protected static $currentConfigurationStatic;
 
     /**
-     * @param EntityManager $em
+     * @param ManagerRegistry $doctrine
      * @param FormFactoryInterface $formFactory
      * @param MediaCloudService $mediaCloud
      * @param TokenStorageInterface $securityToken
@@ -149,7 +149,7 @@ class UnicatService
     public function getConfigurationManager($configuration_id)
     {
         if (empty($configuration_id)) {
-            return;
+            return null;
         }
 
         $configuration = $this->getConfiguration($configuration_id);

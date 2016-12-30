@@ -1,6 +1,10 @@
 Attributes: Атрибуты
+Attributes group: Группа атрибутов
+Attributes groups: Группы атрибутов
+Attributes group create: Создание группы свойств
 Catalog: Каталог
 Categogy: Категория
+Close tag: Закрывающий тэг
 Configuration settings: Настройки конфигурации
 Create attributes group: Создать группу атрибутов
 Create record: Создать запись
@@ -8,14 +12,19 @@ Create taxonomy: Создать структуру
 Default taxonomy: Структура по умолчанию
 Edit record: Редактировать запись
 Edit attribute: Редактировать атрибут
+Is dedicated table: Выделенная таблица?
 Is default inheritance: Наследуемость по умолчанию
 Is inheritance: Наследуемость
+Is link: Ссылка?
 Is multiple entries: Множественное вхождение записей
+Is required: Обязательный?
+Is show title: Показывать заголовок?
 Link names: Названия ссылок
+Open tag: Открывающий тэг
 Property: Свойство
-Attributes group: Группа атрибутов
-Attributes groups: Группы атрибутов
-Attributes group create: Создание группы свойств
+Show in admin: Показывать в админке
+Show in list: Показывать в списке
+Show in view: Показывать при просмотре записи
 Taxonomy: Таксономия
 Taxonomy create: Создание таксономии
 Taxonomy edit: Редактирование таксономии

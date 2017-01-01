@@ -415,7 +415,7 @@ class UnicatConfigurationManager
      * @param mixed $data    The initial data for the form
      * @param array $options
      *
-     * @return \Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getItemEditForm($data = null, array $options = [])
     {
@@ -429,7 +429,7 @@ class UnicatConfigurationManager
      * @param mixed $data    The initial data for the form
      * @param array $options
      *
-     * @return \Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getItemForm($data = null, array $options = [])
     {
@@ -440,7 +440,7 @@ class UnicatConfigurationManager
      * @param mixed $data    The initial data for the form
      * @param array $options
      *
-     * @return \Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getItemCreateForm($data = null, array $options = [])
     {
@@ -452,7 +452,7 @@ class UnicatConfigurationManager
     /**
      * @param array $options
      *
-     * @return $this|\Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getTaxonomyCreateForm(array $options = [])
     {
@@ -467,7 +467,7 @@ class UnicatConfigurationManager
     /**
      * @param array $options
      *
-     * @return $this|\Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getTaxonomyEditForm($data = null, array $options = [])
     {
@@ -479,7 +479,7 @@ class UnicatConfigurationManager
     /**
      * @param array $options
      *
-     * @return $this|\Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getAttributesGroupCreateForm(array $options = [])
     {
@@ -495,7 +495,7 @@ class UnicatConfigurationManager
      * @param mixed|null $data
      * @param array $options
      *
-     * @return \Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getTaxonomyForm($data = null, array $options = [])
     {
@@ -506,7 +506,7 @@ class UnicatConfigurationManager
      * @param mixed|null $data
      * @param array $options
      *
-     * @return \Symfony\Component\Form\Form
+     * @return \Symfony\Component\Form\Form|\Symfony\Component\Form\FormInterface
      */
     public function getAttributesGroupForm($data = null, array $options = [])
     {

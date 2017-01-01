@@ -15,19 +15,18 @@ class UnicatWidgetController extends Controller
 {
     use CacheTrait;
     use NodeTrait;
+    use UnicatTrait;
 
-    /**
-     * @var int
-     */
+    /** @var  int */
     protected $configuration_id;
 
     /**
-     * @param Request $request
-     * @param int     $depth
-     * @param string  $css_class
-     * @param string  $template
-     * @param bool    $selected_inheritance
-     * @param int     $taxonomy
+     * @param Request  $request
+     * @param string   $css_class
+     * @param int      $depth
+     * @param string   $template
+     * @param bool     $selected_inheritance
+     * @param int|null $taxonomy
      *
      * @return Response
      */
@@ -39,18 +38,16 @@ class UnicatWidgetController extends Controller
         $selected_inheritance = false,
         $taxonomy = null
     ) {
-        $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
-
         // Хак для Menu\RequestVoter
         $request->attributes->set('__selected_inheritance', $selected_inheritance);
 
         // @todo cache
-        $taxonTree = $this->get('twig')->render('UnicatModule::taxon_tree.html.twig', [
-            'taxonClass'    => $ucm->getTaxonClass(),
+        $taxonTree = $this->renderView('@UnicatModule/taxon_tree.html.twig', [
+            'taxonClass'    => $this->unicat->getTaxonClass(),
             'css_class'     => $css_class,
             'depth'         => $depth,
-            'routeName'     => 'unicat.taxon',
-            'taxonomy'     => empty($taxonomy) ? $ucm->getDefaultTaxonomy() : $ucm->getTaxonomy($taxonomy),
+            'routeName'     => 'unicat.index',
+            'taxonomy'      => empty($taxonomy) ? $this->unicat->getDefaultTaxonomy() : $this->unicat->getTaxonomy($taxonomy),
             'template'      => $template,
         ]);
 
@@ -69,9 +66,7 @@ class UnicatWidgetController extends Controller
      */
     public function getItemsAction(array $criteria, array $orderBy = null, $limit = 10, $offset = null)
     {
-        $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
-
-        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter($ucm->getFindItemsQuery($criteria, $orderBy, $limit, $offset)));
+        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter($this->unicat->getFindItemsQuery($criteria, $orderBy, $limit, $offset)));
         $pagerfanta->setMaxPerPage($limit);
 
         try {
@@ -80,10 +75,10 @@ class UnicatWidgetController extends Controller
             return $this->createNotFoundException('Такой страницы не найдено');
         }
 
-        return $this->get('twig')->render('UnicatModule::items.html.twig', [
+        return $this->render('@UnicatModule/index.html.twig', [
             'mode'          => 'list',
-            'attributes'    => $ucm->getAttributes(),
-            'configuration' => $ucm->getConfiguration(),
+            'attributes'    => $this->unicat->getAttributes(),
+            'configuration' => $this->unicat->getConfiguration(),
             'lastTaxon'     => null,
             'childenTaxons' => null,
             'pagerfanta'    => $pagerfanta,

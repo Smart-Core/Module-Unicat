@@ -33,6 +33,6 @@ class TaxonomyFormType extends AbstractType
 
     public function getBlockPrefix()
     {
-        return 'unicat_taxonomies';
+        return 'unicat_taxonomy';
     }
 }

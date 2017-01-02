@@ -278,7 +278,10 @@ class UnicatConfigurationManager
      */
     public function getAttributeCreateForm($groupId, array $options = [])
     {
-        $attribute = $this->configuration->createAttribute();
+        $class = $this->configuration->getAttributeClass();
+
+        /** @var AttributeModel $attribute */
+        $attribute = new $class();
         $attribute
             ->setGroup($this->em->getRepository($this->configuration->getAttributesGroupClass())->find($groupId))
             ->setUser($this->getUser())
@@ -361,7 +364,9 @@ class UnicatConfigurationManager
      */
     public function getTaxonCreateForm(UnicatTaxonomy $taxonomy, array $options = [], TaxonModel $parent_taxon = null)
     {
-        $taxon = $this->configuration->createTaxon();
+        $class = $this->configuration->getTaxonClass();
+        /** @var TaxonModel $taxon */
+        $taxon = new $class();
         $taxon
             ->setTaxonomy($taxonomy)
             ->setIsInheritance($taxonomy->getIsDefaultInheritance())
@@ -720,7 +725,7 @@ class UnicatConfigurationManager
     }
 
     /**
-     * Рекурсивный обход всех сложенных таксонов.
+     * Рекурсивный обход всех вложенных таксонов.
      *
      * @param array      $taxonsInherited
      * @param TaxonModel $taxon

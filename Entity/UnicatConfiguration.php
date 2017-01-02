@@ -97,8 +97,6 @@ class UnicatConfiguration
 
     /**
      * @return string
-     *
-     * @deprecated
      */
     public function getTaxonClass()
     {
@@ -115,8 +113,6 @@ class UnicatConfiguration
 
     /**
      * @return string
-     *
-     * @deprecated
      */
     public function getAttributeClass()
     {
@@ -125,36 +121,10 @@ class UnicatConfiguration
 
     /**
      * @return string
-     *
-     * @deprecated
      */
     public function getAttributesGroupClass()
     {
         return $this->entities_namespace.'AttributesGroup';
-    }
-
-    /**
-     * @return TaxonModel
-     *
-     * @deprecated
-     */
-    public function createTaxon()
-    {
-        $class = $this->getTaxonClass();
-
-        return new $class();
-    }
-
-    /**
-     * @return AttributeModel
-     *
-     * @deprecated
-     */
-    public function createAttribute()
-    {
-        $class = $this->getAttributeClass();
-
-        return new $class();
     }
 
     /**

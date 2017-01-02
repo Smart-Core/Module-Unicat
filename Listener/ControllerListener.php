@@ -25,7 +25,7 @@ class ControllerListener
 
         $usedTraits = class_uses($controller[0]);
 
-        if (isset($usedTraits['SmartCore\Module\Unicat\Controller\UnicatTrait'])) {
+        if (isset($usedTraits['SmartCore\Module\Unicat\Controller\UnicatTrait']) and method_exists($controller[0], 'getNode')) {
             $configuration = $this->container->get('unicat')->getConfigurationManager($controller[0]->getNode()->getParam('configuration_id'));
             $controller[0]->setUnicat($configuration);
         }

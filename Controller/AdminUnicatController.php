@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminUnicatController extends Controller
 {
+    use UnicatTrait;
+
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
@@ -76,7 +78,7 @@ class AdminUnicatController extends Controller
             }
         }
 
-        return $this->render('UnicatModule:Admin:index.html.twig', [
+        return $this->render('@UnicatModule/Admin/index.html.twig', [
             'configurations' => $em->getRepository('UnicatModule:UnicatConfiguration')->findAll(),
             'form' => $form->createView(),
         ]);
@@ -93,7 +95,6 @@ class AdminUnicatController extends Controller
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getDoctrine()->getManager();
 
-        //$configuration = $this->get('unicat')->getConfiguration($configuration); // @todo переделать на $ucm->getAttributeRepository()
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 
         if (empty($configuration)) {
@@ -111,9 +112,8 @@ class AdminUnicatController extends Controller
             throw $this->createNotFoundException();
         }
 
-        return $this->render('UnicatModule:Admin:configuration.html.twig', [
+        return $this->render('@UnicatModule/Admin/configuration.html.twig', [
             'configuration'     => $ucm->getConfiguration(),
-            'attributes_groups' => $em->getRepository($ucm->getConfiguration()->getAttributesGroupClass())->findAll(),
             'attributes'        => $em->getRepository($ucm->getConfiguration()->getAttributeClass())->findAll(),
             'pagerfanta'        => $pagerfanta, // items
         ]);
@@ -143,7 +143,7 @@ class AdminUnicatController extends Controller
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-                $this->persist($configuration, true);
+                $this->persist($form->getData(), true);
 
                 $this->addFlash('success', 'Настройки конфигурации обновлены.');
 
@@ -151,7 +151,7 @@ class AdminUnicatController extends Controller
             }
         }
 
-        return $this->render('UnicatModule:Admin:configuration_settings.html.twig', [
+        return $this->render('@UnicatModule/Admin/configuration_settings.html.twig', [
             'form' => $form->createView(),
             'configuration' => $configuration,
         ]);
@@ -185,15 +185,15 @@ class AdminUnicatController extends Controller
                 }
 
                 $ucm->createItem($form, $request);
-                $this->get('session')->getFlashBag()->add('success', 'Запись создана');
+                $this->addFlash('success', 'Запись создана');
 
                 return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
             }
         }
 
-        return $this->render('UnicatModule:Admin:item_create.html.twig', [
+        return $this->render('@UnicatModule/Admin/item_create.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 
@@ -217,22 +217,22 @@ class AdminUnicatController extends Controller
 
             if ($form->get('delete')->isClicked()) {
                 $ucm->removeItem($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Запись удалена');
+                $this->addFlash('success', 'Запись удалена');
 
                 return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
             }
 
             if ($form->isValid() and $form->get('update')->isClicked() and $form->isValid()) {
                 $ucm->updateItem($form, $request);
-                $this->get('session')->getFlashBag()->add('success', 'Запись обновлена');
+                $this->addFlash('success', 'Запись обновлена');
 
                 return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
             }
         }
 
-        return $this->render('UnicatModule:Admin:item_edit.html.twig', [
+        return $this->render('@UnicatModule/Admin/item_edit.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 

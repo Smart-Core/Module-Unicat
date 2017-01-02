@@ -18,7 +18,7 @@ class AdminTaxonomyController extends Controller
      */
     public function taxonEditAction(Request $request, $taxonomy_id, $id, $configuration)
     {
-        $unicat = $this->get('unicat'); // @todo перевести всё на $ucm.
+        $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
 
         $taxonomy = $ucm->getTaxonomy($taxonomy_id);
@@ -35,24 +35,24 @@ class AdminTaxonomyController extends Controller
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateTaxon($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Категория обновлена');
+                $this->addFlash('success', 'Категория обновлена');
 
                 return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteTaxon($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Категория удалена');
+                $this->addFlash('success', 'Категория удалена');
 
                 return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
             }
         }
 
-        return $this->render('UnicatModule:AdminTaxonomy:taxon_edit.html.twig', [
-            'configuration' => $taxonomy->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+        return $this->render('@UnicatModule/AdminTaxonomy/taxon_edit.html.twig', [
+            'configuration' => $taxonomy->getConfiguration(),
             'taxon'         => $taxon,
             'form'          => $form->createView(),
-            'taxonomy'     => $taxonomy,
+            'taxonomy'      => $taxonomy,
         ]);
     }
 
@@ -69,7 +69,7 @@ class AdminTaxonomyController extends Controller
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
 
-        return $this->render('UnicatModule:AdminTaxonomy:index.html.twig', [
+        return $this->render('@UnicatModule/AdminTaxonomy/index.html.twig', [
             'configuration'     => $configuration,
         ]);
     }
@@ -96,16 +96,17 @@ class AdminTaxonomyController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 $unicat->createTaxon($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Категория создана');
+
+                $this->addFlash('success', 'Категория создана');
 
                 return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $id);
             }
         }
 
-        return $this->render('UnicatModule:AdminTaxonomy:taxonomy.html.twig', [
-            'configuration' => $taxonomy->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+        return $this->render('@UnicatModule/AdminTaxonomy/taxonomy.html.twig', [
+            'configuration' => $taxonomy->getConfiguration(),
             'form'          => $form->createView(),
-            'taxonomy'     => $taxonomy,
+            'taxonomy'      => $taxonomy,
         ]);
     }
 
@@ -129,15 +130,15 @@ class AdminTaxonomyController extends Controller
 
             if ($form->get('create')->isClicked() and $form->isValid()) {
                 $ucm->updateTaxonomy($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Структура создана');
+                $this->addFlash('success', 'Структура создана');
 
                 return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
         }
 
-        return $this->render('UnicatModule:AdminTaxonomy:create.html.twig', [
+        return $this->render('@UnicatModule/AdminTaxonomy/create.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 
@@ -162,15 +163,15 @@ class AdminTaxonomyController extends Controller
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
                 $ucm->updateTaxonomy($form->getData());
-                $this->get('session')->getFlashBag()->add('success', 'Структура обновлена');
+                $this->addFlash('success', 'Структура обновлена');
 
                 return $this->redirect($this->generateUrl('unicat_admin.taxonomies_index', ['configuration' => $configuration]));
             }
         }
 
-        return $this->render('UnicatModule:AdminTaxonomy:edit.html.twig', [
+        return $this->render('@UnicatModule/AdminTaxonomy/edit.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $ucm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 

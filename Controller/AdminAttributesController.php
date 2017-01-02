@@ -14,13 +14,12 @@ class AdminAttributesController extends Controller
      */
     public function indexAction($configuration)
     {
-        /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->get('doctrine.orm.entity_manager');
 
         $configuration = $this->get('unicat')->getConfiguration($configuration);
 
-        return $this->render('UnicatModule:AdminAttributes:index.html.twig', [
-            'configuration'     => $configuration, // @todo убрать, это пока для наследуемого шаблона.
+        return $this->render('@UnicatModule/AdminAttributes/index.html.twig', [
+            'configuration'     => $configuration,
             'attributes_groups' => $em->getRepository($configuration->getAttributesGroupClass())->findAll(),
             'attributes'        => $em->getRepository($configuration->getAttributeClass())->findAll(),
 
@@ -42,20 +41,20 @@ class AdminAttributesController extends Controller
             $form->handleRequest($request);
 
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirect($this->generateUrl('unicat_admin.attributes_index', ['configuration' => $configuration]));
+                return $this->redirectToRoute('unicat_admin.attributes_index', ['configuration' => $configuration]);
             }
 
             if ($form->get('create')->isClicked() and $form->isValid()) {
                 $urm->updateAttributesGroup($form->getData());
                 $this->addFlash('success', 'Группа атрибутов создана');
 
-                return $this->redirect($this->generateUrl('unicat_admin.attributes_index', ['configuration' => $configuration]));
+                return $this->redirectToRoute('unicat_admin.attributes_index', ['configuration' => $configuration]);
             }
         }
 
-        return $this->render('UnicatModule:AdminAttributes:create_group.html.twig', [
+        return $this->render('@UnicatModule/AdminAttributes/create_group.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $urm->getConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $urm->getConfiguration(),
         ]);
     }
 
@@ -78,15 +77,15 @@ class AdminAttributesController extends Controller
                 $unicat->createAttribute($form->getData());
                 $this->addFlash('success', 'Свойство создано');
 
-                return $this->redirect($this->generateUrl('unicat_admin.attributes', ['configuration' => $unicat->getCurrentConfiguration()->getName(), 'group_id' => $group_id]));
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $unicat->getCurrentConfiguration()->getName(), 'group_id' => $group_id]);
             }
         }
 
-        return $this->render('UnicatModule:AdminAttributes:group.html.twig', [
+        return $this->render('@UnicatModule/AdminAttributes/group.html.twig', [
             'form'       => $form->createView(),
             'attributes' => $unicat->getAttributes($configuration),
             'group'      => $ucm->getAttributesGroup($group_id),
-            'configuration' => $unicat->getCurrentConfiguration(), // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $unicat->getCurrentConfiguration(),
         ]);
     }
 
@@ -110,27 +109,27 @@ class AdminAttributesController extends Controller
             $form->handleRequest($request);
 
             if ($form->has('cancel') and $form->get('cancel')->isClicked()) {
-                return $this->redirect($this->generateUrl('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]));
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
             }
 
             if ($form->has('update') and $form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateAttribute($form->getData());
                 $this->addFlash('success', 'Атрибут обновлён');
 
-                return $this->redirect($this->generateUrl('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]));
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteAttribute($form->getData());
                 $this->addFlash('success', 'Атрибут удалён');
 
-                return $this->redirect($this->generateUrl('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]));
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
             }
         }
 
-        return $this->render('UnicatModule:AdminAttributes:edit.html.twig', [
+        return $this->render('@UnicatModule/AdminAttributes/edit.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $configuration, // @todo убрать, это пока для наследуемого шаблона.
+            'configuration' => $configuration,
         ]);
     }
 }

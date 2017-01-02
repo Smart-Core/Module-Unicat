@@ -30,7 +30,7 @@ class AdminUnicatController extends Controller
     public function indexAction(Request $request)
     {
         /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->get('doctrine.orm.entity_manager');
 
         $form = $this->createForm(ConfigurationFormType::class);
         $form->add('create', SubmitType::class, ['attr' => ['class' => 'btn-primary']]);
@@ -93,7 +93,7 @@ class AdminUnicatController extends Controller
     public function configurationAction(Request $request, $configuration)
     {
         /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->get('doctrine.orm.entity_manager');
 
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 

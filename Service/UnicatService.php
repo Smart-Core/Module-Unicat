@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -253,6 +254,26 @@ class UnicatService
         return $this;
     }
 
+    public function generateEntities()
+    {
+//        $finder     = new Finder();
+        $filesystem = new Filesystem();
+        /** @var \AppKernel $kernel */
+        $entitiesDir = $this->container->get('kernel')->getBundle('SiteBundle')->getPath().'/Entity';
+
+        if (!is_dir($entitiesDir)) {
+            $filesystem->mkdir($entitiesDir);
+        }
+
+        foreach ($this->allConfigurations() as $configuration) {
+            dump($configuration->getName());
+        }
+
+        //        dump($unicat->allConfigurations());
+
+
+    }
+    
     /**
      * @param AttributeModel $entity
      *
@@ -288,8 +309,8 @@ class UnicatService
             $valueClass = $reflector->getNamespaceName().'\\'.$entity->getValueClassName();
         }
 
+        // Обновление для всех записей значением по умолчанию.
         $defaultValue = $entity->getUpdateAllRecordsWithDefaultValue();
-
         if (!empty($defaultValue) or $defaultValue == 0) {
             /** @var ItemModel $item */
             foreach ($this->getCurrentConfigurationManager()->findAllItems() as $item) {

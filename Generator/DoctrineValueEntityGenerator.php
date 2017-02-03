@@ -28,8 +28,8 @@ class DoctrineValueEntityGenerator extends Generator
             case 'smallint':
                 $type = 'Smallint';
                 break;
-            case 'String':
-                $type = 'string';
+            case 'string':
+                $type = 'String';
                 break;
             case 'text':
                 $type = 'Text';

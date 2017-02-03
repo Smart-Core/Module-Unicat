@@ -40,6 +40,8 @@ class AdminUnicatController extends Controller
 
             if ($form->isValid()) {
                 if ($form->get('create')->isClicked()) {
+                    // @todo вынести в сервис генерацию сущностей
+
                     /** @var UnicatConfiguration $uc */
                     $uc = $form->getData();
 

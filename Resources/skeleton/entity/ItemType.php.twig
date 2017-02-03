@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }};
+
+use Doctrine\ORM\Mapping as ORM;
+use SmartCore\Module\Unicat\Model\ItemTypeModel;
+
+/**
+ * @ORM\Entity()
+ * @ORM\Table(name="{{ table_prefix ~ configuration_name }}_items_types",
+ *      indexes={
+ *          @ORM\Index(columns={"position"}),
+ *      }
+ * )
+ */
+class ItemType extends ItemTypeModel
+{
+}

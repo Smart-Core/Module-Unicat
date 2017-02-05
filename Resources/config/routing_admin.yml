@@ -71,6 +71,16 @@ unicat_admin.attribute:
         _controller: UnicatModule:AdminAttributes:edit
 
 # Items
+unicat_admin.items_types:
+    path: /{configuration}/items_types/
+    defaults:
+        _controller: UnicatModule:AdminUnicat:itemsTypes
+
+unicat_admin.items_type_create:
+    path: /{configuration}/items_type_create/
+    defaults:
+        _controller: UnicatModule:AdminUnicat:itemsTypeCreate
+
 unicat_admin.item_create:
     path: /{configuration}/item_create/
     defaults:

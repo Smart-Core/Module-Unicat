@@ -8,8 +8,10 @@ use Pagerfanta\Pagerfanta;
 use Smart\CoreBundle\Controller\Controller;
 use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationSettingsFormType;
+use SmartCore\Module\Unicat\Form\Type\ItemTypeFormType;
 use SmartCore\Module\Unicat\Generator\DoctrineEntityGenerator;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -227,6 +229,65 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('@UnicatModule/Admin/item_edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param string  $configuration
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function itemsTypesAction(Request $request, $configuration)
+    {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
+        $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
+
+        return $this->render('@UnicatModule/Admin/items_types.html.twig', [
+            'types' => $em->getRepository('UnicatModule:UnicatItemType')->findBy(['configuration' => $ucm->getConfiguration()]),
+            //'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param string  $configuration
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function itemsTypeCreateAction(Request $request, $configuration)
+    {
+        $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
+        $form = $this->createForm(ItemTypeFormType::class);
+        $form->add('create', SubmitType::class, ['attr' => ['class' => 'btn-primary']]);
+        $form->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default']]);
+
+        if ($request->isMethod('POST')) {
+            $form->handleRequest($request);
+
+            if ($form->get('cancel')->isClicked()) {
+                return $this->redirect($this->generateUrl('unicat_admin.items_types', ['configuration' => $configuration]));
+            }
+
+            if ($form->get('create')->isClicked() and $form->isValid()) {
+                /** @var UnicatItemType $itemType */
+                $itemType = $form->getData();
+                $itemType
+                    ->setConfiguration($ucm->getConfiguration())
+                    ->setUser($this->getUser())
+                ;
+
+                $this->persist($form->getData(), true);
+                $this->addFlash('success', 'Тип записей создан');
+
+                return $this->redirect($this->generateUrl('unicat_admin.items_types', ['configuration' => $configuration]));
+            }
+        }
+
+        return $this->render('@UnicatModule/Admin/items_type_create.html.twig', [
             'form' => $form->createView(),
         ]);
     }

@@ -141,7 +141,7 @@ class AdminTaxonomyController extends Controller
         }
 
         return $this->render('@UnicatModule/AdminTaxonomy/create.html.twig', [
-            'form'          => $form->createView(),
+            'form' => $form->createView(),
         ]);
     }
 

@@ -1,17 +1,25 @@
 <?php
 
-namespace SmartCore\Module\Unicat\Model;
+namespace SmartCore\Module\Unicat\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
-use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * ORM\Entity()
- * ORM\Table(name="unicat_attributes_groups")
+ *
+ *
+ * @ORM\Entity()
+ * @ORM\Table(name="unicat__attributes_groups",
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(columns={"name", "configuration_id"}),
+ *      },
+ * )
+ *
+ * @UniqueEntity(fields={"name", "configuration"}, message="Имя должно быть уникальным.")
  */
-class AttributesGroupModel
+class UnicatAttributesGroup
 {
     use ColumnTrait\Id;
     use ColumnTrait\CreatedAt;
@@ -19,23 +27,25 @@ class AttributesGroupModel
     use ColumnTrait\TitleNotBlank;
 
     /**
-     * @var AttributeModel[]
+     * @var UnicatAttribute[]
      *
-     * @ORM\OneToMany(targetEntity="Attribute", mappedBy="group")
+     * @ORM\OneToMany(targetEntity="UnicatAttribute", mappedBy="group")
      */
     protected $attributes;
 
     /**
+     * @todo подумать о привязке групп атрибутов к таксону
+     *
      * @var TaxonModel
      *
-     * @ORM\ManyToOne(targetEntity="Taxon")
+     * ORM\ManyToOne(targetEntity="Taxon")
      **/
-    protected $taxon;
+    //protected $taxon;
 
     /**
      * @var UnicatConfiguration
      *
-     * @ORM\ManyToOne(targetEntity="SmartCore\Module\Unicat\Entity\UnicatConfiguration")
+     * @ORM\ManyToOne(targetEntity="UnicatConfiguration", inversedBy="attributes_groups")
      **/
     protected $configuration;
 
@@ -49,27 +59,7 @@ class AttributesGroupModel
     }
 
     /**
-     * @param TaxonModel $taxon
-     *
-     * @return $this
-     */
-    public function setTaxon(TaxonModel $taxon = null)
-    {
-        $this->taxon = $taxon;
-
-        return $this;
-    }
-
-    /**
-     * @return TaxonModel
-     */
-    public function getTaxon()
-    {
-        return $this->taxon;
-    }
-
-    /**
-     * @param AttributeModel[] $attributes
+     * @param UnicatAttribute[] $attributes
      *
      * @return $this
      */
@@ -81,7 +71,7 @@ class AttributesGroupModel
     }
 
     /**
-     * @return AttributeModel[]
+     * @return UnicatAttribute[]
      */
     public function getAttributes()
     {

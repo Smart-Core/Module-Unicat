@@ -39,3 +39,10 @@ services:
             - [ setContainer, [ '@service_container' ] ]
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: onController }
+
+# Twig
+    unicat.twig.extension:
+        class: SmartCore\Module\Unicat\Twig\UnicatExtension
+        arguments: [ '@service_container' ]
+        tags:
+            - { name: twig.extension }

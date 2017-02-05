@@ -5,6 +5,8 @@ namespace SmartCore\Module\Unicat\Service;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\MediaBundle\Service\CollectionService;
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
+use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Form\Type\AttributeFormType;
@@ -14,8 +16,6 @@ use SmartCore\Module\Unicat\Form\Type\TaxonomyFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonCreateFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonFormType;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
-use SmartCore\Module\Unicat\Model\AttributeModel;
-use SmartCore\Module\Unicat\Model\AttributesGroupModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\ItemRepository;
 use SmartCore\Module\Unicat\Model\TaxonModel;
@@ -278,12 +278,9 @@ class UnicatConfigurationManager
      */
     public function getAttributeCreateForm($groupId, array $options = [])
     {
-        $class = $this->configuration->getAttributeClass();
-
-        /** @var AttributeModel $attribute */
-        $attribute = new $class();
+        $attribute = new UnicatAttribute();
         $attribute
-            ->setGroup($this->em->getRepository($this->configuration->getAttributesGroupClass())->find($groupId))
+            ->setGroup($this->em->getRepository('UnicatModule:UnicatAttributesGroup')->find($groupId))
             ->setUser($this->getUser())
         ;
 
@@ -303,12 +300,12 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param AttributeModel $attribute
+     * @param UnicatAttribute $attribute
      * @param array $options
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getAttributeEditForm(AttributeModel $attribute, array $options = [])
+    public function getAttributeEditForm(UnicatAttribute $attribute, array $options = [])
     {
         $form = $this->getAttributeForm($attribute, $options)
             ->remove('name')
@@ -337,11 +334,11 @@ class UnicatConfigurationManager
     /**
      * @param int $groupId
      *
-     * @return AttributeModel
+     * @return UnicatAttributesGroup
      */
     public function getAttributesGroup($groupId)
     {
-        return $this->em->getRepository($this->configuration->getAttributesGroupClass())->find($groupId);
+        return $this->em->getRepository('UnicatModule:UnicatAttributesGroup')->find($groupId);
     }
 
     /**
@@ -409,11 +406,11 @@ class UnicatConfigurationManager
     /**
      * @param int $groupId
      *
-     * @return AttributeModel[]
+     * @return UnicatAttribute[]
      */
     public function getAttribute($id)
     {
-        return $this->em->getRepository($this->configuration->getAttributeClass())->find($id);
+        return $this->em->getRepository('UnicatModule:UnicatAttribute')->find($id);
     }
 
     /**
@@ -488,7 +485,7 @@ class UnicatConfigurationManager
      */
     public function getAttributesGroupCreateForm(array $options = [])
     {
-        $group = $this->configuration->createAttributesGroup();
+        $group = new UnicatAttributesGroup();
         $group->setConfiguration($this->configuration);
 
         return $this->getAttributesGroupForm($group, $options)
@@ -742,14 +739,14 @@ class UnicatConfigurationManager
     /**
      * @param int $groupId
      *
-     * @return AttributeModel[]
+     * @return UnicatAttribute[]
      */
     public function getAttributes($groupId = null)
     {
         $filter = ($groupId) ? ['group' => $groupId] : [];
 
         $attrs = [];
-        foreach ($this->em->getRepository($this->configuration->getAttributeClass())->findBy($filter, ['position' => 'ASC']) as $attr) {
+        foreach ($this->em->getRepository('UnicatModule:UnicatAttribute')->findBy($filter, ['position' => 'ASC']) as $attr) {
             $attrs[$attr->getName()] = $attr;
         }
 
@@ -757,11 +754,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param AttributeModel $entity
+     * @param UnicatAttribute $entity
      *
      * @return $this
      */
-    public function createAttribute(AttributeModel $entity)
+    public function createAttribute(UnicatAttribute $entity)
     {
         $this->em->persist($entity);
         $this->em->flush($entity);
@@ -783,11 +780,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param AttributeModel $entity
+     * @param UnicatAttribute $entity
      *
      * @return $this
      */
-    public function updateAttribute(AttributeModel $entity)
+    public function updateAttribute(UnicatAttribute $entity)
     {
         $this->em->persist($entity);
         $this->em->flush($entity);

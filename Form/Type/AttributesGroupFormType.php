@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
+use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
@@ -29,12 +30,12 @@ class AttributesGroupFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getAttributesGroupClass(),
+            'data_class' => UnicatAttributesGroup::class,
         ]);
     }
 
     public function getBlockPrefix()
     {
-        return 'unicat_attributes_group_'.$this->configuration->getName();
+        return 'unicat_attributes_group';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartCore\Module\Unicat\Model;
+namespace SmartCore\Module\Unicat\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
@@ -9,12 +9,23 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * ORM\Entity()
- * ORM\Table(name="unicat_attributes")
+ * @ORM\Entity
+ * @ORM\Table(name="unicat__attributes",
+ *      indexes={
+ *          @ORM\Index(columns={"is_enabled"}),
+ *          @ORM\Index(columns={"show_in_admin"}),
+ *          @ORM\Index(columns={"show_in_list"}),
+ *          @ORM\Index(columns={"show_in_view"}),
+ *          @ORM\Index(columns={"position"}),
+ *      },
+ *      uniqueConstraints={
+ *          @ORM\UniqueConstraint(columns={"name", "configuration_id"}),
+ *      },
+ * )
  *
- * @UniqueEntity(fields={"name"}, message="Имя свойства должно быть уникальным.")
+ * @UniqueEntity(fields={"name", "configuration"}, message="Имя свойства должно быть уникальным.")
  */
-class AttributeModel
+class UnicatAttribute
 {
     use ColumnTrait\Id;
     use ColumnTrait\IsEnabled;
@@ -24,9 +35,7 @@ class AttributeModel
     use ColumnTrait\FosUser;
 
     /**
-     * enum('string','text','date','datetime','img','file','select','multiselect','int','double','checkbox','password')
-     *
-     * @ORM\Column(type="string", length=12)
+     * @ORM\Column(type="string", length=32)
      */
     protected $type;
 
@@ -114,15 +123,23 @@ class AttributeModel
     protected $params_yaml;
 
     /**
-     * @var AttributesGroupModel
+     * @var UnicatAttributesGroup
      *
-     * @ORM\ManyToOne(targetEntity="AttributesGroup", inversedBy="attributes")
+     * @ORM\ManyToOne(targetEntity="UnicatAttributesGroup", inversedBy="attributes")
      */
     protected $group;
 
     /**
+     * @var UnicatConfiguration
+     *
+     * @ORM\ManyToOne(targetEntity="UnicatConfiguration", inversedBy="attributes")
+     */
+    protected $configuration;
+
+    /**
      * @var string
-     * @ORM\Column(type="string", unique=true)
+     *
+     * @ORM\Column(type="string")
      * @Assert\NotBlank()
      * @Assert\Regex(
      *      pattern="/^[a-z][a-z0-9_]+$/",
@@ -276,11 +293,11 @@ class AttributeModel
     }
 
     /**
-     * @param AttributesGroupModel $group
+     * @param UnicatAttributesGroup $group
      *
      * @return $this
      */
-    public function setGroup(AttributesGroupModel $group)
+    public function setGroup(UnicatAttributesGroup $group)
     {
         $this->group = $group;
 
@@ -288,7 +305,7 @@ class AttributeModel
     }
 
     /**
-     * @return AttributesGroupModel
+     * @return UnicatAttributesGroup
      */
     public function getGroup()
     {
@@ -545,5 +562,25 @@ class AttributeModel
         $this->update_all_records_with_default_value = $update_all_records_with_default_value;
 
         return $this;
+    }
+
+    /**
+     * @param UnicatConfiguration $configuration
+     *
+     * @return $this
+     */
+    public function setConfiguration(UnicatConfiguration $configuration)
+    {
+        $this->configuration = $configuration;
+
+        return $this;
+    }
+
+    /**
+     * @return UnicatConfiguration
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
     }
 }

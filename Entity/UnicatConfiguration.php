@@ -6,9 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
 use SmartCore\Bundle\MediaBundle\Entity\Collection;
-use SmartCore\Module\Unicat\Model\AttributeModel;
-use SmartCore\Module\Unicat\Model\AttributesGroupModel;
-use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -69,6 +66,27 @@ class UnicatConfiguration
     protected $default_taxonomy;
 
     /**
+     * @var UnicatAttribute[]
+     *
+     * @ORM\OneToMany(targetEntity="UnicatAttribute", mappedBy="configuration")
+     */
+    protected $attributes;
+
+    /**
+     * @var UnicatAttributesGroup[]
+     *
+     * @ORM\OneToMany(targetEntity="UnicatAttributesGroup", mappedBy="configuration")
+     */
+    protected $attributes_groups;
+
+    /**
+     * @var UnicatItemType[]
+     *
+     * @ORM\OneToMany(targetEntity="UnicatItemType", mappedBy="configuration")
+     */
+    protected $item_types;
+
+    /**
      * @var UnicatTaxonomy[]
      *
      * @ORM\OneToMany(targetEntity="UnicatTaxonomy", mappedBy="configuration")
@@ -109,22 +127,6 @@ class UnicatConfiguration
     public function getItemClass()
     {
         return $this->entities_namespace.'Item';
-    }
-
-    /**
-     * @return string
-     */
-    public function getAttributeClass()
-    {
-        return $this->entities_namespace.'Attribute';
-    }
-
-    /**
-     * @return string
-     */
-    public function getAttributesGroupClass()
-    {
-        return $this->entities_namespace.'AttributesGroup';
     }
 
     /**
@@ -205,6 +207,66 @@ class UnicatConfiguration
     public function getMediaCollection()
     {
         return $this->media_collection;
+    }
+
+    /**
+     * @return UnicatAttribute[]
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @param UnicatAttribute[] $attributes
+     *
+     * @return $this
+     */
+    public function setAttributes($attributes)
+    {
+        $this->attributes = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * @return UnicatItemType[]
+     */
+    public function getItemTypes()
+    {
+        return $this->item_types;
+    }
+
+    /**
+     * @param UnicatItemType[] $item_types
+     *
+     * @return $this
+     */
+    public function setItemTypes($item_types)
+    {
+        $this->item_types = $item_types;
+
+        return $this;
+    }
+
+    /**
+     * @return UnicatAttributesGroup[]
+     */
+    public function getAttributesGroups()
+    {
+        return $this->attributes_groups;
+    }
+
+    /**
+     * @param UnicatAttributesGroup[] $attributes_groups
+     *
+     * @return $this
+     */
+    public function setAttributesGroups($attributes_groups)
+    {
+        $this->attributes_groups = $attributes_groups;
+
+        return $this;
     }
 
     /**

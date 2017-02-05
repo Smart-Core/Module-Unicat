@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
@@ -62,7 +63,7 @@ class AttributeFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->configuration->getAttributeClass(),
+            'data_class' => UnicatAttribute::class,
         ]);
     }
 

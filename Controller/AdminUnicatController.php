@@ -116,7 +116,7 @@ class AdminUnicatController extends Controller
 
         return $this->render('@UnicatModule/Admin/configuration.html.twig', [
             'configuration'     => $ucm->getConfiguration(),
-            'attributes'        => $em->getRepository($ucm->getConfiguration()->getAttributeClass())->findAll(),
+            'attributes'        => $em->getRepository('UnicatModule:UnicatAttribute')->findBy(['configuration' => $configuration]),
             'pagerfanta'        => $pagerfanta, // items
         ]);
     }

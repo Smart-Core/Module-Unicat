@@ -29,9 +29,9 @@
             <tr>
                 <td>{{ item.id }}</td>
                 <td><a href="{{ path('unicat_admin.attribute', {
-                        'configuration': configuration.name,
-                        'group_id': item.group.id,
-                        'id': item.id,
+                        'configuration': group.configuration.name,
+                        'group_name': item.group.name,
+                        'name': item.name,
                     }) }}">{{ item.title }}</a></td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.type }}</td>

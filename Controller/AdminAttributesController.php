@@ -14,15 +14,8 @@ class AdminAttributesController extends Controller
      */
     public function indexAction($configuration)
     {
-        $em = $this->get('doctrine.orm.entity_manager');
-
-        $configuration = $this->get('unicat')->getConfiguration($configuration);
-
         return $this->render('@UnicatModule/AdminAttributes/index.html.twig', [
-            'configuration'     => $configuration,
-            'attributes_groups' => $em->getRepository($configuration->getAttributesGroupClass())->findAll(),
-            'attributes'        => $em->getRepository($configuration->getAttributeClass())->findAll(),
-
+            'configuration' => $this->get('unicat')->getConfiguration($configuration),
         ]);
     }
 
@@ -34,8 +27,8 @@ class AdminAttributesController extends Controller
      */
     public function createGroupAction(Request $request, $configuration)
     {
-        $urm  = $this->get('unicat')->getConfigurationManager($configuration);
-        $form = $urm->getAttributesGroupCreateForm();
+        $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
+        $form = $ucm->getAttributesGroupCreateForm();
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -45,7 +38,7 @@ class AdminAttributesController extends Controller
             }
 
             if ($form->get('create')->isClicked() and $form->isValid()) {
-                $urm->updateAttributesGroup($form->getData());
+                $ucm->updateAttributesGroup($form->getData());
                 $this->addFlash('success', 'Группа атрибутов создана');
 
                 return $this->redirectToRoute('unicat_admin.attributes_index', ['configuration' => $configuration]);
@@ -54,22 +47,28 @@ class AdminAttributesController extends Controller
 
         return $this->render('@UnicatModule/AdminAttributes/create_group.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $urm->getConfiguration(),
         ]);
     }
 
     /**
      * @param Request    $request
      * @param string|int $configuration
-     * @param int        $group_id
+     * @param string     $group_name
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function groupAction(Request $request, $configuration, $group_id)
+    public function groupAction(Request $request, $configuration, $group_name)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
-        $form   = $ucm->getAttributeCreateForm($group_id);
+        $group  = $em->getRepository('UnicatModule:UnicatAttributesGroup')->findOneBy(['name' => $group_name, 'configuration' => $unicat->getCurrentConfiguration()]);
+
+        $form   = $ucm->getAttributeCreateForm($group->getId());
+
+        $configuration = $ucm->getConfiguration();
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -77,15 +76,14 @@ class AdminAttributesController extends Controller
                 $unicat->createAttribute($form->getData());
                 $this->addFlash('success', 'Свойство создано');
 
-                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $unicat->getCurrentConfiguration()->getName(), 'group_id' => $group_id]);
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_name' => $group_name]);
             }
         }
 
         return $this->render('@UnicatModule/AdminAttributes/group.html.twig', [
             'form'       => $form->createView(),
-            'attributes' => $unicat->getAttributes($configuration),
-            'group'      => $ucm->getAttributesGroup($group_id),
-            'configuration' => $unicat->getCurrentConfiguration(),
+            'attributes' => $em->getRepository('UnicatModule:UnicatAttribute')->findBy(['group' => $group->getId()]),
+            'group'      => $group,
         ]);
     }
 
@@ -97,11 +95,17 @@ class AdminAttributesController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function editAction(Request $request, $configuration, $group_id, $id)
+    public function editAction(Request $request, $configuration, $group_name, $name)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
-        $form   = $ucm->getAttributeEditForm($ucm->getAttribute($id));
+
+        $attribute = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy(['name' => $name, 'configuration' => $unicat->getCurrentConfiguration()]);
+
+        $form   = $ucm->getAttributeEditForm($attribute);
 
         $configuration = $ucm->getConfiguration();
 
@@ -109,27 +113,26 @@ class AdminAttributesController extends Controller
             $form->handleRequest($request);
 
             if ($form->has('cancel') and $form->get('cancel')->isClicked()) {
-                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_name' => $group_name]);
             }
 
             if ($form->has('update') and $form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateAttribute($form->getData());
                 $this->addFlash('success', 'Атрибут обновлён');
 
-                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_name' => $group_name]);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteAttribute($form->getData());
                 $this->addFlash('success', 'Атрибут удалён');
 
-                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_id' => $group_id]);
+                return $this->redirectToRoute('unicat_admin.attributes', ['configuration' => $configuration->getName(), 'group_name' => $group_name]);
             }
         }
 
         return $this->render('@UnicatModule/AdminAttributes/edit.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $configuration,
         ]);
     }
 }

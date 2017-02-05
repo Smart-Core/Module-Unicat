@@ -1,5 +1,9 @@
 {% extends '@CMS/Admin/module.html.twig' %}
 
+{% if configuration is not defined %}
+    {% set configuration = unicat_current_configuration() %}
+{% endif %}
+
 {% block title %}&laquo;{{ configuration.title }}&raquo; / Unicat / {{ parent() }}{% endblock %}
 
 {% set page_header = 'Unicat'|trans %}
@@ -11,7 +15,6 @@
     {% set __si = app.request.attributes.set('__selected_inheritance', false) %}
 
     {% set configurationMenu = knp_menu_get('UnicatModule:AdminMenu:configuration', [], {
-        'taxonClass': taxonomy.configuration.taxonClass,
         'configuration': configuration,
     }) %}
 

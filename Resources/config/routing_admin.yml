@@ -66,19 +66,14 @@ unicat_admin.attributes_group_create:
         _controller: UnicatModule:AdminAttributes:createGroup
 
 unicat_admin.attributes:
-    path: /{configuration}/attributes/group_{group_id}/
+    path: /{configuration}/attributes/{group_name}/
     defaults:
         _controller: UnicatModule:AdminAttributes:group
-    requirements:
-        group_id: \d+
 
 unicat_admin.attribute:
-    path: /{configuration}/attributes/group_{group_id}/{id}/
+    path: /{configuration}/attributes/{group_name}/{name}/
     defaults:
         _controller: UnicatModule:AdminAttributes:edit
-    requirements:
-        group_id: \d+
-        id: \d+
 
 # Items
 unicat_admin.item_create:

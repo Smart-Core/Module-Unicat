@@ -5,9 +5,9 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Smart\CoreBundle\Form\TypeResolverTtait;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
-use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Component\Form\AbstractType;
@@ -74,7 +74,7 @@ class ItemFormType extends AbstractType
             $builder->add('taxonomy:'.$taxonomy->getName(), TaxonTreeType::class, $optionsCat);
         }
 
-        /** @var $attribute AttributeModel */
+        /** @var $attribute UnicatAttribute */
         foreach ($this->unicat->getAttributes($this->configuration) as $attribute) {
             $type = $attribute->getType();
             $propertyOptions = [

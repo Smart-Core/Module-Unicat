@@ -4,11 +4,11 @@ namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use SmartCore\Bundle\MediaBundle\Service\MediaCloudService;
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Generator\DoctrineValueEntityGenerator;
 use SmartCore\Module\Unicat\Model\AbstractTypeModel;
-use SmartCore\Module\Unicat\Model\AttributeModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -156,7 +156,7 @@ class UnicatService
         $configuration = $this->getConfiguration($configuration_id);
 
         if (empty($configuration)) {
-            throw new \Exception('Конфигурации "'.$configuration_id.'"" не существует');
+            throw new \Exception('Конфигурации "'.$configuration_id.'" не существует');
         }
 
         $this->setCurrentConfiguration($configuration);
@@ -171,7 +171,7 @@ class UnicatService
     /**
      * @param UnicatConfiguration|int $configuration
      *
-     * @return AttributeModel[]
+     * @return UnicatAttribute[]
      *
      * @deprecated
      */
@@ -275,11 +275,11 @@ class UnicatService
     }
     
     /**
-     * @param AttributeModel $entity
+     * @param UnicatAttribute $entity
      *
      * @return $this
      */
-    public function createAttribute(AttributeModel $entity)
+    public function createAttribute(UnicatAttribute $entity)
     {
         if ($entity->getIsDedicatedTable()) {
             $reflector = new \ReflectionClass($entity);
@@ -366,11 +366,11 @@ class UnicatService
     }
 
     /**
-     * @param AttributeModel $entity
+     * @param UnicatAttribute $entity
      *
      * @return $this
      */
-    public function updateAttribute(AttributeModel $entity)
+    public function updateAttribute(UnicatAttribute $entity)
     {
         $this->persist($entity, true);
 
@@ -392,11 +392,11 @@ class UnicatService
     }
 
     /**
-     * @param AttributeModel $entity
+     * @param UnicatAttribute $entity
      *
      * @return $this
      */
-    public function deleteAttribute(AttributeModel $entity)
+    public function deleteAttribute(UnicatAttribute $entity)
     {
         throw new \Exception('@todo надо решить как поступать с данными записей');
 

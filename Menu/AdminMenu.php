@@ -32,7 +32,7 @@ class AdminMenu
 
         $menu->addChild('Taxonomy',     ['route' => 'unicat_admin.taxonomies_index',    'routeParameters' => ['configuration' => $configuration]]);
         $menu->addChild('Attributes',   ['route' => 'unicat_admin.attributes_index',    'routeParameters' => ['configuration' => $configuration]]);
-        $menu->addChild('Link names',   ['uri' => '#']); // @todo
+        //$menu->addChild('Link names',   ['uri' => '#']); // @todo
         //$menu->addChild('Link names',   ['route' => 'unicat_admin.properties_index',    'routeParameters' => ['configuration' => $configuration]]);
         $menu->addChild('Settings',     ['route' => 'unicat_admin.configuration.settings', 'routeParameters' => ['configuration' => $configuration]]);
 

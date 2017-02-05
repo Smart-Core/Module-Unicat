@@ -87,21 +87,18 @@ class AdminUnicatController extends Controller
     }
 
     /**
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param string $configuration
+     * @param Request $request
+     * @param string  $configuration
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function configurationAction(Request $request, $configuration)
     {
-        /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->get('doctrine.orm.entity_manager');
-
-        $ucm = $this->get('unicat')->getConfigurationManager($configuration);
-
         if (empty($configuration)) {
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
+
+        $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 
         $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter(
             $ucm->getItemRepository()->getFindByQuery([], ['id' => 'DESC'])
@@ -115,8 +112,6 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('@UnicatModule/Admin/configuration.html.twig', [
-            'configuration'     => $ucm->getConfiguration(),
-            'attributes'        => $em->getRepository('UnicatModule:UnicatAttribute')->findBy(['configuration' => $configuration]),
             'pagerfanta'        => $pagerfanta, // items
         ]);
     }
@@ -129,7 +124,8 @@ class AdminUnicatController extends Controller
      */
     public function configurationSettingsAction(Request $request, $configuration)
     {
-        $configuration = $this->get('unicat')->getConfiguration($configuration);
+        $ucm = $this->get('unicat')->getConfigurationManager($configuration);
+        $configuration = $ucm->getConfiguration();
 
         if (empty($configuration)) {
             return $this->render('@CMS/Admin/not_found.html.twig');
@@ -155,7 +151,6 @@ class AdminUnicatController extends Controller
 
         return $this->render('@UnicatModule/Admin/configuration_settings.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $configuration,
         ]);
     }
 
@@ -195,7 +190,6 @@ class AdminUnicatController extends Controller
 
         return $this->render('@UnicatModule/Admin/item_create.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 
@@ -234,7 +228,6 @@ class AdminUnicatController extends Controller
 
         return $this->render('@UnicatModule/Admin/item_edit.html.twig', [
             'form' => $form->createView(),
-            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 

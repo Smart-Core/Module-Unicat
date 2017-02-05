@@ -396,7 +396,7 @@ class UnicatConfigurationManager
     /**
      * @param int $id
      *
-     * @return TaxonModel|null
+     * @return TaxonModel|null|object
      */
     public function getTaxon($id)
     {

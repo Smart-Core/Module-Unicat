@@ -17,27 +17,25 @@
         <thead><tr>
             <th style="width: 1%;">id</th>
             <th>{{ 'Title'|trans }}</th>
-            <th>{{ 'Name'|trans }}</th>
             <th>{{ 'Is multiple entries'|trans }}</th>
             <th>{{ 'Is required'|trans }}</th>
             <th>{{ 'Is tree'|trans }}</th>
             <th>{{ 'Created at'|trans }}</th>
         </tr></thead>
         <tbody>
-        {% for item in configuration.taxonomies %}
+        {% for taxonomy in configuration.taxonomies %}
             <tr>
-                <td>{{ item.id }}</td>
+                <td>{{ taxonomy.id }}</td>
                 <td>
-                    <a href="{{ path('unicat_admin.taxonomy', {'id': item.id, 'configuration': item.configuration.name}) }}">{{ item.title }}</a>
-                    <a href="{{ path('unicat_admin.taxonomy_edit', {'id': item.id, 'configuration': item.configuration.name}) }}" style="float: right;" title="Редактирование таксономии">
+                    <a href="{{ path('unicat_admin.taxonomy', {'name': taxonomy.name, 'configuration': configuration.name}) }}">{{ taxonomy.title }}</a>
+                    <a href="{{ path('unicat_admin.taxonomy_edit', {'name': taxonomy.name, 'configuration': configuration.name}) }}" style="float: right;" title="Редактирование таксономии">
                         <i class="icon-edit" title="Edit"></i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                     </a>
                 </td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.isMultipleEntries }}</td>
-                <td>{{ item.isRequired }}</td>
-                <td>{{ item.isTree }}</td>
-                <td>{{ item.createdAt|localizeddate() }}</td>
+                <td>{{ taxonomy.isMultipleEntries }}</td>
+                <td>{{ taxonomy.isRequired }}</td>
+                <td>{{ taxonomy.isTree }}</td>
+                <td>{{ taxonomy.createdAt|localizeddate() }}</td>
             </tr>
         {% endfor %}
         </tbody>

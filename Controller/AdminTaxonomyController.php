@@ -3,25 +3,28 @@
 namespace SmartCore\Module\Unicat\Controller;
 
 use Smart\CoreBundle\Controller\Controller;
-use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminTaxonomyController extends Controller
 {
     /**
      * @param Request $request
-     * @param int     $taxonomy_id
+     * @param string  $taxonomy_id
      * @param int     $id
      * @param string  $configuration
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function taxonEditAction(Request $request, $taxonomy_id, $id, $configuration)
+    public function taxonEditAction(Request $request, $taxonomy_name, $id, $configuration)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
 
-        $taxonomy = $ucm->getTaxonomy($taxonomy_id);
+        $taxonomy  = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $taxonomy_name, 'configuration' => $ucm->getConfiguration()]);
         $taxon     = $ucm->getTaxon($id);
 
         $form = $ucm->getTaxonEditForm($taxon);
@@ -30,26 +33,25 @@ class AdminTaxonomyController extends Controller
             $form->handleRequest($request);
 
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
+                return $this->redirectToTaxonomyAdmin($taxonomy);
             }
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateTaxon($form->getData());
                 $this->addFlash('success', 'Категория обновлена');
 
-                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
+                return $this->redirectToTaxonomyAdmin($taxonomy);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteTaxon($form->getData());
                 $this->addFlash('success', 'Категория удалена');
 
-                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $taxonomy_id);
+                return $this->redirectToTaxonomyAdmin($taxonomy);
             }
         }
 
         return $this->render('@UnicatModule/AdminTaxonomy/taxon_edit.html.twig', [
-            'configuration' => $taxonomy->getConfiguration(),
             'taxon'         => $taxon,
             'form'          => $form->createView(),
             'taxonomy'      => $taxonomy,
@@ -82,11 +84,14 @@ class AdminTaxonomyController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function taxonomyAction(Request $request, $id, $configuration, $parent_id = null)
+    public function taxonomyAction(Request $request, $name, $configuration, $parent_id = null)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $unicat     = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm        = $unicat->getConfigurationManager($configuration);
-        $taxonomy   = $unicat->getTaxonomy($id);
+        $taxonomy   = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
 
         $parentTaxon = $parent_id ? $ucm->getTaxonRepository()->find($parent_id) : null;
 
@@ -97,16 +102,15 @@ class AdminTaxonomyController extends Controller
             if ($form->isValid()) {
                 $unicat->createTaxon($form->getData());
 
-                $this->addFlash('success', 'Категория создана');
+                $this->addFlash('success', 'Таксон создан');
 
-                return $this->redirectToTaxonomyAdmin($ucm->getConfiguration(), $id);
+                return $this->redirectToTaxonomyAdmin($taxonomy);
             }
         }
 
         return $this->render('@UnicatModule/AdminTaxonomy/taxonomy.html.twig', [
-            'configuration' => $taxonomy->getConfiguration(),
-            'form'          => $form->createView(),
-            'taxonomy'      => $taxonomy,
+            'form'      => $form->createView(),
+            'taxonomy'  => $taxonomy,
         ]);
     }
 
@@ -138,21 +142,26 @@ class AdminTaxonomyController extends Controller
 
         return $this->render('@UnicatModule/AdminTaxonomy/create.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 
     /**
      * @param Request $request
-     * @param int $id
+     * @param string  $name
      * @param string|int $configuration
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function editAction(Request $request, $id, $configuration)
+    public function editAction(Request $request, $name, $configuration)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
-        $form = $ucm->getTaxonomyEditForm($ucm->getTaxonomy($id));
+
+        $taxonomy  = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
+
+        $form = $ucm->getTaxonomyEditForm($ucm->getTaxonomy($taxonomy->getId()));
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -171,23 +180,21 @@ class AdminTaxonomyController extends Controller
 
         return $this->render('@UnicatModule/AdminTaxonomy/edit.html.twig', [
             'form'          => $form->createView(),
-            'configuration' => $ucm->getConfiguration(),
         ]);
     }
 
     /**
-     * @param UnicatConfiguration $configuration
-     * @param int $taxonomy_id
+     * @param UnicatTaxonomy $taxonomy
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    protected function redirectToTaxonomyAdmin(UnicatConfiguration $configuration, $taxonomy_id)
+    protected function redirectToTaxonomyAdmin(UnicatTaxonomy $taxonomy)
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
         $url = $request->query->has('redirect_to')
             ? $request->query->get('redirect_to')
-            : $this->generateUrl('unicat_admin.taxonomy', ['id' => $taxonomy_id, 'configuration' => $configuration->getName()]);
+            : $this->generateUrl('unicat_admin.taxonomy', ['name' => $taxonomy->getName(), 'configuration' => $taxonomy->getConfiguration()->getName()]);
 
         return $this->redirect($url);
     }

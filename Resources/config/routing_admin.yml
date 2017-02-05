@@ -25,11 +25,9 @@ unicat_admin.taxonomy_create:
         _controller: UnicatModule:AdminTaxonomy:create
 
 unicat_admin.taxonomy:
-    path: /{configuration}/taxonomy/{id}/
+    path: /{configuration}/taxonomy/{name}/
     defaults:
         _controller: UnicatModule:AdminTaxonomy:taxonomy
-    requirements:
-        id: \d+
 
 unicat_admin.taxonomy_with_parent_id:
     path: /{configuration}/taxonomy/{id}/{parent_id}/
@@ -40,19 +38,16 @@ unicat_admin.taxonomy_with_parent_id:
         id: \d+
 
 unicat_admin.taxonomy_edit:
-    path: /{configuration}/taxonomy/{id}/edit/
+    path: /{configuration}/taxonomy/{name}/edit/
     defaults:
         _controller: UnicatModule:AdminTaxonomy:edit
-    requirements:
-        id: \d+
 
 unicat_admin.taxon:
-    path: /{configuration}/taxonomy/{taxonomy_id}/taxon_{id}/
+    path: /{configuration}/taxonomy/{taxonomy_name}/{id}/
     defaults:
         _controller: UnicatModule:AdminTaxonomy:taxonEdit
     requirements:
         id: \d+
-        taxonomy_id: \d+
 
 # Attributes
 unicat_admin.attributes_index:

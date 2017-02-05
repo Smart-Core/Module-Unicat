@@ -117,7 +117,7 @@ class TaxonMenu implements ContainerAwareInterface
         foreach ($taxons as $taxon) {
             $uri = $this->container->get('router')->generate('unicat_admin.taxon', [
                 'id'            => $taxon->getId(),
-                'taxonomy_id'  => $taxon->getTaxonomy()->getId(),
+                'taxonomy_name' => $taxon->getTaxonomy()->getName(),
                 'configuration' => $taxon->getTaxonomy()->getConfiguration()->getName(),
             ]);
             $newItem = $menu->addChild($taxon->getTitle(), ['uri' => $uri]);

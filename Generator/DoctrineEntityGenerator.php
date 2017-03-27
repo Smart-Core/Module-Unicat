@@ -30,37 +30,39 @@ class DoctrineEntityGenerator extends Generator
             $this->renderFile('entity/'.$entity.'.php.twig', $dir.'/'.$entity.'.php', $parameters);
         }
 
-        foreach ($configuration->getAttributes() as $attribute) {
-            if ($attribute->getIsDedicatedTable()) {
-                switch ($attribute->getType()) {
-                    case 'checkbox':
-                        $type = 'Bool';
-                        break;
-                    case 'integer':
-                    case 'choice':
-                        $type = 'Int';
-                        break;
-                    case 'smallint':
-                        $type = 'Smallint';
-                        break;
-                    case 'string':
-                    case 'text':
-                        $type = 'String';
-                        break;
-                    case 'textarea':
-                        $type = 'Text';
-                        break;
-                    default:
-                        throw new \Exception('Unsupported value type: '.$attribute->getType());
+        if (!empty($configuration->getAttributes())) {
+            foreach ($configuration->getAttributes() as $attribute) {
+                if ($attribute->getIsDedicatedTable()) {
+                    switch ($attribute->getType()) {
+                        case 'checkbox':
+                            $type = 'Bool';
+                            break;
+                        case 'integer':
+                        case 'choice':
+                            $type = 'Int';
+                            break;
+                        case 'smallint':
+                            $type = 'Smallint';
+                            break;
+                        case 'string':
+                        case 'text':
+                            $type = 'String';
+                            break;
+                        case 'textarea':
+                            $type = 'Text';
+                            break;
+                        default:
+                            throw new \Exception('Unsupported value type: '.$attribute->getType());
+                    }
+
+                    $parameters['name'] = $attribute->getName();
+                    $parameters['name_camel_case'] = $this->camelCase($attribute->getName());
+                    $parameters['type'] = $type;
+
+                    $template = 'Value'; // @todo uniquie
+
+                    $this->renderFile('entity/'.$template.'.php.twig', $dir.'/Value'.$parameters['name_camel_case'].'.php', $parameters);
                 }
-
-                $parameters['name'] = $attribute->getName();
-                $parameters['name_camel_case'] = $this->camelCase($attribute->getName());
-                $parameters['type'] = $type;
-
-                $template = 'Value'; // @todo uniquie
-
-                $this->renderFile('entity/'.$template.'.php.twig', $dir.'/Value'.$parameters['name_camel_case'].'.php', $parameters);
             }
         }
     }

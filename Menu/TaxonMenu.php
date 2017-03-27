@@ -72,10 +72,18 @@ class TaxonMenu implements ContainerAwareInterface
         /** @var TaxonModel $taxon */
         foreach ($taxons as $taxon) {
             $uri = $this->container->get('router')->generate($options['routeName'], ['slug' => $taxon->getSlugFull()]).'/';
-            $menu->addChild($taxon->getTitle(), ['uri' => $uri]);
+            $menu->addChild($taxon->getSlug(), [
+                'label' => $taxon->getTitle(),
+                /*
+                'linkAttributes' => [
+                    'title' => $taxon->getSlug(),
+                ],
+                */
+                'uri' => $uri,
+            ]);
 
             /** @var ItemInterface $sub_menu */
-            $sub_menu = $menu[$taxon->getTitle()];
+            $sub_menu = $menu[$taxon->getSlug()];
 
             $this->addChild($sub_menu, $taxon, $options);
         }
@@ -120,14 +128,20 @@ class TaxonMenu implements ContainerAwareInterface
                 'taxonomy_name' => $taxon->getTaxonomy()->getName(),
                 'configuration' => $taxon->getTaxonomy()->getConfiguration()->getName(),
             ]);
-            $newItem = $menu->addChild($taxon->getTitle(), ['uri' => $uri]);
+            $newItem = $menu->addChild($taxon->getSlug(), [
+                'label' => $taxon->getTitle(),
+                'linkAttributes' => [
+                    'title' => $taxon->getSlug(),
+                ],
+                'uri' => $uri,
+            ]);
 
             if (false === $taxon->getIsEnabled()) {
                 $newItem->setAttribute('style', 'text-decoration: line-through;');
             }
 
             /** @var ItemInterface $sub_menu */
-            $sub_menu = $menu[$taxon->getTitle()];
+            $sub_menu = $menu[$taxon->getSlug()];
 
             $this->addChildToAdminTree($sub_menu, $taxon, $options);
         }

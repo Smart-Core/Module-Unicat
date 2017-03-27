@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
 
@@ -70,10 +71,27 @@ class UnicatTaxonomy
     protected $configuration;
 
     /**
-     * Constructor.
+     * @todo пока не используется.
+     *
+     * @var UnicatAttribute[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="UnicatAttribute", mappedBy="taxonomies")
+     */
+    //protected $attributes;
+
+    /**
+     * @var UnicatItemType[]
+     *
+     * @ORM\ManyToMany(targetEntity="UnicatItemType", mappedBy="taxonomies")
+     */
+    protected $item_types;
+
+    /**
+     * UnicatTaxonomy constructor.
      */
     public function __construct()
     {
+        $this->attributes = new ArrayCollection();
         $this->created_at = new \DateTime();
         $this->position   = 0;
         $this->properties = null;
@@ -81,6 +99,34 @@ class UnicatTaxonomy
         $this->is_multiple_entries    = false;
         $this->is_required = true;
         $this->is_tree     = true;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getTitle();
+    }
+
+    /**
+     * @return ArrayCollection|UnicatAttribute[]
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @param ArrayCollection|UnicatAttribute[] $attributes
+     *
+     * @return $this
+     */
+    public function setAttributes($attributes)
+    {
+        $this->attributes = $attributes;
+
+        return $this;
     }
 
     /**

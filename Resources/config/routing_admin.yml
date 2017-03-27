@@ -8,6 +8,13 @@ unicat_admin.configuration:
     defaults:
         _controller: UnicatModule:AdminUnicat:configuration
 
+unicat_admin.configuration.items:
+    path: /{configuration}/items_{itemTypeId}/
+    defaults:
+        _controller: UnicatModule:AdminUnicat:configuration
+    requirements:
+        itemTypeId: \d+
+
 unicat_admin.configuration.settings:
     path: /{configuration}/settings/
     defaults:
@@ -60,13 +67,13 @@ unicat_admin.attributes_group_create:
     defaults:
         _controller: UnicatModule:AdminAttributes:createGroup
 
-unicat_admin.attributes:
-    path: /{configuration}/attributes/{group_name}/
+unicat_admin.attributes_create:
+    path: /{configuration}/attributes/create/
     defaults:
-        _controller: UnicatModule:AdminAttributes:group
+        _controller: UnicatModule:AdminAttributes:create
 
-unicat_admin.attribute:
-    path: /{configuration}/attributes/{group_name}/{name}/
+unicat_admin.attributes_edit:
+    path: /{configuration}/attributes/{name}/
     defaults:
         _controller: UnicatModule:AdminAttributes:edit
 
@@ -80,6 +87,13 @@ unicat_admin.items_type_create:
     path: /{configuration}/items_type_create/
     defaults:
         _controller: UnicatModule:AdminUnicat:itemsTypeCreate
+
+unicat_admin.items_type_edit:
+    path: /{configuration}/items_type/{id}/
+    defaults:
+        _controller: UnicatModule:AdminUnicat:itemsTypeEdit
+    requirements:
+        id: \d+
 
 unicat_admin.item_create:
     path: /{configuration}/item_create/

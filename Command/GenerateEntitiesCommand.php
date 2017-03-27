@@ -26,18 +26,6 @@ class GenerateEntitiesCommand extends ContainerAwareCommand
         $this->input  = $input;  // для OutputWritelnTrait
         $this->output = $output; // для OutputWritelnTrait
 
-        /** @var \Doctrine\ORM\EntityManager $em */
-        $em         = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $finder     = new Finder();
-        $filesystem = new Filesystem();
-        /** @var \AppKernel $kernel */
-        $kernel      = $this->getContainer()->get('kernel');
-        $entitiesDir = $kernel->getBundle('SiteBundle')->getPath().'/Entity';
-
-
-        $unicat = $this->getContainer()->get('unicat');
-
-        $unicat->generateEntities();
-
+        $this->getContainer()->get('unicat')->generateEntities();
     }
 }

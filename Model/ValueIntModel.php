@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * {@inheritDoc}
  */
-abstract class ValueIntModel extends AbstractTypeModel
+abstract class ValueIntModel extends AbstractValueModel
 {
     /**
      * @ORM\Column(type="integer")

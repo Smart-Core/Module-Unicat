@@ -29,9 +29,16 @@ class UnicatAttributesGroup
     /**
      * @var UnicatAttribute[]
      *
-     * @ORM\OneToMany(targetEntity="UnicatAttribute", mappedBy="group")
+     * @ORM\ManyToMany(targetEntity="UnicatAttribute", mappedBy="groups")
      */
     protected $attributes;
+
+    /**
+     * @var UnicatItemType[]
+     *
+     * @ORM\ManyToMany(targetEntity="UnicatItemType", mappedBy="attributes_groups")
+     */
+    protected $item_types;
 
     /**
      * @todo подумать о привязке групп атрибутов к таксону
@@ -50,12 +57,22 @@ class UnicatAttributesGroup
     protected $configuration;
 
     /**
-     * Constructor.
+     * UnicatAttributesGroup constructor.
      */
     public function __construct()
     {
         $this->created_at = new \DateTime();
         $this->attributes = new ArrayCollection();
+    }
+
+    /**
+     * @see getName
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getTitle();
     }
 
     /**
@@ -96,5 +113,25 @@ class UnicatAttributesGroup
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+    /**
+     * @return UnicatItemType[]
+     */
+    public function getItemTypes()
+    {
+        return $this->item_types;
+    }
+
+    /**
+     * @param mixed $item_types
+     *
+     * @return $this
+     */
+    public function setItemTypes($item_types)
+    {
+        $this->item_types = $item_types;
+
+        return $this;
     }
 }

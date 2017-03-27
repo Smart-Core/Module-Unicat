@@ -7,12 +7,12 @@ use SmartCore\Module\Unicat\Model\Value{{ type }}Model;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="{{ table_prefix ~ configuration_name ~ '_values__' ~ table_name }}",
+ * @ORM\Table(name="{{ table_prefix ~ configuration.name ~ '_values__' ~ name }}",
  *      indexes={
  *          @ORM\Index(columns={"value"}),
  *      }
  * )
  */
-class {{ class_name }} extends Value{{ type }}Model
+class Value{{ name_camel_case }} extends Value{{ type }}Model
 {
 }

@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * ORM\Entity()
@@ -16,10 +17,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *      },
  *      uniqueConstraints={
  *          ORM\UniqueConstraint(name="slug_parent_taxonomy", columns={"slug", "parent_id", "taxonomy_id"}),
+ *          ORM\UniqueConstraint(name="title_parent_taxonomy", columns={"title", "parent_id", "taxonomy_id"}),
  *      }
  * )
  *
  * @UniqueEntity(fields={"slug", "parent", "taxonomy"}, message="В каждой подкатегории должен быть уникальный сегмент URI")
+ * @UniqueEntity(fields={"title", "parent", "taxonomy"}, message="В каждой подкатегории должен быть уникальный заголовок")
  */
 abstract class TaxonModel
 {
@@ -27,13 +30,20 @@ abstract class TaxonModel
     use ColumnTrait\IsEnabled;
     use ColumnTrait\CreatedAt;
     use ColumnTrait\Position;
-    use ColumnTrait\Title;
     use ColumnTrait\FosUser;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
     protected $slug;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", nullable=false)
+     * @Assert\NotBlank()
+     */
+    protected $title;
 
     /**
      * Включает записи вложенных категорий.
@@ -317,5 +327,25 @@ abstract class TaxonModel
         }
 
         return $slug;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     *
+     * @return $this
+     */
+    public function setTitle($title)
+    {
+        $this->title = trim($title);
+
+        return $this;
     }
 }

@@ -13,6 +13,7 @@ use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationSettingsFormType;
 use SmartCore\Module\Unicat\Form\Type\ItemTypeFormType;
 use SmartCore\Module\Unicat\Generator\DoctrineEntityGenerator;
+use SmartCore\Module\Unicat\Model\ItemModel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -46,34 +47,11 @@ class AdminUnicatController extends Controller
 
                     /** @var UnicatConfiguration $uc */
                     $uc = $form->getData();
-
-                    $generator = new DoctrineEntityGenerator();
-                    $generator->setSkeletonDirs($this->get('kernel')->getBundle('UnicatModule')->getPath().'/Resources/skeleton');
-                    $siteBundle = $this->get('kernel')->getBundle('SiteBundle');
-                    $targetDir  = $siteBundle->getPath().'/Entity/'.ucfirst($uc->getName());
-
-                    if (!is_dir($targetDir) and !@mkdir($targetDir, 0777, true)) {
-                        throw new \InvalidArgumentException(sprintf('The directory "%s" does not exist and could not be created.', $targetDir));
-                    }
-
-                    $reflector = new \ReflectionClass($siteBundle);
-                    $namespace = $reflector->getNamespaceName().'\Entity\\'.ucfirst($uc->getName());
-                    $generator->generate($targetDir, $uc->getName(), $namespace);
-
-                    $application = new Application($this->get('kernel'));
-                    $application->setAutoExit(false);
-                    $applicationInput = new ArrayInput([
-                        'command' => 'doctrine:schema:update',
-                        '--force' => true,
-                    ]);
-                    $applicationOutput = new BufferedOutput();
-                    $retval = $application->run($applicationInput, $applicationOutput);
-
-                    $uc->setEntitiesNamespace($namespace.'\\')
-                        ->setUser($this->getUser())
-                    ;
+                    $uc->setUser($this->getUser());
 
                     $this->persist($uc, true);
+
+                    $this->get('unicat')->generateEntities();
 
                     $this->addFlash('success', 'Конфигурация <b>'.$uc->getName().'</b> создана.');
                 }
@@ -94,16 +72,44 @@ class AdminUnicatController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function configurationAction(Request $request, $configuration)
+    public function configurationAction(Request $request, $configuration, $itemTypeId = null)
     {
         if (empty($configuration)) {
             return $this->render('@CMS/Admin/not_found.html.twig');
         }
 
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 
+        $conf = $ucm->getConfiguration();
+
+        if (empty($conf->getItemTypes())) {
+            return $this->redirect($this->generateUrl('unicat_admin.items_types'));
+        }
+
+        // @todo валидация item type id
+        if (empty($itemTypeId)) {
+            foreach ($conf->getItemTypes() as $itemType) {
+                $itemTypeId = $itemType->getId();
+
+                break;
+            }
+        }
+
+        $criteria = ['type' => $itemTypeId];
+
+        $parentItem = $ucm->findItem($request->query->get('parent_id', 0));
+
+        if ($parentItem) {
+            $attr = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy(['items_type' => $parentItem->getType()]);
+
+            $criteria['attr_'.$attr->getName()] = $parentItem->getId();
+        }
+
         $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter(
-            $ucm->getItemRepository()->getFindByQuery([], ['id' => 'DESC'])
+            $ucm->getItemRepository()->getFindByQuery($criteria, ['id' => 'DESC'])
         ));
         $pagerfanta->setMaxPerPage(20);
 
@@ -113,8 +119,13 @@ class AdminUnicatController extends Controller
             throw $this->createNotFoundException();
         }
 
+        $itemType = $em->find('UnicatModule:UnicatItemType', $itemTypeId);
+
         return $this->render('@UnicatModule/Admin/configuration.html.twig', [
-            'pagerfanta'        => $pagerfanta, // items
+            'pagerfanta'    => $pagerfanta, // items
+            'itemType'      => $itemType,
+            'parentItem'    => $parentItem,
+            'itemsTypeschildren' => $ucm->getChildrenTypes($itemType),
         ]);
     }
 
@@ -165,13 +176,40 @@ class AdminUnicatController extends Controller
      */
     public function itemCreateAction(Request $request, $configuration, $default_taxon_id = null)
     {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
-        $newItem = $ucm->createItemEntity();
-        $newItem->setUser($this->getUser());
+        $itemType = $em->getRepository('UnicatModule:UnicatItemType')->find($request->query->get('type', 0));
 
+        if (empty($itemType)) {
+            throw new \Exception("Не указан тип записи");
+        }
+
+        $newItem = $ucm->createItemEntity();
+        $newItem
+            ->setUser($this->getUser())
+            ->setType($itemType)
+        ;
+
+        // @todo пересмотреть таксон по умолчанию.
         if ($default_taxon_id) {
             $newItem->setTaxons(new ArrayCollection([$ucm->getTaxonRepository()->find($default_taxon_id)]));
+        }
+
+        // @todo пока можно указать только один родительский итем. сделать массив.
+        $parentItem = $ucm->findItem($request->query->get('parent_id'));
+        if ($parentItem) {
+            $attr = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy(['items_type' => $parentItem->getType(), 'is_enabled' => true]);
+
+            if ($attr) {
+                if (method_exists($newItem, 'addAttr'.$attr->getName())) {
+                    call_user_func([$newItem, 'addAttr'.$attr->getName()], $parentItem);
+                } elseif (method_exists($newItem, 'setAttr'.$attr->getName())) {
+                    call_user_func([$newItem, 'setAttr'.$attr->getName()], $parentItem);
+                }
+            }
         }
 
         $form = $ucm->getItemCreateForm($newItem);
@@ -180,18 +218,19 @@ class AdminUnicatController extends Controller
             $form->handleRequest($request);
             if ($form->isValid()) {
                 if ($form->get('cancel')->isClicked()) {
-                    return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
+                    return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $itemType);
                 }
 
                 $ucm->createItem($form, $request);
                 $this->addFlash('success', 'Запись создана');
 
-                return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
+                return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $itemType);
             }
         }
 
         return $this->render('@UnicatModule/Admin/item_create.html.twig', [
-            'form' => $form->createView(),
+            'form'     => $form->createView(),
+            'itemType' => $itemType,
         ]);
     }
 
@@ -221,15 +260,22 @@ class AdminUnicatController extends Controller
             }
 
             if ($form->isValid() and $form->get('update')->isClicked() and $form->isValid()) {
+                /** @var ItemModel $item */
+                $item = $form->getData();
+
                 $ucm->updateItem($form, $request);
                 $this->addFlash('success', 'Запись обновлена');
 
-                return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
+                return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $item->getType());
             }
         }
 
+        /** @var ItemModel $item */
+        $item = $form->getData();
+
         return $this->render('@UnicatModule/Admin/item_edit.html.twig', [
-            'form' => $form->createView(),
+            'form'           => $form->createView(),
+            'itemsTypeschildren' => $ucm->getChildrenTypes($item->getType()),
         ]);
     }
 
@@ -247,8 +293,7 @@ class AdminUnicatController extends Controller
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
         return $this->render('@UnicatModule/Admin/items_types.html.twig', [
-            'types' => $em->getRepository('UnicatModule:UnicatItemType')->findBy(['configuration' => $ucm->getConfiguration()]),
-            //'form' => $form->createView(),
+            'types' => $em->getRepository('UnicatModule:UnicatItemType')->findBy(['configuration' => $ucm->getConfiguration()], ['position' => 'ASC']),
         ]);
     }
 
@@ -293,17 +338,57 @@ class AdminUnicatController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param string  $configuration
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function itemsTypeEditAction(Request $request, $configuration, UnicatItemType $itemType)
+    {
+        $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
+        $form = $this->createForm(ItemTypeFormType::class, $itemType);
+        $form->add('update', SubmitType::class, ['attr' => ['class' => 'btn-primary']]);
+        $form->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default']]);
+
+        if ($request->isMethod('POST')) {
+            $form->handleRequest($request);
+
+            if ($form->get('cancel')->isClicked()) {
+                return $this->redirect($this->generateUrl('unicat_admin.items_types', ['configuration' => $configuration]));
+            }
+
+            if ($form->get('update')->isClicked() and $form->isValid()) {
+                $this->persist($form->getData(), true);
+                $this->addFlash('success', 'Тип записей обновлён');
+
+                return $this->redirect($this->generateUrl('unicat_admin.items_types', ['configuration' => $configuration]));
+            }
+        }
+
+        return $this->render('@UnicatModule/Admin/items_type_edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @param UnicatConfiguration $configuration
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    protected function redirectToConfigurationAdmin(UnicatConfiguration $configuration)
+    protected function redirectToConfigurationAdmin(UnicatConfiguration $configuration, UnicatItemType $itemType = null)
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
-        $url = $request->query->has('redirect_to')
-            ? $request->query->get('redirect_to')
-            : $this->generateUrl('unicat_admin.configuration', ['configuration' => $configuration->getName()]);
+        if ($itemType) {
+            $url = $request->query->has('redirect_to')
+                ? $request->query->get('redirect_to')
+                : $this->generateUrl('unicat_admin.configuration.items', ['configuration' => $configuration->getName(), 'itemTypeId' => $itemType->getId()]);
+
+        } else {
+            $url = $request->query->has('redirect_to')
+                ? $request->query->get('redirect_to')
+                : $this->generateUrl('unicat_admin.configuration', ['configuration' => $configuration->getName()]);
+        }
 
         return $this->redirect($url);
     }

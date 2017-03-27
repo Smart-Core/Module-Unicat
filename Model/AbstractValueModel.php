@@ -8,13 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
  * ORM\Entity()
  * ORM\Table(name="unicat_items_attributename",
  *      indexes={
- *          @ORM\Index(columns={"value"})
+ *          ORM\Index(columns={"value"})
  *      }
  * )
- *
- * @todo переименовать в AbstractValueModel
  */
-abstract class AbstractTypeModel
+abstract class AbstractValueModel
 {
     /**
      * @var ItemModel

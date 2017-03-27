@@ -1,6 +1,8 @@
 {% extends '@UnicatModule/Admin/_layout.html.twig' %}
 
-{% block title %} {{ 'Edit record'|trans }} &laquo;{{ form.vars.data.slug }}&raquo; / {{ parent() }}{% endblock %}
+{% set item = form.vars.data %}
+
+{% block title %} {{ 'Record'|trans }} &laquo;{{ item.slug }}&raquo; / {{ parent() }}{% endblock %}
 
 {% block content %}
 
@@ -9,38 +11,29 @@
 
     {#<a style="float: right;" href="../"><i class="fa fa-arrow-circle-o-left"></i> назад к конфигурации &laquo;{{ configuration.title }}&raquo;</a>#}
 
-    <h2>{{ 'Edit record'|trans }} &laquo;{{ form.vars.data.slug }}&raquo;</h2>
+    <h2>{{ 'Record'|trans }} &laquo;{{ item.slug }}&raquo; из коллекции &laquo;{{ item.type.title }}&raquo;</h2>
 
-    {{ form_start(form, {'attr':{'class':'form-horizontal well'}}) }}
-    {{ form_errors(form) }}
-    <fieldset>
-        <div class="tabbable">
-            <ul class="nav nav-pills">
-                <li class="active"><a href="#base-settings" data-toggle="tab">{{ 'Base settings'|trans }}</a></li>
-                <li><a href="#meta-tags" data-toggle="tab">{{ 'Meta tags'|trans }}</a></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane" id="meta-tags">
-                    {{ form_widget(form.meta) }}
-                </div>
-                <div class="tab-pane active" id="base-settings">
-                    {{ form_widget(form) }}
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="controls">
-                    {{ form_rest(form) }}
-                </div>
-            </div>
-        </div>
-    </fieldset>
-    {{ form_end(form) }}
+        {% for i in item.ParentItems %}
+            <p>Состоит в <a href="{{ path('unicat_admin.item_edit', {'id': i.id, 'configuration': i.type.configuration.name}) }}">{{ i.type.title }} - {{ i }}</a></p>
+        {% endfor %}
 
-    {#{{ tinymce_init3() }}#}
-    {#{{ elfinder_tinymce_init() }}#}
+        {% for item_type_child in itemsTypeschildren %}
+            <p>Включает записи <a href="{{ path('unicat_admin.configuration.items', {
+                    'configuration': configuration.name,
+                    'itemTypeId': item_type_child.id,
+                    'parent_id': item.id,
+                }) }}">{{ item_type_child.title }}</a></p>
+            <p><a href="{{ path('unicat_admin.item_create', {
+                    'configuration': item.type.configuration.name,
+                    'type': item_type_child.id,
+                    'parent_id': item.id,
+                }) }}" class="btn btn-success">
+                    <i class="icon-plus icon-white"></i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    Добавить запись в коллекцию &laquo;{{ item_type_child.title }}&raquo;
+                </a></p>
+        {% endfor %}
 
-    {{ elfinder_tinymce_init4('tinymce4', {'width': 980, 'height': 430, 'title': 'Файловый менеджер' }) }}
-    {{ tinymce_init() }}
+        {% include '@UnicatModule/Admin/_item_form_content.html.twig' %}
 
     </div>
 </div>

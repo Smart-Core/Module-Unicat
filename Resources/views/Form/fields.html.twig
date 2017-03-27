@@ -1,12 +1,310 @@
+{% block unicat_attribute_geomap_widget %}
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+
+    <script type="text/javascript">
+    ymaps.ready(init);
+    var myMap, myGeoObject, myCollection, {% if data == "null" %}
+        mapDate = ''
+    {% else %}
+        mapDate = [{{ data }}]
+    {% endif %};
+
+    function init () {
+      myMap = new ymaps.Map("map", {
+          center: [53.339115, 83.793780],
+          zoom: 12
+      }, {
+          balloonMaxWidth: 200,
+          searchControlProvider: 'yandex#search'
+      });
+
+      myMap.behaviors.disable(['DblClickZoom']);
+
+      myCollection = new ymaps.GeoObjectCollection();
+
+
+      if (mapDate != '') {
+        myGeoObject = new ymaps.GeoObject({
+              geometry: {
+                  type: "Point",
+                  coordinates: [mapDate[0], mapDate[1]]
+              }
+        });
+        myMap.geoObjects.add(myCollection);
+        myCollection.add(myGeoObject);
+      }
+
+      myMap.events.add('click', function (e) {
+          mapDate = e.get('coords');
+          myGeoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: [mapDate[0], mapDate[1]]
+                }
+            });
+          myMap.geoObjects.add(myCollection);
+          if (myCollection.toArray().length != 0) {
+            return false;
+          } else {
+            myCollection.add(myGeoObject);
+            document.getElementById("{{ id }}").value = mapDate;
+          }
+      });
+
+      myCollection.events.add('click', function (e) {
+          myCollection.remove(e.target);
+          mapDate = '';
+          document.getElementById("{{ id }}").value = mapDate;
+      });
+    }
+    function clear() {
+        document.getElementById("{{ id }}").value = '';
+    }
+    </script>
+
+    <div id="map" style="    height: 500px;
+        width: 100%;">
+
+    </div>
+    <a href="#clear" onclick="clear()">Очистить геоданные</a>
+    <input type="text" name="{{ full_name }}" id="{{ id }}" class="form-control" value="{{ data|json_encode }}" style="visibility: hidden; height: 1px; box-sizing: border-box;">
+{% endblock %}
 
 {% block unicat_attribute_image_widget %}
     {% spaceless %}
     {% if data is not empty %}
-        {{ smart_media_img(data, '100_100') }}
-        <input type="checkbox" name="_delete_[{{ name }}]" id="{{ id ~ 'remove'}}" /><label for="{{ id ~ 'remove'}}" style="display: inline;"> Удалить</label>
-        <br />
+        {{ smart_media_img(data, '100x100') }}
+        <input type="checkbox" name="_delete_[{{ name }}]" id="{{ id ~ 'remove'}}"/>
+        <label for="{{ id ~ 'remove'}}" style="display: inline;">
+            Удалить</label>
+        <br/>
     {% endif %}
 
     {{ block('form_widget_simple') }}
     {% endspaceless %}
+{% endblock %}
+
+{% block unicat_attribute_gallery_widget %}
+    <link href="{{ asset('bundles/unicatmodule/shortfu/fine-uploader-gallery.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('bundles/unicatmodule/shortfu/fine-uploader.min.js') }}"></script>
+    <script type="text/template" id="qq-template">
+        <div class="qq-uploader-selector qq-uploader qq-gallery" qq-drop-area-text="Drop files here">
+            <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
+                <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+            </div>
+            <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                <span class="qq-upload-drop-area-text-selector"></span>
+            </div>
+            <div class="qq-upload-button-selector qq-upload-button" style="margin-right: 10px">
+                <div>Выбрать</div>
+            </div>
+            <div id="upload-button" class="qq-upload-button-selector qq-upload-button">
+                <div>Загрузить</div>
+            </div>
+            <span class="qq-drop-processing-selector qq-drop-processing">
+                <span>Processing dropped files...</span>
+                <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+            </span>
+            <ul class="qq-upload-list-selector qq-upload-list" role="region" aria-live="polite" aria-relevant="additions removals">
+                <li>
+                    <span role="status" class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                    <div class="qq-progress-bar-container-selector qq-progress-bar-container">
+                        <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
+                    </div>
+                    <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                    <div class="qq-thumbnail-wrapper">
+                        <img class="qq-thumbnail-selector" qq-max-size="120" qq-server-scale>
+                    </div>
+                    <button type="button" class="qq-upload-cancel-selector qq-upload-cancel">X</button>
+                    <button type="button" class="qq-upload-retry-selector qq-upload-retry">
+                        <span class="qq-btn qq-retry-icon" aria-label="Retry"></span>
+                        Retry
+                    </button>
+
+                    <div class="qq-file-info">
+                        <div class="qq-file-name">
+                            <span class="qq-upload-file-selector qq-upload-file"></span>
+                            <span class="qq-edit-filename-icon-selector qq-btn qq-edit-filename-icon" aria-label="Edit filename"></span>
+                        </div>
+                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                        <span class="qq-upload-size-selector qq-upload-size"></span>
+                        <button type="button" class="qq-btn qq-upload-delete-selector qq-upload-delete">
+                            <span class="qq-btn qq-delete-icon" aria-label="Delete"></span>
+                        </button>
+                        <button type="button" class="qq-btn qq-upload-pause-selector qq-upload-pause">
+                            <span class="qq-btn qq-pause-icon" aria-label="Pause"></span>
+                        </button>
+                        <button type="button" class="qq-btn qq-upload-continue-selector qq-upload-continue">
+                            <span class="qq-btn qq-continue-icon" aria-label="Continue"></span>
+                        </button>
+                    </div>
+                    <input type="text" class="title" style="width: 100%;">
+                </li>
+            </ul>
+
+            <dialog class="qq-alert-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Close</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-confirm-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">No</button>
+                    <button type="button" class="qq-ok-button-selector">Yes</button>
+                </div>
+            </dialog>
+
+            <dialog class="qq-prompt-dialog-selector">
+                <div class="qq-dialog-message-selector"></div>
+                <input type="text">
+                <div class="qq-dialog-buttons">
+                    <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                    <button type="button" class="qq-ok-button-selector">Ok</button>
+                </div>
+            </dialog>
+        </div>
+    </script>
+
+    <style media="screen">
+        .img-flex-wrapper,
+        .img-item {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .img-item {
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid lightgrey;
+            padding: 3px;
+            margin-right: 1rem;
+        }
+        .img-item img {
+            margin-bottom: 1rem;
+        }
+        .img-item input {
+            width: 100%;
+        }
+
+    </style>
+    <div class="img-flex-wrapper">
+        {% for img in data %}
+            <div class="img-item">
+                <a onclick="remove({{img.id}}, this)" href="#test">kill</a>
+                {{ smart_media_img(img.id, '200x200') }}
+                <input class="img-title" id="title_{{img.id}}" type="text" name="" placeholder="Описание картинки" value="{{img.title}}">
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="uploader"></div>
+
+    <input type="text" name="{{ full_name }}" id="{{ id }}" class="form-control" value="{{ data|json_encode }}" style="visibility: hidden; height: 1px; box-sizing: border-box;">
+
+    <script>
+        {% if data|json_encode == "null" %}
+            var jsonData = [];
+        {% else %}
+            var jsonData = {{ data|json_encode }};
+        {% endif %}
+        var galleryId = "{{ id }}";
+        var uploader = new qq.FineUploader({
+            element: document.getElementById("uploader"),
+            autoUpload: false,
+            request: {
+                endpoint: '{{ path('smart.media.upload') }}'
+            },
+            retry: {
+                enableAuto: true
+            },
+            validation: {
+                allowedExtensions: ['png', 'jpeg', 'jpg']
+            },
+            callbacks: {
+                onComplete: complete()
+            }
+            /*
+              onStatusChange: function(oldStatus, newStatus) {
+                  console.log(newStatus)
+              }
+            */
+        });
+
+        qq(document.getElementById("upload-button")).attach('click', function() {
+            uploader.uploadStoredFiles();
+        });
+        console.log(jsonData);
+
+        var titleList = document.querySelectorAll(".img-title");
+
+        // titleList.addEventListener('change', sum(1, 5));
+
+
+        function clearJson(id, jsonData, elem){
+          var i = 0;
+          for (i; jsonData[i].id != id; i++) {}
+          jsonData.splice(i,1);
+          document.getElementById(galleryId).value = JSON.stringify(jsonData);
+          elem.parentNode.style.display = "none";
+        }
+
+
+        function remove(id, elem) {
+            return $.ajax({
+                type: "GET",
+                url: "/_media/remove?id=" + id,
+            })
+            .done(function(data, status, xhr){
+               clearJson(id, jsonData, elem)
+            });
+        }
+
+        forEach(titleList, function(key, value) {
+            value.onchange = function() {
+                var title2 = value.value;
+                jsonData[key]["title"] = title2;
+                console.log(jsonData[key]["title"]);
+                document.getElementById(galleryId).value = JSON.stringify(jsonData);
+            };
+        });
+
+        forEach(titleList, function(key, value) {
+            var title1 = value.value;
+            jsonData[key]["title"] = title1;
+        });
+
+        function forEach(data, callback) {
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    callback(key, data[key]);
+                }
+            }
+        }
+
+        document.getElementById(galleryId).value = JSON.stringify(jsonData);
+
+        function complete() {
+            return function(id, name, response) {
+                var fileContainer = this.getItemByFileId(id);
+                var titleInput = fileContainer.querySelector('.title');
+                var titleText = titleInput.value;
+                if (response.success = "true") {
+                    var data = response.data;
+                    forEach(data, function(key, value) {
+                        var id1 = value.id,
+                            jsd = {};
+                        jsd = {
+                            "id": id1,
+                            "title": titleText
+                        };
+                        jsonData.push(jsd);
+                    });
+                    document.getElementById(galleryId).value = JSON.stringify(jsonData);
+                    console.log(JSON.stringify(jsonData));
+                }
+            };
+        };
+    </script>
 {% endblock %}

@@ -59,7 +59,7 @@ class UnicatConfiguration
     protected $media_collection;
 
     /**
-     * @var UnicatTaxonomy
+     * @var UnicatTaxonomy|null
      *
      * @ORM\ManyToOne(targetEntity="UnicatTaxonomy")
      */
@@ -83,6 +83,7 @@ class UnicatConfiguration
      * @var UnicatItemType[]
      *
      * @ORM\OneToMany(targetEntity="UnicatItemType", mappedBy="configuration")
+     * @ORM\OrderBy({"position" = "ASC"})
      */
     protected $item_types;
 
@@ -127,18 +128,6 @@ class UnicatConfiguration
     public function getItemClass()
     {
         return $this->entities_namespace.'Item';
-    }
-
-    /**
-     * @return AttributesGroupModel
-     *
-     * @deprecated
-     */
-    public function createAttributesGroup()
-    {
-        $class = $this->getAttributesGroupClass();
-
-        return new $class();
     }
 
     /**
@@ -292,7 +281,7 @@ class UnicatConfiguration
     /**
      * @return UnicatTaxonomy
      */
-    public function getDefaultTaxonomy(): UnicatTaxonomy
+    public function getDefaultTaxonomy()
     {
         return $this->default_taxonomy;
     }
@@ -302,7 +291,7 @@ class UnicatConfiguration
      *
      * @return $this
      */
-    public function setDefaultTaxonomy($default_taxonomy)
+    public function setDefaultTaxonomy(UnicatTaxonomy $default_taxonomy = null)
     {
         $this->default_taxonomy = $default_taxonomy;
 

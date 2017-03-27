@@ -2,14 +2,16 @@
 
 namespace SmartCore\Module\Unicat\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
+use SmartCore\Bundle\CMSBundle\Container;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="SmartCore\Module\Unicat\Entity\UnicatAttributeRepository")
  * @ORM\Table(name="unicat__attributes",
  *      indexes={
  *          @ORM\Index(columns={"is_enabled"}),
@@ -23,16 +25,32 @@ use Symfony\Component\Yaml\Yaml;
  *      },
  * )
  *
- * @UniqueEntity(fields={"name", "configuration"}, message="Имя свойства должно быть уникальным.")
+ * @UniqueEntity(fields={"name", "configuration"}, message="Имя атрибута должно быть уникальным.")
  */
 class UnicatAttribute
 {
     use ColumnTrait\Id;
     use ColumnTrait\IsEnabled;
     use ColumnTrait\CreatedAt;
+    use ColumnTrait\Description;
     use ColumnTrait\Position;
     use ColumnTrait\TitleNotBlank;
     use ColumnTrait\FosUser;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     * @Assert\NotBlank()
+     * @Assert\Regex(
+     *      pattern="/^[a-z][a-z0-9_]+$/",
+     *      htmlPattern="^[a-z][a-z0-9_]+$",
+     *      message="Имя может состоять только из латинских букв в нижнем регистре, символов подчеркивания и цифр, но первый символ должен быть буква."
+     * )
+     *
+     * @todo перевод сообщения
+     */
+    protected $name;
 
     /**
      * @ORM\Column(type="string", length=32)
@@ -82,6 +100,15 @@ class UnicatAttribute
     protected $is_show_title;
 
     /**
+     * Отсновной атрибут? Используется для фильтрации "основные" и "все" свойства.
+     *
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default":1})
+     */
+    protected $is_primary;
+
+    /**
      * Отображать в списке администратора.
      *
      * @var bool
@@ -123,11 +150,13 @@ class UnicatAttribute
     protected $params_yaml;
 
     /**
-     * @var UnicatAttributesGroup
+     * Связывать items_type (если указан) как "много ко многим".
      *
-     * @ORM\ManyToOne(targetEntity="UnicatAttributesGroup", inversedBy="attributes")
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default":0})
      */
-    protected $group;
+    protected $is_items_type_many2many;
 
     /**
      * @var UnicatConfiguration
@@ -137,19 +166,24 @@ class UnicatAttribute
     protected $configuration;
 
     /**
-     * @var string
+     * Атрибут - колекция других типов записей.
      *
-     * @ORM\Column(type="string")
-     * @Assert\NotBlank()
-     * @Assert\Regex(
-     *      pattern="/^[a-z][a-z0-9_]+$/",
-     *      htmlPattern="^[a-z][a-z0-9_]+$",
-     *      message="Имя может состоять только из латинских букв в нижнем регистре, символов подчеркивания и цифр, но первый символ должен быть буква."
-     * )
+     * @var UnicatItemType|null
      *
-     * @todo перевод сообщения
+     * @ORM\ManyToOne(targetEntity="UnicatItemType")
      */
-    protected $name;
+    protected $items_type;
+
+    /**
+     * @var UnicatAttributesGroup[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="UnicatAttributesGroup", inversedBy="attributes", cascade={"persist"}, fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="unicat__attributes_groups_relations",
+     *      joinColumns={@ORM\JoinColumn(name="attribute_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")}
+     * )
+     */
+    protected $groups;
 
     /**
      * @var string
@@ -157,16 +191,20 @@ class UnicatAttribute
     protected $update_all_records_with_default_value;
 
     /**
-     * Constructor.
+     * UnicatAttribute constructor.
      */
     public function __construct()
     {
         $this->created_at       = new \DateTime();
+        $this->groups           = new ArrayCollection();
         $this->is_dedicated_table = false;
         $this->is_enabled       = true;
         $this->is_link          = false;
         $this->is_required      = false;
         $this->is_show_title    = true;
+        $this->is_primary       = true;
+        $this->is_items_type_many2many = false;
+        $this->show_in_view     = true;
         $this->params           = [];
         $this->params_yaml      = null;
         $this->position         = 0;
@@ -207,9 +245,7 @@ class UnicatAttribute
      */
     public function getValueClassNameWithNameSpace()
     {
-        $reflector = new \ReflectionClass($this);
-
-        return $reflector->getNamespaceName().'\\'.$this->getValueClassName();
+        return $this->getConfiguration()->getEntitiesNamespace().$this->getValueClassName();
     }
 
     /**
@@ -293,23 +329,71 @@ class UnicatAttribute
     }
 
     /**
-     * @param UnicatAttributesGroup $group
+     * @return bool
+     */
+    public function isIsPrimary(): bool
+    {
+        return $this->is_primary;
+    }
+
+    /**
+     * @param bool $is_primary
      *
      * @return $this
      */
-    public function setGroup(UnicatAttributesGroup $group)
+    public function setIsPrimary($is_primary)
     {
-        $this->group = $group;
+        $this->is_primary = $is_primary;
 
         return $this;
     }
 
     /**
-     * @return UnicatAttributesGroup
+     * @return bool
      */
-    public function getGroup()
+    public function getIsItemsTypeMany2many(): bool
     {
-        return $this->group;
+        return $this->is_items_type_many2many;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isItemsTypeMany2many(): bool
+    {
+        return $this->is_items_type_many2many;
+    }
+
+    /**
+     * @param bool $is_items_type_many2many
+     *
+     * @return $this
+     */
+    public function setIsItemsTypeMany2many($is_items_type_many2many)
+    {
+        $this->is_items_type_many2many = $is_items_type_many2many;
+
+        return $this;
+    }
+
+    /**
+     * @return UnicatAttributesGroup[]|ArrayCollection
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param UnicatAttributesGroup[] $groups
+     *
+     * @return $this
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+
+        return $this;
     }
 
     /**
@@ -582,5 +666,25 @@ class UnicatAttribute
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+    /**
+     * @return UnicatItemType
+     */
+    public function getItemsType()
+    {
+        return $this->items_type;
+    }
+
+    /**
+     * @param UnicatItemType $items_type
+     *
+     * @return $this
+     */
+    public function setItemsType($items_type)
+    {
+        $this->items_type = $items_type;
+
+        return $this;
     }
 }

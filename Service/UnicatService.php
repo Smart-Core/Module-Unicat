@@ -7,14 +7,16 @@ use SmartCore\Bundle\MediaBundle\Service\MediaCloudService;
 use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
+use SmartCore\Module\Unicat\Generator\DoctrineEntityGenerator;
 use SmartCore\Module\Unicat\Generator\DoctrineValueEntityGenerator;
-use SmartCore\Module\Unicat\Model\AbstractTypeModel;
+use SmartCore\Module\Unicat\Model\AbstractValueModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -254,9 +256,11 @@ class UnicatService
         return $this;
     }
 
+    /**
+     * Обновление сущностей.
+     */
     public function generateEntities()
     {
-//        $finder     = new Finder();
         $filesystem = new Filesystem();
         /** @var \AppKernel $kernel */
         $entitiesDir = $this->container->get('kernel')->getBundle('SiteBundle')->getPath().'/Entity';
@@ -265,15 +269,42 @@ class UnicatService
             $filesystem->mkdir($entitiesDir);
         }
 
+        $user = is_object($token = $this->container->get('security.token_storage')->getToken()) ? $token->getUser() : null;
+
         foreach ($this->allConfigurations() as $configuration) {
-            dump($configuration->getName());
+            $generator = new DoctrineEntityGenerator();
+            $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModule')->getPath().'/Resources/skeleton');
+            $siteBundle = $this->container->get('kernel')->getBundle('SiteBundle');
+            $targetDir  = $siteBundle->getPath().'/Entity/'.ucfirst($configuration->getName());
+
+            if (!is_dir($targetDir) and !@mkdir($targetDir, 0777, true)) {
+                throw new \InvalidArgumentException(sprintf('The directory "%s" does not exist and could not be created.', $targetDir));
+            }
+
+            $reflector = new \ReflectionClass($siteBundle);
+            $namespace = $reflector->getNamespaceName().'\Entity\\'.ucfirst($configuration->getName());
+            $configuration->setEntitiesNamespace($namespace.'\\');
+
+            $generator->generate($targetDir, $namespace, $configuration);
+
+            if (empty($configuration->getUser()) and !empty($user)) {
+                $configuration->setUser($user);
+            }
+
+            $this->em->persist($configuration);
+            $this->em->flush($configuration);
         }
 
-        //        dump($unicat->allConfigurations());
-
-
+        $application = new Application($this->container->get('kernel'));
+        $application->setAutoExit(false);
+        $applicationInput = new ArrayInput([
+            'command' => 'doctrine:schema:update',
+            '--force' => true,
+        ]);
+        $applicationOutput = new BufferedOutput();
+        $retval = $application->run($applicationInput, $applicationOutput);
     }
-    
+
     /**
      * @param UnicatAttribute $entity
      *
@@ -281,9 +312,12 @@ class UnicatService
      */
     public function createAttribute(UnicatAttribute $entity)
     {
+        /*
         if ($entity->getIsDedicatedTable()) {
             $reflector = new \ReflectionClass($entity);
-            $targetDir = dirname($reflector->getFileName());
+            //$targetDir = dirname($reflector->getFileName());
+            $siteBundle = $this->container->get('kernel')->getBundle('SiteBundle');
+            $targetDir  = $siteBundle->getPath().'/Entity/'.ucfirst($configuration->getName());
 
             $generator = new DoctrineValueEntityGenerator();
             $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModule')->getPath().'/Resources/skeleton');
@@ -308,6 +342,7 @@ class UnicatService
 
             $valueClass = $reflector->getNamespaceName().'\\'.$entity->getValueClassName();
         }
+        */
 
         // Обновление для всех записей значением по умолчанию.
         $defaultValue = $entity->getUpdateAllRecordsWithDefaultValue();
@@ -326,7 +361,8 @@ class UnicatService
                 $item->setAttribute($entity->getName(), $defaultValue);
 
                 if ($entity->getIsDedicatedTable()) {
-                    /** @var AbstractTypeModel $value */
+                    /** @var AbstractValueModel $value */
+                    /* @todo
                     $value = new $valueClass();
                     $value
                         ->setItem($item)
@@ -334,12 +370,17 @@ class UnicatService
                     ;
 
                     $this->em->persist($value);
+                    */
                 }
             }
         }
 
+        $entity->setConfiguration($this->getCurrentConfiguration());
+
         $this->em->persist($entity);
         $this->em->flush();
+
+        $this->generateEntities();
 
         return $this;
     }

@@ -4,10 +4,12 @@ namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\MediaBundle\Service\CollectionService;
 use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Form\Type\AttributeFormType;
 use SmartCore\Module\Unicat\Form\Type\AttributesGroupFormType;
@@ -15,7 +17,7 @@ use SmartCore\Module\Unicat\Form\Type\ItemFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonomyFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonCreateFormType;
 use SmartCore\Module\Unicat\Form\Type\TaxonFormType;
-use SmartCore\Module\Unicat\Model\AbstractTypeModel;
+use SmartCore\Module\Unicat\Model\AbstractValueModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\ItemRepository;
 use SmartCore\Module\Unicat\Model\TaxonModel;
@@ -276,16 +278,15 @@ class UnicatConfigurationManager
      *
      * @return \Symfony\Component\Form\Form
      */
-    public function getAttributeCreateForm($groupId, array $options = [])
+    public function getAttributeCreateForm(array $options = [])
     {
         $attribute = new UnicatAttribute();
-        $attribute
-            ->setGroup($this->em->getRepository('UnicatModule:UnicatAttributesGroup')->find($groupId))
-            ->setUser($this->getUser())
-        ;
+        $attribute->setUser($this->getUser());
 
         return $this->getAttributeForm($attribute, $options)
-            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']]);
+            ->add('create', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
+            ->add('cancel', SubmitType::class, ['attr' => ['class' => 'btn-default', 'formnovalidate' => 'formnovalidate']])
+        ;
     }
 
     /**
@@ -310,7 +311,9 @@ class UnicatConfigurationManager
         $form = $this->getAttributeForm($attribute, $options)
             ->remove('name')
             ->remove('type')
+            ->remove('items_type')
             ->remove('is_dedicated_table')
+            ->remove('is_items_type_many2many')
             ->remove('update_all_records_with_default_value')
             ->add('update', SubmitType::class, ['attr' => ['class' => 'btn btn-success']])
         ;
@@ -598,14 +601,23 @@ class UnicatConfigurationManager
      * @param Request $request
      *
      * @return $this|array
+     *
+     * @todo запаковать в транзакцию
      */
     public function saveItem(FormInterface $form, Request $request)
     {
         /** @var ItemModel $item */
         $item = $form->getData();
 
+        $groups = [];
+        foreach ($item->getType()->getAttributesGroups() as $group) {
+            $groups[] = $group->getName();
+        }
+
+        $attributes = $this->em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($groups);
+
         // Проверка и модификация атрибута. В частности загрука картинок и валидация.
-        foreach ($this->getAttributes() as $attribute) {
+        foreach ($attributes as $attribute) {
             if ($attribute->getIsDedicatedTable()) {
                 continue;
             }
@@ -626,8 +638,8 @@ class UnicatConfigurationManager
                 // удаление файла.
                 $_delete_ = $request->request->get('_delete_');
                 if (is_array($_delete_)
-                    and isset($_delete_['attribute:'.$attribute->getName()])
-                    and 'on' === $_delete_['attribute:'.$attribute->getName()]
+                    and isset($_delete_['attribute--'.$attribute->getName()])
+                    and 'on' === $_delete_['attribute--'.$attribute->getName()]
                 ) {
                     $this->mc->remove($fileId);
                     $fileId = null;
@@ -641,6 +653,12 @@ class UnicatConfigurationManager
                 }
 
                 $item->setAttribute($attribute->getName(), $fileId);
+            } elseif ($attribute->isType('gallery')) {
+                $data = json_decode($item->getAttribute($attribute->getName()), true);
+
+                $item->setAttribute($attribute->getName(), $data);
+            } elseif ($attribute->isType('unicat_item')) {
+                // dummy
             }
         }
 
@@ -656,22 +674,36 @@ class UnicatConfigurationManager
         // @todo если item уже существует, то сделать сохранение в один проход, но придумать как сделать обновление таксономии.
 
         // Вторым проходом обрабатываются атрибуты с внешних таблиц т.к. при создании новой записи нужно сгенерировать ID
-        foreach ($this->getAttributes() as $attribute) {
+        foreach ($attributes as $attribute) {
             if ($attribute->getIsDedicatedTable()) {
-                $valueClass = $attribute->getValueClassNameWithNameSpace();
+                $value = $item->getAttr($attribute->getName());
 
-                /* @var AbstractTypeModel $value */
+                $entityValueClass = $attribute->getValueClassNameWithNameSpace();
+
+                /* @var AbstractValueModel $entityValue */
                 // @todo пока допускается использование одного поля со значениями, но нужно предусмотреть и множественные.
-                $value = $this->em->getRepository($valueClass)->findOneBy(['item' => $item]);
+                $entityValue = $this->em->getRepository($entityValueClass)->findOneBy(['item' => $item]);
 
-                if (empty($value)) {
-                    $value = new $valueClass();
-                    $value->setItem($item);
+                if (empty($entityValue)) {
+                    if ($value === null) {
+                        continue;
+                    }
+
+                    $entityValue= new $entityValueClass();
+                    $entityValue->setItem($item);
+                } elseif (!empty($entityValue) and $value === null) {
+                    $this->em->remove($entityValue);
+                    $this->em->flush();
+
+                    continue;
                 }
 
-                $value->setValue($item->getAttr($attribute->getName()));
+                if ($entityValue) {
+                    $entityValue->setValue($value);
 
-                $this->em->persist($value);
+                    $this->em->persist($entityValue);
+                    $this->em->flush();
+                }
             } else {
                 continue;
             }
@@ -681,7 +713,7 @@ class UnicatConfigurationManager
 
         $taxons = [];
         foreach ($pd as $key => $val) {
-            if (false !== strpos($key, 'taxonomy:')) {
+            if (false !== strpos($key, 'taxonomy--')) {
                 if (is_array($val)) {
                     foreach ($val as $val2) {
                         $taxons[] = $val2;
@@ -718,9 +750,44 @@ class UnicatConfigurationManager
         $this->em->persist($item);
         $this->em->flush();
 
+        if ($item->getSlug() === null) {
+            $item->setSlug($item->getId());
+
+            $this->em->persist($item);
+            $this->em->flush();
+        }
+
         return $this;
     }
 
+    /**
+     * @param UnicatItemType $itemType
+     *
+     * @return UnicatItemType[]
+     */
+    public function getChildrenTypes(UnicatItemType $itemType)
+    {
+        $attrs = $this->em->getRepository('UnicatModule:UnicatAttribute')->findBy(['items_type' => $itemType]);
+
+        $attrGroups = [];
+        foreach ($attrs as $attr) {
+            foreach ($attr->getGroups() as $group) {
+                $attrGroups[$group->getId()] = $group->getName();
+            }
+        }
+
+        $itemTypes = [];
+        foreach ($this->em->getRepository('UnicatModule:UnicatItemType')->findAll() as $itemType) {
+            foreach ($itemType->getAttributesGroups() as $attrGroup2) {
+                if (isset($attrGroups[$attrGroup2->getId()])) {
+                    $itemTypes[$itemType->getId()] = $itemType;
+                }
+            }
+        }
+
+        return $itemTypes;
+    }
+    
     /**
      * Рекурсивный обход всех вложенных таксонов.
      *
@@ -793,11 +860,11 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param AttributesGroupModel $entity
+     * @param UnicatAttributesGroup $entity
      *
      * @return $this
      */
-    public function updateAttributesGroup(AttributesGroupModel $entity)
+    public function updateAttributesGroup(UnicatAttributesGroup $entity)
     {
         $this->em->persist($entity);
         $this->em->flush($entity);

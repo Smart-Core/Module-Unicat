@@ -2,12 +2,14 @@
 
 namespace {{ namespace }};
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use SmartCore\Module\Unicat\Model\ItemModel;
 
 /**
  * @ORM\Entity(repositoryClass="SmartCore\Module\Unicat\Model\ItemRepository")
- * @ORM\Table(name="{{ table_prefix ~ configuration_name }}_items",
+ * @ORM\HasLifecycleCallbacks
+ * @ORM\Table(name="{{ table_prefix ~ configuration.name }}_items",
  *      indexes={
  *          @ORM\Index(columns={"position"}),
  *      }
@@ -19,7 +21,7 @@ class Item extends ItemModel
      * @var Taxon[]
      *
      * @ORM\ManyToMany(targetEntity="Taxon", inversedBy="items", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="{{ table_prefix ~ configuration_name }}_items_taxons_relations")
+     * @ORM\JoinTable(name="{{ table_prefix ~ configuration.name }}_items_taxons_relations")
      */
     protected $taxons;
 
@@ -27,7 +29,122 @@ class Item extends ItemModel
      * @var Taxon[]
      *
      * @ORM\ManyToMany(targetEntity="Taxon", inversedBy="itemsSingle", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
-     * @ORM\JoinTable(name="{{ table_prefix ~ configuration_name }}_items_taxons_single_relations")
+     * @ORM\JoinTable(name="{{ table_prefix ~ configuration.name }}_items_taxons_single_relations")
      */
     protected $taxonsSingle;
+
+    /**
+     * ItemModel constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+    {%- for attr in configuration.attributes %}
+        {% if attr.itemsType is not null and attr.isItemsTypeMany2many %}
+
+
+        $this->attr_{{ attr.name }} = new ArrayCollection();
+
+        {%- endif -%}
+    {% endfor %}
+
+    }
+
+    {%- for attr in configuration.attributes %}
+        {% if attr.itemsType is not null %}
+
+
+    // {{ attr.name }} ===============================================================================
+
+            {% if attr.isItemsTypeMany2many %}
+    /**
+     * @var Item[]
+     *
+     * @ORM\ManyToMany(targetEntity="Item", cascade={"persist"})
+     * @ORM\JoinTable(name="{{ table_prefix ~ configuration.name }}_items_type_{{ attr.name }}_relations")
+     */
+    protected $attr_{{ attr.name }};
+
+    /**
+     * @param Item ${{ attr.name }}
+     *
+     * @return $this
+     */
+    public function addAttr{{ attr.name }}(Item ${{ attr.name }})
+    {
+        if (!$this->attr_{{ attr.name }}->contains(${{ attr.name }})) {
+            $this->attr_{{ attr.name }}->add(${{ attr.name }});
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Item ${{ attr.name }}
+     *
+     * @return $this
+     */
+    public function removeAttr{{ attr.name }}(Item ${{ attr.name }})
+    {
+        if (!$this->attr_{{ attr.name }}->contains(${{ attr.name }})) {
+            $this->attr_{{ attr.name }}->removeElement(${{ attr.name }});
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Item[] ${{ attr.name }}
+     *
+     * @return $this
+     */
+    public function setAttr{{ attr.name }}(${{ attr.name }})
+    {
+        $this->attr_{{ attr.name }} = ${{ attr.name }};
+
+        return $this;
+    }
+
+    /**
+     * @return Item[]|ArrayCollection
+     */
+    public function getAttr{{ attr.name }}()
+    {
+        return $this->attr_{{ attr.name }};
+    }
+
+            {%- else -%}
+    /**
+     * @var Item
+     *
+     * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\JoinColumn(name="attr_{{ attr.name }}_id")
+     */
+    protected $attr_{{ attr.name }};
+
+    /**
+     * @param Item ${{ attr.name }}
+     *
+     * @return $this
+     */
+    public function setAttr{{ attr.name }}(Item ${{ attr.name }} = null)
+    {
+        $this->attr_{{ attr.name }} = ${{ attr.name }};
+
+        return $this;
+    }
+
+    /**
+     * @return Item|null
+     */
+    public function getAttr{{ attr.name }}()
+    {
+        return $this->attr_{{ attr.name }};
+    }
+
+            {%- endif -%}
+        {%- endif -%}
+    {% endfor %}
+
 }

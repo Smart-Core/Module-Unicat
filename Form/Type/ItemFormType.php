@@ -3,15 +3,18 @@
 namespace SmartCore\Module\Unicat\Form\Type;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityRepository;
 use Smart\CoreBundle\Form\TypeResolverTtait;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
-use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
+use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use SmartCore\Module\Unicat\Service\UnicatService;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -39,16 +42,24 @@ class ItemFormType extends AbstractType
         $this->unicat        = $unicat;
     }
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var ItemModel $item */
+        $item = $options['data'];
+
         $builder
+            ->add('hidden_extra', HiddenType::class)
             ->add('slug', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('is_enabled')
             ->add('position')
             ->add('meta', MetaFormType::class, ['label' => 'Meta tags'])
         ;
 
-        foreach ($this->configuration->getTaxonomies() as $taxonomy) {
+        foreach ($item->getType()->getTaxonomies() as $taxonomy) {
             $optionsCat = [
                 'label'     => $taxonomy->getTitleForm(),
                 'required'  => $taxonomy->getIsRequired(),
@@ -58,7 +69,7 @@ class ItemFormType extends AbstractType
             ];
 
             /** @var TaxonModel $taxon */
-            foreach ($options['data']->getTaxonsSingle() as $taxon) {
+            foreach ($item->getTaxonsSingle() as $taxon) {
                 if ($taxon->getTaxonomy()->getName() === $taxonomy->getName()) {
                     if ($taxonomy->isMultipleEntries()) {
                         $optionsCat['data'][] = $taxon;
@@ -71,11 +82,20 @@ class ItemFormType extends AbstractType
             }
 
             $optionsCat['unicat_taxonomy'] = $taxonomy;
-            $builder->add('taxonomy:'.$taxonomy->getName(), TaxonTreeType::class, $optionsCat);
+            $builder->add('taxonomy--'.$taxonomy->getName(), TaxonTreeType::class, $optionsCat);
         }
 
-        /** @var $attribute UnicatAttribute */
-        foreach ($this->unicat->getAttributes($this->configuration) as $attribute) {
+        // @todo проверку на отсутсвие групп
+        $groups = [];
+        foreach ($item->getType()->getAttributesGroups() as $attributesGroup) {
+            $groups[] = $attributesGroup->getName();
+        }
+
+        foreach ($this->doctrine->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($groups) as $attribute) {
+            if ($attribute->isEnabled() == false) {
+                continue;
+            }
+
             $type = $attribute->getType();
             $propertyOptions = [
                 'required'  => $attribute->getIsRequired(),
@@ -89,9 +109,17 @@ class ItemFormType extends AbstractType
                 //$type = 'genemu_jqueryimage';
                 $type = AttributeImageFormType::class;
 
-                if (isset($options['data'])) {
-                    $attributeOptions['data'] = $options['data']->getAttribute($attribute->getName());
+                if (isset($item)) {
+                    $attributeOptions['data'] = $item->getAttribute($attribute->getName());
                 }
+            }
+
+            if ($attribute->isType('gallery')) {
+                $type = AttributeGalleryFormType::class;
+            }
+
+            if ($attribute->isType('geomap')) {
+                $type = AttributeGeomapFormType::class;
             }
 
             if ($attribute->isType('select')) {
@@ -118,9 +146,30 @@ class ItemFormType extends AbstractType
                 $attributeOptions['constraints'] = $constraintsObjects;
             }
 
-            $type = $this->resolveTypeName($type);
+            if ($attribute->isType('unicat_item')) {
+                if ($attribute->isItemsTypeMany2many()) {
+                    $attributeOptions['expanded'] = true;
+                    $attributeOptions['multiple'] = true;
+                } else {
+                    $attributeOptions['expanded'] = false;
+                }
 
-            $builder->add('attribute:'.$attribute->getName(), $type, $attributeOptions);
+                $attributeOptions['class'] = get_class($item);
+                $attributeOptions['query_builder'] = function (EntityRepository $er) use ($attribute) {
+                    return $er->createQueryBuilder('e')
+                        ->where('e.type = :type')
+                        ->orderBy('e.position', 'ASC')
+                        ->orderBy('e.id', 'ASC')
+                        ->setParameter('type', $attribute->getItemsType())
+                        ;
+                };
+
+                $builder->add('attr_'.$attribute->getName(), EntityType::class, $attributeOptions);
+
+                continue;
+            }
+
+            $builder->add('attribute--'.$attribute->getName(), $this->resolveTypeName($type), $attributeOptions);
         }
     }
 
@@ -134,6 +183,9 @@ class ItemFormType extends AbstractType
         ]);
     }
 
+    /**
+     * @return string
+     */
     public function getBlockPrefix()
     {
         return 'unicat_item_'.$this->configuration->getName();

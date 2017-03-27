@@ -24,8 +24,28 @@
             {{ attr.openTag }}{{ attr.title }}: {% if item.attribute(attr.name) %} да {% else %} нет {% endif %}{{ attr.closeTag }}
         {% elseif attr.type == 'image' %}
             {{ attr.openTag }}{{ smart_media_img(item.attribute(attr.name), attr.params.filter) }}{{ attr.closeTag }}
+        {% elseif attr.type == 'gallery' %}
+            {{ attr.openTag }}
+            {% if attr.isShowTitle %}{{ attr.title }}: {% endif %}
+
+            {% for img in item.attribute(attr.name) %}
+                {{ smart_media_img(img.id, attr.params.filter) }}
+            {% endfor %}
+            {{ attr.closeTag }}
         {% else %}
-            {{ attr.openTag }}{% if attr.isShowTitle %}{{ attr.title }}: {% endif %}{{ item.attribute(attr.name) }}{{ attr.closeTag }}
+            {{ attr.openTag }}
+            {% if attr.isShowTitle %}{{ attr.title }}: {% endif %}
+            {% set val = item.attribute(attr.name) %}
+            {% if val is iterable %}
+                <ul>
+                    {% for v in val  %}
+                        <li>{{ v }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ val }}
+            {% endif %}
+            {{ attr.closeTag }}
         {% endif %}
     {% endif %}
 {% endfor %}

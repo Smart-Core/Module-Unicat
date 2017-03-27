@@ -13,7 +13,38 @@
 
         <h2>{{ 'Items types'|trans }}</h2>
 
-        {{ types|ld }}
+        <table class="table table-bordered table-hover">
+            <thead><tr>
+                <th style="width: 1%;">id</th>
+                <th>{{ 'Title'|trans }}</th>
+                <th>{{ 'Name'|trans }}</th>
+                <th>{{ 'Position'|trans }}</th>
+                <th>{{ 'Attributes groups'|trans }}</th>
+                <th>{{ 'Taxonomies'|trans }}</th>
+                {#<th>{{ 'Created at'|trans }}</th>#}
+            </tr></thead>
+            <tbody>
+            {% for type in types %}
+                <tr>
+                    <td>{{ type.id }}</td>
+                    <td><a href="{{ path('unicat_admin.items_type_edit', {'configuration': configuration.name, 'id': type.id}) }}">{{ type.title }}</a></td>
+                    <td><a href="{{ path('unicat_admin.items_type_edit', {'configuration': configuration.name, 'id': type.id}) }}">{{ type.name }}</a></td>
+                    <td><a href="{{ path('unicat_admin.items_type_edit', {'configuration': configuration.name, 'id': type.id}) }}">{{ type.position }}</a></td>
+                    <td>
+                        {% for group in type.attributesGroups %}
+                            {{ group }},
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for taxonomy in type.taxonomies %}
+                            {{ taxonomy }},
+                        {% endfor %}
+                    </td>
+                    {#<td>{{ type.createdAt|localizeddate() }}</td>#}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
     </div>
 </div>

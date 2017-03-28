@@ -20,17 +20,22 @@ class TaxonPropertiesFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        foreach ($options['properties'] as $name => $options) {
-            if ('image' === $options) {
+        foreach ($options['properties'] as $name => $opt) {
+            if ('image' === $opt) {
                 $type = AttributeImageFormType::class;
-            } elseif (isset($options['type'])) {
-                $type = $this->resolveTypeName($options['type']);
+            } elseif (isset($opt['type'])) {
+                $type = $this->resolveTypeName($opt['type']);
             }
 
-            $builder->add($name, $type, [
-                'required'  => false,
-                'attr'      => isset($options['attr']) ? $options['attr'] : [],
-            ]);
+            if (is_array($opt)) {
+                if (isset($opt['type'])) {
+                    unset($opt['type']);
+                }
+            } else {
+                $opt = [];
+            }
+
+            $builder->add($name, $type, $opt);
         }
     }
 

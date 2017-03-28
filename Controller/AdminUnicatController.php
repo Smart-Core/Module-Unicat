@@ -119,13 +119,13 @@ class AdminUnicatController extends Controller
             throw $this->createNotFoundException();
         }
 
-        $itemType = $em->find('UnicatModule:UnicatItemType', $itemTypeId);
+        $itemType = $em->find('UnicatModule:UnicatItemType', (int) $itemTypeId);
 
         return $this->render('@UnicatModule/Admin/configuration.html.twig', [
             'pagerfanta'    => $pagerfanta, // items
             'itemType'      => $itemType,
             'parentItem'    => $parentItem,
-            'itemsTypeschildren' => $ucm->getChildrenTypes($itemType),
+            'itemsTypesChildren' => $ucm->getChildrenTypes($itemType),
         ]);
     }
 

@@ -70,7 +70,7 @@
                 {% endfor %}
                 <td>{{ item.createdAt|localizeddate() }}</td>
                 <td>
-                    {% for item_type_child in itemsTypeschildren %}
+                    {% for item_type_child in itemsTypesChildren %}
                         <a href="{{ path('unicat_admin.item_create', {
                             'configuration': item.type.configuration.name,
                             'type': item_type_child.id,

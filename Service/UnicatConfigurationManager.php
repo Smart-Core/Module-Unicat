@@ -761,12 +761,16 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param UnicatItemType $itemType
+     * @param UnicatItemType|null $itemType
      *
      * @return UnicatItemType[]
      */
-    public function getChildrenTypes(UnicatItemType $itemType)
+    public function getChildrenTypes(UnicatItemType $itemType = null)
     {
+        if (empty($itemType)) {
+            return [];
+        }
+
         $attrs = $this->em->getRepository('UnicatModule:UnicatAttribute')->findBy(['items_type' => $itemType]);
 
         $attrGroups = [];

@@ -87,7 +87,7 @@
 {% block unicat_attribute_gallery_widget %}
     <link href="{{ asset('bundles/unicatmodule/shortfu/fine-uploader-gallery.min.css') }}" rel="stylesheet">
     <script src="{{ asset('bundles/unicatmodule/shortfu/fine-uploader.min.js') }}"></script>
-    <script type="text/template" id="qq-template">
+    <script type="text/template" id="qq-template_{{ id }}">
         <div class="qq-uploader-selector qq-uploader qq-gallery" qq-drop-area-text="Drop files here">
             <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
                 <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
@@ -98,7 +98,7 @@
             <div class="qq-upload-button-selector qq-upload-button" style="margin-right: 10px">
                 <div>Выбрать</div>
             </div>
-            <div id="upload-button" class="qq-upload-button-selector qq-upload-button">
+            <div id="upload-button_{{ id }}" class="qq-upload-button-selector qq-upload-button">
                 <div>Загрузить</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -187,31 +187,49 @@
         .img-item input {
             width: 100%;
         }
-
     </style>
+    <input id="album-name_{{ id }}" type="text" name="" value="{{ data.galleryName }}" placeholder="Название фотогалереи">
     <div class="img-flex-wrapper">
-        {% for img in data %}
+        {% for img in data.images %}
             <div class="img-item">
-                <a onclick="remove({{img.id}}, this)" href="#test">kill</a>
+                <a class="remove_{{ id }}" data-imgid="{{img.id}}" href="#test">Удалить картинку</a>
                 {{ smart_media_img(img.id, '200x200') }}
-                <input class="img-title" id="title_{{img.id}}" type="text" name="" placeholder="Описание картинки" value="{{img.title}}">
+                <input class="img-title_{{ id }}" id="title_{{img.id}}" type="text" name="" placeholder="Описание картинки" value="{{img.title}}">
             </div>
         {% endfor %}
     </div>
 
-    <div id="uploader"></div>
+    <div id="uploader_{{ id }}"></div>
+
+    {# {{ dump(data) }} #}
 
     <input type="text" name="{{ full_name }}" id="{{ id }}" class="form-control" value="{{ data|json_encode }}" style="visibility: hidden; height: 1px; box-sizing: border-box;">
 
     <script>
-        {% if data|json_encode == "null" %}
-            var jsonData = [];
-        {% else %}
+    $( document ).ready(function(){
+        var galleryName = document.getElementById('album-name_{{ id }}').value;
+        {% if data is not empty %}
             var jsonData = {{ data|json_encode }};
+        {% else %}
+            var jsonData = {
+              galleryName: galleryName,
+              images: []
+            };
         {% endif %}
         var galleryId = "{{ id }}";
+
+        $('#album-name_{{ id }}').change(function(){
+          jsonData.galleryName = $(this).val();
+          document.getElementById(galleryId).value = JSON.stringify(jsonData);
+          console.log(JSON.stringify(jsonData));
+        });
+
+
+        console.log(galleryName);
+
         var uploader = new qq.FineUploader({
-            element: document.getElementById("uploader"),
+            template: 'qq-template_{{ id }}',
+            element: document.getElementById("uploader_{{ id }}"),
             autoUpload: false,
             request: {
                 endpoint: '{{ path('smart.media.upload') }}'
@@ -232,24 +250,25 @@
             */
         });
 
-        qq(document.getElementById("upload-button")).attach('click', function() {
+        qq(document.getElementById("upload-button_{{ id }}")).attach('click', function() {
             uploader.uploadStoredFiles();
         });
         console.log(jsonData);
 
-        var titleList = document.querySelectorAll(".img-title");
+        var titleList = document.querySelectorAll(".img-title_{{ id }}");
 
-        // titleList.addEventListener('change', sum(1, 5));
-
+        $(".remove_{{ id }}").click(function(){
+            var imgid = $(this).attr('data-imgid');
+            return remove(imgid, this);
+        });
 
         function clearJson(id, jsonData, elem){
           var i = 0;
-          for (i; jsonData[i].id != id; i++) {}
-          jsonData.splice(i,1);
+          for (i; jsonData.images[i].id != id; i++) {}
+          jsonData.images.splice(i,1);
           document.getElementById(galleryId).value = JSON.stringify(jsonData);
           elem.parentNode.style.display = "none";
         }
-
 
         function remove(id, elem) {
             return $.ajax({
@@ -263,18 +282,20 @@
 
         forEach(titleList, function(key, value) {
             value.onchange = function() {
+
                 var title2 = value.value;
-                jsonData[key]["title"] = title2;
-                console.log(jsonData[key]["title"]);
+                jsonData.images[key]["title"] = title2;
                 document.getElementById(galleryId).value = JSON.stringify(jsonData);
+                console.log(JSON.stringify(jsonData));
             };
         });
 
+        /*
         forEach(titleList, function(key, value) {
             var title1 = value.value;
             jsonData[key]["title"] = title1;
         });
-
+        */
         function forEach(data, callback) {
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
@@ -299,12 +320,14 @@
                             "id": id1,
                             "title": titleText
                         };
-                        jsonData.push(jsd);
+
+                        jsonData.images.push(jsd);
                     });
                     document.getElementById(galleryId).value = JSON.stringify(jsonData);
                     console.log(JSON.stringify(jsonData));
                 }
             };
         };
+    });
     </script>
 {% endblock %}

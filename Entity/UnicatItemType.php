@@ -52,6 +52,7 @@ class UnicatItemType
      *      joinColumns={@ORM\JoinColumn(name="attribute_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="taxonomy_id", referencedColumnName="id")}
      * )
+     * @ORM\OrderBy({"position" = "ASC", "id" = "ASC"})
      */
     protected $taxonomies;
 

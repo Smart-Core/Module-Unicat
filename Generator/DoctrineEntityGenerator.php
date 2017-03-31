@@ -38,12 +38,12 @@ class DoctrineEntityGenerator extends Generator
                             $type = 'Bool';
                             break;
                         case 'integer':
-                        case 'choice':
                             $type = 'Int';
                             break;
                         case 'smallint':
                             $type = 'Smallint';
                             break;
+                        case 'choice':
                         case 'string':
                         case 'text':
                             $type = 'String';

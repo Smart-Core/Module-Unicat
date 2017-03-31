@@ -144,6 +144,26 @@ class UnicatConfigurationManager
 
         $qb->add('from', $from);
 
+        $firstOrderBy = true;
+        if (!empty($orderBy)) {
+            foreach ($orderBy as $field => $value) {
+                if ($firstOrderBy) {
+                    $qb->orderBy("i.$field", $value);
+                    $firstOrderBy = false;
+                } else {
+                    $qb->addOrderBy("i.$field", $value);
+                }
+            }
+        }
+
+        if (!empty($limit)) {
+            $qb->setMaxResults($limit);
+        }
+
+        if (!empty($offset)) {
+            $qb->setFirstResult($offset);
+        }
+
         return $qb->getQuery();
     }
     /**

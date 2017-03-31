@@ -2,6 +2,7 @@
 
 namespace SmartCore\Module\Unicat\Twig;
 
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -27,7 +28,8 @@ class UnicatExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('unicat_current_configuration', [$this, 'getUnicatCurrentConfiguration']),
+            new \Twig_SimpleFunction('unicat_current_configuration',  [$this, 'getUnicatCurrentConfiguration']),
+            new \Twig_SimpleFunction('unicat_get_taxons_by_taxonomy', [$this, 'getTaxonsByTaxonomy']),
         ];
     }
 
@@ -37,5 +39,33 @@ class UnicatExtension extends \Twig_Extension
     public function getUnicatCurrentConfiguration()
     {
         return $this->container->get('unicat')->getCurrentConfiguration();
+    }
+
+    /**
+     * @param int|string $id
+     *
+     * @return TaxonModel[]|array
+     */
+    public function getTaxonsByTaxonomy($id)
+    {
+        $unicat = $this->container->get('unicat');
+
+        $ucm = $unicat->getCurrentConfigurationManager();
+
+        $taxonomy = null;
+
+        if (is_numeric($id)) {
+            $taxonomy = $unicat->getTaxonomy($id);
+        }
+
+        if (empty($taxonomy)) {
+            $taxonomy = $unicat->getTaxonomyRepository()->findBy(['name' => $id]);
+        }
+
+        if ($taxonomy) {
+            return $ucm->getTaxonRepository()->findBy(['taxonomy' => $taxonomy], ['position' => 'ASC']);
+        }
+
+        return [];
     }
 }

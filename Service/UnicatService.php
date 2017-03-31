@@ -239,7 +239,17 @@ class UnicatService
      */
     public function getTaxonomy($id)
     {
-        return $this->em->getRepository('UnicatModule:UnicatTaxonomy')->find($id);
+        return $this->getTaxonomyRepository()->find($id);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    public function getTaxonomyRepository()
+    {
+        return $this->em->getRepository('UnicatModule:UnicatTaxonomy');
     }
 
     /**

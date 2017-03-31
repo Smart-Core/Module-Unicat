@@ -801,10 +801,10 @@ class UnicatConfigurationManager
         }
 
         $itemTypes = [];
-        foreach ($this->em->getRepository('UnicatModule:UnicatItemType')->findAll() as $itemType) {
-            foreach ($itemType->getAttributesGroups() as $attrGroup2) {
-                if (isset($attrGroups[$attrGroup2->getId()])) {
-                    $itemTypes[$itemType->getId()] = $itemType;
+        foreach ($this->em->getRepository('UnicatModule:UnicatItemType')->findAll() as $itemType2) {
+            foreach ($itemType2->getAttributesGroups() as $attrGroup2) {
+                if (isset($attrGroups[$attrGroup2->getId()]) and $itemType->getId() !== $itemType2->getId()) {
+                    $itemTypes[$itemType2->getId()] = $itemType2;
                 }
             }
         }

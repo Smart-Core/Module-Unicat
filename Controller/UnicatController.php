@@ -10,6 +10,7 @@ use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UnicatController extends Controller
 {
@@ -20,19 +21,24 @@ class UnicatController extends Controller
     protected $use_item_id_as_slug;
 
     /**
-     * @param Request  $request
-     * @param null     $slug
-     * @param int|null $page
+     * @param Request    $request
+     * @param null       $slug
+     * @param int|null   $page
+     * @param mixed|null $options
      *
      * @return Response
      */
-    public function indexAction(Request $request, $slug = null, $page = null)
+    public function indexAction(Request $request, $slug = null, $page = null, $options = null)
     {
         if (null === $page) {
             $page = $request->query->get('page', 1);
         }
 
-        $requestedTaxons = $this->unicat->findTaxonsBySlug($slug, $this->unicat->getDefaultTaxonomy());
+        try {
+            $requestedTaxons = $this->unicat->findTaxonsBySlug($slug, $this->unicat->getDefaultTaxonomy());
+        } catch (NotFoundHttpException $e) {
+            $requestedTaxons = [];
+        }
 
         foreach ($requestedTaxons as $taxon) {
             $this->get('cms.breadcrumbs')->add($this->generateUrl('unicat.index', ['slug' => $taxon->getSlugFull()]).'/', $taxon->getTitle());
@@ -83,6 +89,7 @@ class UnicatController extends Controller
             'configuration' => $this->unicat->getConfiguration(),
             'lastTaxon'     => $lastTaxon,
             'childenTaxons' => $childenTaxons,
+            'options'       => $options,
             'pagerfanta'    => $pagerfanta,
             'slug'          => $slug,
         ]);
@@ -174,7 +181,7 @@ class UnicatController extends Controller
                 ->setUri($this->generateUrl('unicat_admin.taxon', [
                     'configuration' => $this->unicat->getConfiguration()->getName(),
                     'id'            => $lastTaxon->getId(),
-                    'taxonomy_id'  => $lastTaxon->getTaxonomy()->getId(),
+                    'taxonomy_name' => $lastTaxon->getTaxonomy()->getName(),
                 ]));
         }
 

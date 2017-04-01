@@ -7,7 +7,9 @@ use Pagerfanta\Pagerfanta;
 use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Bundle\CMSBundle\Module\CacheTrait;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
+use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -56,6 +58,27 @@ class UnicatWidgetController extends Controller
         return new Response($taxonTree);
     }
 
+    /**
+     * @param null    $taxonomy
+     *
+     * @return JsonResponse
+     */
+    public function getTaxonsJsonAction($taxonomy = null)
+    {
+        $taxonomy = empty($taxonomy) ? $this->unicat->getDefaultTaxonomy() : $this->unicat->getTaxonomy($taxonomy);
+        $taxons = [];
+
+        if (!empty($taxonomy)) {
+            $data = $this->unicat->getTaxonRepository()->findBy(['taxonomy' => $taxonomy], ['position' => 'ASC', 'id' => 'ASC']);
+            /** @var TaxonModel $taxon */
+            foreach ($data as $taxon) {
+                $taxons[$taxon->getSlug()] = $taxon->getTitle();
+            }
+        }
+
+        return new JsonResponse($taxons);
+    }
+    
     /**
      * @param array $criteria
      * @param array $orderBy

@@ -49,22 +49,30 @@
                         <td>
                             {% set attr_item = item.attribute(attribute.name) %}
 
-                            {% if attribute.type == 'unicat_item' and attr_item is not empty %}
-                                <a href="{{ path('unicat_admin.configuration.items', {
-                                    'configuration': configuration.name,
-                                    'itemTypeId': item.type.id,
-                                    'parent_id': item.attribute(attribute.name).id
-                                }) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
+                            {% if attr_item is iterable %}
+                                <ul>
+                                    {% for attr_item_2 in attr_item %}
+                                        <li>{{ attr_item_2 }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                                <a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
-                            {% endif %}
+                                {% if attribute.type == 'unicat_item' and attr_item is not empty %}1
+                                    <a href="{{ path('unicat_admin.configuration.items', {
+                                        'configuration': configuration.name,
+                                        'itemTypeId': item.type.id,
+                                        'parent_id': attr_item.id
+                                    }) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
+                                {% else %}
+                                    <a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
+                                {% endif %}
 
-                            {% if attribute.type == 'image' %}
-                                {{ smart_media_img(item.attribute(attribute.name), '100x100') }}
-                            {% else %}
-                                {{ item.attribute(attribute.name) }}
+                                {% if attribute.type == 'image' %}
+                                    {{ smart_media_img(attr_item, '100x100') }}
+                                {% else %}
+                                    {{ attr_item }}
+                                {% endif %}
+                                </a>
                             {% endif %}
-                            </a>
                         </td>
                     {% endif %}
                 {% endfor %}

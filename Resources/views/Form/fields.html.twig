@@ -2,16 +2,24 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 
     <script type="text/javascript">
+    $( document ).ready(function(){
     ymaps.ready(init);
-    var myMap, myGeoObject, myCollection, {% if data == "null" %}
+    var myMap, myGeoObject, myCollection, {% if data is empty %}
         mapDate = ''
     {% else %}
         mapDate = [{{ data }}]
     {% endif %};
 
+    document.getElementById("{{ id }}").value = mapDate;
+
     function init () {
       myMap = new ymaps.Map("map", {
-          center: [53.339115, 83.793780],
+          center:
+          {% if data is empty %}
+              [53.339115, 83.793780]
+          {% else %}
+              [{{ data }}]
+          {% endif %},
           zoom: 12
       }, {
           balloonMaxWidth: 200,
@@ -57,16 +65,12 @@
           document.getElementById("{{ id }}").value = mapDate;
       });
     }
-    function clear() {
-        document.getElementById("{{ id }}").value = '';
-    }
+    });
     </script>
 
     <div id="map" style="    height: 500px;
         width: 100%;">
-
     </div>
-    <a href="#clear" onclick="clear()">Очистить геоданные</a>
     <input type="text" name="{{ full_name }}" id="{{ id }}" class="form-control" value="{{ data|json_encode }}" style="visibility: hidden; height: 1px; box-sizing: border-box;">
 {% endblock %}
 
@@ -281,8 +285,8 @@
         }
 
         forEach(titleList, function(key, value) {
-            value.onchange = function() {
-
+            value.onchange = function(e) {
+                e.preventDefault;
                 var title2 = value.value;
                 jsonData.images[key]["title"] = title2;
                 document.getElementById(galleryId).value = JSON.stringify(jsonData);

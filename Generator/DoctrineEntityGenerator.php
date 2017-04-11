@@ -37,6 +37,9 @@ class DoctrineEntityGenerator extends Generator
                         case 'checkbox':
                             $type = 'Bool';
                             break;
+                        case 'float':
+                            $type = 'Float';
+                            break;
                         case 'integer':
                             $type = 'Int';
                             break;

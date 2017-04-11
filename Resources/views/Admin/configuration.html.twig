@@ -83,11 +83,11 @@
                             'configuration': item.type.configuration.name,
                             'type': item_type_child.id,
                             'parent_id': item.id,
-                        }) }}" class="btn btn-success btn-xs">
+                        }) }}" class="btn btn-success btn-xs link-create-item_{{ item_type_child.name }}-type_{{ item.type.name }}">
                             <i class="icon-plus icon-white"></i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             Создать запись &laquo;{{ item_type_child.title }}&raquo;
                         </a>
-                        <br>
+                        <br class="link-create-item_{{ item_type_child.name }}-type_{{ item.type.name }}-br">
                     {% endfor %}
                 </td>
             </tr>

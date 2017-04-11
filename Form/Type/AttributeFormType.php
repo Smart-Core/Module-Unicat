@@ -32,6 +32,7 @@ class AttributeFormType extends AbstractType
                     'Text'        => 'text',
                     'Textarea'    => 'textarea',
                     'Integer'     => 'integer',
+                    'Float'       => 'float',
                     'Email'       => 'email',
                     'URL'         => 'url',
                     'Date'        => 'date',

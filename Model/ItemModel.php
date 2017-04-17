@@ -3,6 +3,7 @@
 namespace SmartCore\Module\Unicat\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
 use Smart\CoreBundle\Doctrine\ColumnTrait;
 use SmartCore\Module\Unicat\Entity\UnicatItemType;
@@ -166,7 +167,18 @@ class ItemModel
                 $toStringPattern = str_replace('[[id]]', $this->getId(), $toStringPattern);
 
                 foreach ($matches[1] as $match) {
-                    $toStringPattern = str_replace('[['.$match.']]', $this->getAttribute($match), $toStringPattern);
+                    $attr = $this->getAttribute($match);
+
+                    if ($attr instanceof Selectable) {
+                        $str = '';
+                        foreach ($attr as $item) {
+                            $str .= (string) $item.', ';
+                        }
+
+                        $attr = substr(trim($str),0,-1);
+                    }
+
+                    $toStringPattern = str_replace('[['.$match.']]', $attr, $toStringPattern);
                 }
 
                 return (string) $toStringPattern;

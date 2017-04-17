@@ -56,7 +56,7 @@
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                {% if attribute.type == 'unicat_item' and attr_item is not empty %}1
+                                {% if attribute.type == 'unicat_item' and attr_item is not empty %}
                                     <a href="{{ path('unicat_admin.configuration.items', {
                                         'configuration': configuration.name,
                                         'itemTypeId': item.type.id,

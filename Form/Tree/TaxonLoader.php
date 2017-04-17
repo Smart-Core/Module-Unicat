@@ -72,10 +72,11 @@ class TaxonLoader implements EntityLoaderInterface
 
         $this->level++;
 
-        $taxons = $this->repo->findBy(
-            ['parent' => $parent, 'taxonomy' => $this->taxonomy],
-            ['position' => 'ASC']
-        );
+        $taxons = $this->repo->findBy([
+            'is_enabled' => true,
+            'parent'     => $parent,
+            'taxonomy'   => $this->taxonomy,
+        ], ['position' => 'ASC']);
 
         /** @var $taxon TaxonModel */
         foreach ($taxons as $taxon) {

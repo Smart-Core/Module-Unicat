@@ -59,6 +59,8 @@ abstract class TaxonModel
 
     /**
      * @ORM\Column(type="array", nullable=true)
+     *
+     * @deprecated переделать на "атрибуты"
      */
     protected $properties;
 
@@ -261,8 +263,22 @@ abstract class TaxonModel
      * @param string $name
      *
      * @return mixed|null
+     *
+     * @deprecated переделать на "атрибуты"
      */
     public function getProperty($name)
+    {
+        return isset($this->properties[$name]) ? $this->properties[$name] : null;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed|null
+     *
+     * @deprecated переделать на "атрибуты"
+     */
+    public function getAttr($name)
     {
         return isset($this->properties[$name]) ? $this->properties[$name] : null;
     }

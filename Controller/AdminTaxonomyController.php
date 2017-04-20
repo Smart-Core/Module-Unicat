@@ -38,14 +38,14 @@ class AdminTaxonomyController extends Controller
 
             if ($form->get('update')->isClicked() and $form->isValid()) {
                 $unicat->updateTaxon($form->getData());
-                $this->addFlash('success', 'Категория обновлена');
+                $this->addFlash('success', 'Таксон обновлён');
 
                 return $this->redirectToTaxonomyAdmin($taxonomy);
             }
 
             if ($form->has('delete') and $form->get('delete')->isClicked()) {
                 $unicat->deleteTaxon($form->getData());
-                $this->addFlash('success', 'Категория удалена');
+                $this->addFlash('success', 'Таксон удалён');
 
                 return $this->redirectToTaxonomyAdmin($taxonomy);
             }

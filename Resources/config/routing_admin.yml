@@ -9,7 +9,7 @@ unicat_admin.configuration:
         _controller: UnicatModule:AdminUnicat:configuration
 
 unicat_admin.configuration.items:
-    path: /{configuration}/items_{itemTypeId}/
+    path: /{configuration}/type_{itemTypeId}/
     defaults:
         _controller: UnicatModule:AdminUnicat:configuration
     requirements:

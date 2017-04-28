@@ -248,20 +248,21 @@ class AdminUnicatController extends Controller
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
+            $item = $form->getData();
+
             if ($form->get('cancel')->isClicked()) {
-                return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
+                return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $item->getType());
             }
 
             if ($form->get('delete')->isClicked()) {
                 $ucm->removeItem($form->getData());
                 $this->addFlash('success', 'Запись удалена');
 
-                return $this->redirectToConfigurationAdmin($ucm->getConfiguration());
+                return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $item->getType());
             }
 
             if ($form->isValid() and $form->get('update')->isClicked() and $form->isValid()) {
                 /** @var ItemModel $item */
-                $item = $form->getData();
 
                 $ucm->updateItem($form, $request);
                 $this->addFlash('success', 'Запись обновлена');

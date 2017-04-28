@@ -69,6 +69,7 @@ class UnicatConfiguration
      * @var UnicatAttribute[]
      *
      * @ORM\OneToMany(targetEntity="UnicatAttribute", mappedBy="configuration")
+     * @ORM\OrderBy({"position" = "ASC"})
      */
     protected $attributes;
 

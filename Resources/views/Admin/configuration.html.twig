@@ -61,7 +61,7 @@
                                         'configuration': configuration.name,
                                         'itemTypeId': item.type.id,
                                         'parent_id': attr_item.id
-                                    }) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
+                                    }) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %} title="Выборка записей '{{ item.type.title }}' из коллекции: {{ attribute.title }}">
                                 {% else %}
                                     <a href="{{ path('unicat_admin.item_edit', {'configuration': configuration.name, 'id': item.id}) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %}>
                                 {% endif %}

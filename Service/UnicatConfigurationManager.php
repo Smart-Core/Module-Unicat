@@ -736,10 +736,14 @@ class UnicatConfigurationManager
             if (false !== strpos($key, 'taxonomy--')) {
                 if (is_array($val)) {
                     foreach ($val as $val2) {
-                        $taxons[] = $val2;
+                        if (!empty($val2)) {
+                            $taxons[] = $val2;
+                        }
                     }
                 } else {
-                    $taxons[] = $val;
+                    if (!empty($val)) {
+                        $taxons[] = $val;
+                    }
                 }
             }
         }

@@ -237,7 +237,27 @@ class UnicatAttribute
             return $className;
         }
 
-        return;
+        return null;
+    }
+
+    /**
+     * Получить значение из списка.
+     *
+     * @param int|string $id
+     *
+     * @return int|null|string
+     */
+    public function getValueByChoice($id)
+    {
+        if (isset($this->params['form']['choices'])) {
+            foreach ($this->params['form']['choices'] as $name => $value) {
+                if ($value == $id) {
+                    return $name;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

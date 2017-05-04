@@ -47,6 +47,7 @@ class DoctrineEntityGenerator extends Generator
                             $type = 'Smallint';
                             break;
                         case 'choice':
+                        case 'date':
                         case 'string':
                         case 'text':
                             $type = 'String';

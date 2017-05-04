@@ -37,12 +37,14 @@
             </tr></thead>
             <tbody>
             {% for attr in attributes %}
-                <tr>
+                <tr {% if not attr.enabled %} style="text-decoration: line-through;" {% endif %}>
                     <td>{{ attr.id }}</td>
-                    <td><a href="{{ path('unicat_admin.attributes_edit', {
+                    <td>
+                        <a href="{{ path('unicat_admin.attributes_edit', {
                             'configuration': attr.configuration.name,
                             'name': attr.name,
-                        }) }}" title="{% for group in attr.groups %}{{ group.title }}, {% endfor %}">{{ attr.title }}</a></td>
+                        }) }}" title="{% for group in attr.groups %}{{ group.title }}, {% endfor %}">{{ attr.title }}</a>
+                    </td>
                     <td>{{ attr.name }}</td>
                     <td>{{ attr.type }}</td>
                     <td>{{ attr.position }}</td>

@@ -19,6 +19,7 @@ class TaxonomyFormType extends AbstractType
             ->add('is_required')
             ->add('is_default_inheritance', null, ['required' => false])
             ->add('is_tree',    null, ['required' => false])
+            ->add('is_show_in_admin')
             ->add('position')
             ->add('properties')
         ;

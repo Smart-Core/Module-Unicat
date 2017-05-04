@@ -36,6 +36,15 @@ class UnicatTaxonomy
     protected $is_multiple_entries;
 
     /**
+     * Показывать колонку в админке
+     *
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default":0})
+     */
+    protected $is_show_in_admin;
+
+    /**
      * @var bool
      *
      * @ORM\Column(type="boolean", nullable=true)
@@ -99,6 +108,7 @@ class UnicatTaxonomy
         $this->is_multiple_entries    = false;
         $this->is_required = true;
         $this->is_tree     = true;
+        $this->is_show_in_admin = false;
     }
 
     /**
@@ -241,6 +251,26 @@ class UnicatTaxonomy
         }
 
         $this->is_tree = $is_tree;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShowInAdmin(): bool
+    {
+        return $this->is_show_in_admin;
+    }
+
+    /**
+     * @param bool $is_show_in_admin
+     *
+     * @return $this
+     */
+    public function setIsShowInAdmin($is_show_in_admin)
+    {
+        $this->is_show_in_admin = $is_show_in_admin;
 
         return $this;
     }

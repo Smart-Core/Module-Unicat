@@ -35,6 +35,9 @@
             {% for attribute in configuration.attributes %}
                 {% if attribute.showInAdmin and itemType.hasAttribute(attribute.name) %}<th>{{ attribute.title }}</th>{% endif %}
             {% endfor %}
+            {% for taxonomy in itemType.taxonomies if taxonomy.isShowInAdmin == true %}
+                <th>{{ taxonomy }}</th>
+            {% endfor %}
             <th>{{ 'Created at'|trans }}</th>
             <th>Действия</th>
         </tr></thead>
@@ -49,10 +52,10 @@
                         <td>
                             {% set attr_item = item.attribute(attribute.name) %}
 
-                            {% if attr_item is iterable %}
+                            {% if attr_item is iterable and attribute.type != 'gallery' %}
                                 <ul>
                                     {% for attr_item_2 in attr_item %}
-                                        <li>{{ attr_item_2 }}</li>
+                                        <li>{{ attr_item_2|ld }}</li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
@@ -68,13 +71,40 @@
 
                                 {% if attribute.type == 'image' %}
                                     {{ smart_media_img(attr_item, '100x100') }}
+                                {% elseif attribute.type == 'gallery' %}
+                                    {% if attr_item['galleryName'] is not empty %}
+                                        <b>{{ attr_item['galleryName'] }}</b><br>
+                                    {% endif %}
+
+                                    {% set gallery_images_count = 0 %}
+                                    {% for img in attr_item['images'] %}
+                                        {% if gallery_images_count == 0 %}
+                                            {{ smart_media_img(img.id, '100x100', img.title) }}
+                                        {% endif %}
+
+                                        {% set gallery_images_count = gallery_images_count + 1 %}
+                                    {% endfor %}
+
+                                    {% if gallery_images_count > 1 %}
+                                        <p>и ещё {{ gallery_images_count }}...</p>
+                                    {% endif %}
+                                {% elseif attribute.type == 'choice' %}
+                                    {{ attribute.valueByChoice(attr_item) }}
                                 {% else %}
                                     {{ attr_item }}
                                 {% endif %}
                                 </a>
+
                             {% endif %}
                         </td>
                     {% endif %}
+                {% endfor %}
+                {% for taxonomy in itemType.taxonomies if taxonomy.isShowInAdmin == true %}
+                    <td>
+                        {% for taxon in item.taxons if taxon.taxonomy.id == taxonomy.id %}
+                            {{ taxon }},
+                        {% endfor %}
+                    </td>
                 {% endfor %}
                 <td>{{ item.createdAt|localizeddate() }}</td>
                 <td>

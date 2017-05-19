@@ -55,7 +55,7 @@
                             {% if attr_item is iterable and attribute.type != 'gallery' %}
                                 <ul>
                                     {% for attr_item_2 in attr_item %}
-                                        <li>{{ attr_item_2|ld }}</li>
+                                        <li>{{ attr_item_2 }}</li>
                                     {% endfor %}
                                 </ul>
                             {% else %}

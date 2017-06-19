@@ -24,6 +24,7 @@ class AttributesGroupFormType extends AbstractType
         $builder
             ->add('title', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('name')
+            ->add('position')
         ;
     }
 

@@ -261,6 +261,23 @@ class UnicatAttribute
     }
 
     /**
+     * Получение имени в формате CamelCase
+     *
+     * @return string
+     */
+    public function getNameCamelCase()
+    {
+        $str = '';
+        foreach (explode('_', $this->getName()) as $val) {
+            if (!empty($val)) {
+                $str .= ucfirst($val);
+            }
+        }
+
+        return $str;
+    }
+    
+    /**
      * @return string
      */
     public function getValueClassNameWithNameSpace()
@@ -278,6 +295,14 @@ class UnicatAttribute
         $this->is_dedicated_table = $is_dedicated_table;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDedicatedTable()
+    {
+        return $this->is_dedicated_table;
     }
 
     /**

@@ -7,11 +7,12 @@ use Doctrine\ORM\EntityRepository;
 class UnicatAttributeRepository extends EntityRepository
 {
     /**
+     * @param int|UnicatConfiguration $configuration
      * @param array $groups
      *
      * @return UnicatAttribute[]
      */
-    public function findByGroupsNames(array $groups)
+    public function findByGroupsNames($configuration, array $groups)
     {
         $qb = $this->createQueryBuilder('e')
             ->join('e.groups', 'g')
@@ -29,6 +30,9 @@ class UnicatAttributeRepository extends EntityRepository
 
             $qb->setParameter('name'.$key, $group);
         }
+
+        $qb->andWhere('g.configuration = :configuration');
+        $qb->setParameter('configuration', $configuration);
 
         return $qb->getQuery()->getResult();
     }

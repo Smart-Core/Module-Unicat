@@ -47,7 +47,6 @@ class DoctrineEntityGenerator extends Generator
                             $type = 'Smallint';
                             break;
                         case 'choice':
-                        case 'date':
                         case 'string':
                         case 'text':
                             $type = 'String';
@@ -55,12 +54,18 @@ class DoctrineEntityGenerator extends Generator
                         case 'textarea':
                             $type = 'Text';
                             break;
+                        case 'date':
+                            $type = 'Date';
+                            break;
+                        case 'datetime':
+                            $type = 'Datetime';
+                            break;
                         default:
                             throw new \Exception('Unsupported value type: '.$attribute->getType());
                     }
 
                     $parameters['name'] = $attribute->getName();
-                    $parameters['name_camel_case'] = $this->camelCase($attribute->getName());
+                    $parameters['name_camel_case'] = $attribute->getNameCamelCase();
                     $parameters['type'] = $type;
 
                     $template = 'Value'; // @todo uniquie
@@ -69,22 +74,5 @@ class DoctrineEntityGenerator extends Generator
                 }
             }
         }
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public function camelCase($name)
-    {
-        $str = '';
-        foreach (explode('_', $name) as $val) {
-            if (!empty($val)) {
-                $str .= ucfirst($val);
-            }
-        }
-
-        return $str;
     }
 }

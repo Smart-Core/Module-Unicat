@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="SmartCore\Module\Unicat\Model\TaxonRepository")
  * @ORM\Table(name="{{ table_prefix ~ configuration.name }}_taxons",
  *      indexes={
  *          @ORM\Index(columns={"is_enabled"}),

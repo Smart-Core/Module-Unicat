@@ -8,7 +8,11 @@ use Smart\CoreBundle\Doctrine\ColumnTrait;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="unicat__items_types")
+ * @ORM\Table(name="unicat__items_types",
+ *      indexes={
+ *          @ORM\Index(columns={"name"}),
+ *      }
+ * )
  */
 class UnicatItemType
 {
@@ -18,6 +22,20 @@ class UnicatItemType
     use ColumnTrait\Position;
     use ColumnTrait\TitleNotBlank;
     use ColumnTrait\FosUser;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $order_by_attr;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $order_by_direction;
 
     /**
      * @var string|null
@@ -65,6 +83,14 @@ class UnicatItemType
         $this->created_at        = new \DateTime();
         $this->position          = 0;
         $this->taxonomies        = new ArrayCollection();
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getTitle();
     }
 
     /**
@@ -161,6 +187,46 @@ class UnicatItemType
     public function setToStringPattern($to_string_pattern)
     {
         $this->to_string_pattern = $to_string_pattern;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getOrderByAttr()
+    {
+        return $this->order_by_attr;
+    }
+
+    /**
+     * @param null|string $order_by_attr
+     *
+     * @return $this
+     */
+    public function setOrderByAttr($order_by_attr)
+    {
+        $this->order_by_attr = $order_by_attr;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getOrderByDirection()
+    {
+        return $this->order_by_direction;
+    }
+
+    /**
+     * @param null|string $order_by_direction
+     *
+     * @return $this
+     */
+    public function setOrderByDirection($order_by_direction)
+    {
+        $this->order_by_direction = $order_by_direction;
 
         return $this;
     }

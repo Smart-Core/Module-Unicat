@@ -146,6 +146,39 @@ class Item extends ItemModel
     }
 
             {%- endif -%}
+
+        {% elseif attr.isDedicatedTable %}
+
+
+    // {{ attr.name }} ===============================================================================
+
+    /**
+     * @var Item
+     *
+     * @ORM\OneToMany(targetEntity="Value{{ attr.nameCamelCase }}", mappedBy="item")
+     */
+    protected $attr_{{ attr.name }}_value;
+
+    /**
+     * @param Item ${{ attr.name }}
+     *
+     * @return $this
+     */
+    public function setAttr{{ attr.name }}Value(Item ${{ attr.name }} = null)
+    {
+        $this->attr_{{ attr.name }}_value = ${{ attr.name }};
+
+        return $this;
+    }
+
+    /**
+     * @return Item|null
+     */
+    public function getAttr{{ attr.name }}Value()
+    {
+        return $this->attr_{{ attr.name }}_value;
+    }
+
         {%- endif -%}
     {% endfor %}
 

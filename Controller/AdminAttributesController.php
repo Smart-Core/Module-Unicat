@@ -23,9 +23,11 @@ class AdminAttributesController extends Controller
         $group = $request->query->get('group', 'ALL');
 
         if ($group == 'ALL') {
-            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findBy([], ['position' => 'ASC']);
+            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findBy([
+                'configuration' => $ucm->getConfiguration(),
+            ], ['position' => 'ASC']);
         } else {
-            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames([$group]);
+            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($ucm-> getConfiguration(), [$group]);
         }
 
         return $this->render('@UnicatModule/AdminAttributes/index.html.twig', [

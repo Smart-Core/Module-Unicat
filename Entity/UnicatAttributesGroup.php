@@ -8,10 +8,11 @@ use Smart\CoreBundle\Doctrine\ColumnTrait;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- *
- *
  * @ORM\Entity()
  * @ORM\Table(name="unicat__attributes_groups",
+ *      indexes={
+ *          @ORM\Index(columns={"position"}),
+ *      },
  *      uniqueConstraints={
  *          @ORM\UniqueConstraint(columns={"name", "configuration_id"}),
  *      },
@@ -24,6 +25,7 @@ class UnicatAttributesGroup
     use ColumnTrait\Id;
     use ColumnTrait\CreatedAt;
     use ColumnTrait\Name;
+    use ColumnTrait\Position;
     use ColumnTrait\TitleNotBlank;
 
     /**
@@ -63,6 +65,7 @@ class UnicatAttributesGroup
     {
         $this->created_at = new \DateTime();
         $this->attributes = new ArrayCollection();
+        $this->position   = 0;
     }
 
     /**

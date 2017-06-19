@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use Doctrine\ORM\Mapping as ORM;
+use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\Value{{ type }}Model;
 
 /**
@@ -15,4 +16,13 @@ use SmartCore\Module\Unicat\Model\Value{{ type }}Model;
  */
 class Value{{ name_camel_case }} extends Value{{ type }}Model
 {
+    /**
+     * @var ItemModel
+     *
+     * @ORM\Id
+     * @ORM\ManyToOne(targetEntity="Item", inversedBy="attr_{{ name }}_value")
+     * ORM\JoinColumn(name="item_id")
+     */
+    protected $item;
+
 }

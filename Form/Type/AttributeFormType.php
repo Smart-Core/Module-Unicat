@@ -2,9 +2,13 @@
 
 namespace SmartCore\Module\Unicat\Form\Type;
 
+use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatAttribute;
+use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Service\UnicatService;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -46,11 +50,30 @@ class AttributeFormType extends AbstractType
                     'Unicat Item' => 'unicat_item',
                 ],
             ])
-            ->add('items_type')
+            ->add('items_type', EntityType::class, [
+                'class'         => UnicatItemType::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('e')
+                        ->where('e.configuration = :configuration')
+                        ->orderBy('e.position')
+                        ->setParameter('configuration', UnicatService::getCurrentConfigurationStatic());
+                },
+                'required' => false,
+            ])
             ->add('is_items_type_many2many',    null, ['required' => false])
             ->add('description')
             ->add('params_yaml',   null, ['attr' => ['data-editor' => 'yaml']])
-            ->add('groups',        null, ['expanded' => true])
+            ->add('groups', EntityType::class, [
+                'expanded' => true,
+                'multiple' => true,
+                'class'         => UnicatAttributesGroup::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('e')
+                        ->where('e.configuration = :configuration')
+                        ->setParameter('configuration', UnicatService::getCurrentConfigurationStatic());
+                },
+                'required' => false,
+            ])
             ->add('position')
             ->add('update_all_records_with_default_value', TextType::class, [
                 'attr'     => ['placeholder' => 'Пустое поле - не обновлять записи'],

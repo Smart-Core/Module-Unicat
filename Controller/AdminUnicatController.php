@@ -98,8 +98,9 @@ class AdminUnicatController extends Controller
             }
         }
 
-        $criteria = ['type' => $itemTypeId];
+        $itemType = $em->find('UnicatModule:UnicatItemType', (int) $itemTypeId);
 
+        $criteria = [];
         $parentItem = $ucm->findItem($request->query->get('parent_id', 0));
 
         if ($parentItem) {
@@ -108,21 +109,38 @@ class AdminUnicatController extends Controller
             $criteria['attr_'.$attr->getName()] = $parentItem->getId();
         }
 
-        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter(
-            $ucm->getItemRepository()->getFindByQuery($criteria, ['id' => 'DESC'])
-        ));
-        $pagerfanta->setMaxPerPage(20);
+        $direction = 'DESC';
 
-        try {
-            $pagerfanta->setCurrentPage($request->query->get('page', 1));
-        } catch (NotValidCurrentPageException $e) {
-            throw $this->createNotFoundException();
+        if (strtoupper($itemType->getOrderByDirection()) == 'DESC' or strtoupper($itemType->getOrderByDirection()) == 'ASC') {
+            $direction = strtoupper($itemType->getOrderByDirection());
         }
 
-        $itemType = $em->find('UnicatModule:UnicatItemType', (int) $itemTypeId);
+        $orderBy = ['id' => $direction];
+
+        /* @todo сделать сортировку по внешним таблицам через джойны, нужно чтобы колонка была NOT NULL
+        if ($itemType instanceof UnicatItemType) {
+            if (!empty($itemType->getOrderByAttr()) ) {
+                if ($itemType->getOrderByAttr() !== 'id'
+                    or $itemType->getOrderByAttr() !== 'created_at'
+                    or $itemType->getOrderByAttr() !== 'position'
+                ) {
+                    $orderBy = [$itemType->getOrderByAttr() => $itemType->getOrderByAttr()];
+                }
+            }
+        }
+        */
+
+        $unicatRequest = [
+            'type'     => $itemType->getName(),
+            'criteria' => $criteria,
+            'order'    => $orderBy,
+            'pager'    => [20, $request->query->get('page', 1)],
+        ];
+
+        $unicatItems = $ucm->getData($unicatRequest);
 
         return $this->render('@UnicatModule/Admin/configuration.html.twig', [
-            'pagerfanta'    => $pagerfanta, // items
+            'pagerfanta'    => $unicatItems['items'], // items
             'itemType'      => $itemType,
             'parentItem'    => $parentItem,
             'itemsTypesChildren' => $ucm->getChildrenTypes($itemType),

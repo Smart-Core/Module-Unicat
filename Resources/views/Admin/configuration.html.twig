@@ -90,6 +90,8 @@
                                     {% endif %}
                                 {% elseif attribute.type == 'choice' %}
                                     {{ attribute.valueByChoice(attr_item) }}
+                                {% elseif attribute.type == 'date' or attribute.type == 'datetime'%}
+                                    {{ attr_item|localizeddate }}
                                 {% else %}
                                     {{ attr_item }}
                                 {% endif %}

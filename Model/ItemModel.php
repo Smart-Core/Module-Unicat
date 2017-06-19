@@ -390,7 +390,15 @@ class ItemModel
      */
     public function setAttribute($name, $value)
     {
-        $this->attributes[$name] = $value;
+        if (is_string($value)) {
+            $this->attributes[$name] = trim(preg_replace('%(?:
+                \xF0[\x90-\xBF][\x80-\xBF]{2}      # planes 1-3
+                | [\xF1-\xF3][\x80-\xBF]{3}        # planes 4-15
+                | \xF4[\x80-\x8F][\x80-\xBF]{2}    # plane 16
+            )%xs', '', $value));
+        } else {
+            $this->attributes[$name] = $value;
+        }
 
         return $this;
     }

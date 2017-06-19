@@ -14,6 +14,8 @@ use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -91,7 +93,7 @@ class ItemFormType extends AbstractType
             $groups[] = $attributesGroup->getName();
         }
 
-        foreach ($this->doctrine->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($groups) as $attribute) {
+        foreach ($this->doctrine->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($this->configuration, $groups) as $attribute) {
             if ($attribute->isEnabled() == false) {
                 continue;
             }
@@ -124,6 +126,14 @@ class ItemFormType extends AbstractType
 
             if ($attribute->isType('select')) {
                 $type = ChoiceType::class;
+            }
+
+            if ($attribute->isType('datetime')) {
+                $type = DateTimeType::class;
+            }
+
+            if ($attribute->isType('date')) {
+                $type = DateType::class;
             }
 
             if ($attribute->isType('multiselect')) {

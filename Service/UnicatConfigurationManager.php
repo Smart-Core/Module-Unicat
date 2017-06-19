@@ -4,6 +4,10 @@ namespace SmartCore\Module\Unicat\Service;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Exception\NotValidCurrentPageException;
+use Pagerfanta\Pagerfanta;
+use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Bundle\CMSBundle\Container;
 use SmartCore\Bundle\MediaBundle\Service\CollectionService;
 use SmartCore\Module\Unicat\Entity\UnicatAttribute;
@@ -33,7 +37,7 @@ class UnicatConfigurationManager
     /** @var \Doctrine\Common\Persistence\ManagerRegistry */
     protected $doctrine;
 
-    /** @var \Doctrine\ORM\EntityManager */
+    /** @var \Doctrine\ORM\EntityRepository */
     protected $em;
 
     /** @var \Symfony\Component\Form\FormFactoryInterface */
@@ -71,6 +75,416 @@ class UnicatConfigurationManager
     }
 
     /**
+     * @param array $options
+     *
+     * @return array|ItemModel[]
+     *
+     * @throws \Exception
+     */
+    public function getData(array $options)
+    {
+        if (!isset($options['type']) or empty($options['type'])) {
+            throw new \Exception('Missed required option "type".');
+        }
+
+        $itemType = $this->em->getRepository('UnicatModule:UnicatItemType')->findOneBy(['name' => $options['type']]);
+
+        if (empty($itemType)) {
+            throw new \Exception("Item type {$options['type']} is incorrect.");
+        }
+
+        $defaut  = [
+            'is_deleted' => false, // true|'all' @todo
+            'is_enabled' => true,  // false|'all'
+            //'get_taxonomy' => true, // @todo
+            // Пока вычисляется только по IN, можно подумать сделать ещё обработку NOT IN
+            'taxonomy' => [
+//                ['banks', 'OR', '2,25'],
+            ],
+            //'type' => 'jk', // Обязательное
+            'criteria' => [
+//                ['id', '>=', 300],
+//                ['id', 'NOT IN', '412, 416'],
+//                ['jk_type', '=', 1],
+            ],
+            'order' => [
+//                'price' => 'ASC',
+//                'id' => 'DESC',
+            ],
+            'pager' => [
+                10, // items_per_page
+                0, // page_num
+            ],
+        ];
+
+        $options = $options + $defaut;
+
+        if (isset($options['pager'][0]) and is_numeric($options['pager'][0]) and $options['pager'][0] > 0) {
+            $limit = $options['pager'][0];
+        } else {
+            $limit = 0;
+        }
+
+        if (isset($options['pager'][1]) and is_numeric($options['pager'][1]) and $options['pager'][1] >= 0) {
+            $offset = $options['pager'][1];
+        } else {
+            $offset = 0;
+        }
+
+        // -----------------------
+
+
+        $itemEntity = $this->configuration->getItemClass();
+
+        $attributes = [];
+        foreach ($this->getAttributes() as $name => $attribute) {
+            if ($attribute->getIsEnabled()) {
+                $attributes[$name] = $attribute;
+            }
+        }
+
+        $from = $itemEntity.' i';
+
+        $qb = $this->em->createQueryBuilder('i');
+        $qb
+            ->select('i')
+            ->add('from', $from)
+            ->where('i.type = '.$itemType->getId())
+        ;
+
+        if (is_bool($options['is_enabled'])) {
+            $qb->andWhere('i.is_enabled = '.intval($options['is_enabled']));
+        } elseif ($options['is_enabled'] !== 'all') {
+            throw new \Exception('Wrong "is_enabled" parameter.');
+        }
+
+        $grouppedCriteria = [];
+
+        foreach ($options['criteria'] as $criteria) {
+            $grouppedCriteria[trim($criteria[0])][] = $criteria;
+        }
+
+        foreach ($grouppedCriteria as $field => $criterias) {
+            // Выборка по полям сущности
+            if ($field == 'id' or $field == 'position' or $field == 'slug') {
+                // @todo  !!!!!!!!!!!!!!!!!!!!!!!!!
+                if ($comparison == 'IN' or $comparison == 'NOT IN') {
+                    if (is_array($val)) {
+                        $val = implode(',', $val);
+                    }
+
+                    $qb->andWhere('i.'.$field.' '.$comparison.' ('.$val.')');
+                } else {
+                    $qb->andWhere('i.'.$field.' '.$comparison.' :'.$field.$key)
+                        ->setParameter($field.$key, $val);
+                }
+            } elseif (isset($attributes[$field])) {
+                /** @var UnicatAttribute $attr */
+                $attr = $attributes[$field];
+
+                if ($attr->isDedicatedTable()) { // Выборка по значениям из внешних таблиц
+                    $condition = '';
+                    $firstCondition = true;
+                    foreach ($criterias as $key => $criteria) {
+                        $comparison = trim($criteria[1]);
+
+                        $val = '';
+                        if (isset($criteria[2])) {
+                            $val = $criteria[2];
+                        }
+
+                        if (($comparison == 'IN' or $comparison == 'NOT IN') and empty($val)) {
+                            continue;
+                        }
+
+                        // @todo сделать IN
+                        if ($comparison == 'IN' or $comparison == 'NOT IN') {
+                            if (is_array($val)) {
+                                $val = implode(',', $val);
+                            }
+
+                            $qb->join('i.attr_'.$field.'_value', $field.$key, 'WITH', $field.$key.".value {$comparison} ({$val})");
+                        } else {
+                            if ($firstCondition) {
+                                $condition = $field.".value {$comparison} :".$field.$key;
+                                $firstCondition = false;
+                            } else {
+                                $condition .= ' AND '.$field.".value {$comparison} :".$field.$key;
+                            }
+
+                            $qb->setParameter($field.$key, $val);
+                        }
+                    }
+
+                    $qb->join('i.attr_'.$field.'_value', $field, 'WITH', $condition);
+                } elseif ($attr->isItemsTypeMany2many()) { // М2М связи
+                    $comparison = trim($criterias[0][1]);
+
+                    $val = '';
+                    if (isset($criterias[0][2])) {
+                        $val = $criterias[0][2];
+                    }
+
+                    if (($comparison == 'IN' or $comparison == 'NOT IN') and empty($val)) {
+                        continue;
+                    }
+
+                    if ($comparison == 'IN' or $comparison == 'NOT IN') {
+                        if (is_array($val)) {
+                            $val = implode(',', $val);
+                        }
+
+                        $qb->join('i.attr_'.$field, $field, 'WITH', $field.".id {$comparison} ({$val})");
+                    } else {
+                        $qb->join('i.attr_'.$field, $field, 'WITH', $field.".id = :".$field)
+                            ->setParameter($field, $val);
+                    }
+                } elseif ($attr->getType() == 'unicat_item') { // Одиночные связи
+                    foreach ($criterias as $key => $criteria) {
+                        if (count($criteria) < 2) {
+                            continue;
+                        }
+
+                        $comparison = trim($criteria[1]);
+
+                        $val = '';
+                        if (isset($criteria[2])) {
+                            $val = $criteria[2];
+                        }
+
+                        $qb->andWhere('i.attr_'.$field.' '.$comparison.' :'.$field.$key)
+                            ->setParameter($field.$key, $val);
+                    }
+                }
+            }
+        }
+
+        $firstOrderBy = true;
+        if (!empty($options['order'])) {
+            foreach ($options['order'] as $field => $value) {
+                if (isset($attributes[$field])) {
+                    $attr = $attributes[$field];
+
+                    if ($attr->isDedicatedTable()) {
+                        if ($firstOrderBy) {
+                            $qb->orderBy($field.'.value ', $value);
+                            $firstOrderBy = false;
+                        } else {
+                            $qb->addOrderBy($field.'.value ', $value);
+                        }
+                    }
+                }
+
+                if ($field == 'id' or $field == 'position' or $field == 'slug') {
+                    if ($firstOrderBy) {
+                        $qb->orderBy("i.$field", $value);
+                        $firstOrderBy = false;
+                    } else {
+                        $qb->addOrderBy("i.$field", $value);
+                    }
+                }
+            }
+        }
+
+        // Таксоны
+
+        $requestedTaxons = ['IN' => [], 'OR' => []];
+
+        foreach ($options['taxonomy'] as $taxonomyCriteria) {
+            if (!is_array($taxonomyCriteria) or count($taxonomyCriteria) != 3) {
+                continue;
+            }
+
+            $taxonomy = $this->em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $taxonomyCriteria[0]]);
+
+            if (empty($taxonomy)) {
+                throw new \Exception("Taxonomy name '{$taxonomy}' is incorrect.");
+            }
+
+            if (is_array($taxonomyCriteria[2])) {
+                $values = $taxonomyCriteria[2];
+            } else {
+                $values = explode(',', $taxonomyCriteria[2]);
+            }
+
+            if ($taxonomyCriteria[1] == 'IN' or $taxonomyCriteria[1] == 'AND') {
+                $comparison = 'IN';
+            } elseif ($taxonomyCriteria[1] == 'OR') {
+                $comparison = 'OR';
+            }
+
+            foreach ($values as $value) {
+                $value = trim($value);
+                if (intval($value)) {
+                    $requestedTaxons[$comparison][$value] = $value;
+                }
+            }
+        }
+
+        if (count($requestedTaxons['IN']) or count($requestedTaxons['OR'])) {
+            if (count($requestedTaxons['OR'])) {
+                $oRcondition = '';
+
+                $first = true;
+                foreach ($requestedTaxons['OR'] as $val) {
+                    if ($first) {
+                        $oRcondition .= "t2.id = :taxon".$val;
+                        $first = false;
+                    } else {
+                        $oRcondition .= " OR t2.id = :taxon".$val;
+                    }
+
+                    $qb->setParameter('taxon'.$val, $val);
+                }
+
+                $qb->join('i.taxons', 't2', 'WITH', $oRcondition);
+            }
+
+            if (count($requestedTaxons['IN'])) {
+                $requestedTaxonsInStr = implode(',', $requestedTaxons['IN']);
+
+                $qb->join('i.taxons', 't1', 'WITH', "t1.id IN ({$requestedTaxonsInStr})");
+                if (count($requestedTaxons['IN']) > 1) {
+                    $qb->groupBy('i.id')->having('COUNT(i.id) = '.count($requestedTaxons['IN']));
+                }
+            }
+        }
+
+//        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter($qb->getQuery()));
+        $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($qb->getQuery()));
+
+        if (!empty($limit)) {
+            $pagerfanta->setMaxPerPage($limit);
+        }
+
+        if (!empty($offset)) {
+            try {
+                $pagerfanta->setCurrentPage($offset);
+            } catch (NotValidCurrentPageException $e) {
+                $pagerfanta->setCurrentPage(1);
+            }
+        }
+
+//        dump($qb->getQuery()->getSQL());
+
+        $data = [
+            'have_to_paginate'  => $pagerfanta->haveToPaginate(),
+            'current_page'      => $pagerfanta->getCurrentPage(),
+            'max_per_page'      => $pagerfanta->getMaxPerPage(),
+            'total_page'        => $pagerfanta->getNbPages(),
+            'total_count'       => $pagerfanta->getNbResults(),
+        ];
+
+        if ($pagerfanta->hasPreviousPage()) {
+            $data['previous_page'] = $pagerfanta->getPreviousPage();
+        } else {
+            $data['previous_page'] = 'NONE';
+        }
+
+        if ($pagerfanta->hasNextPage()) {
+            $data['next_page'] = $pagerfanta->getNextPage();
+        } else {
+            $data['next_page'] = 'NONE';
+        }
+        
+        $data['items'] = $pagerfanta;
+
+        return $data;
+    }
+
+    /**
+     * @param ItemModel $item
+     * @param array     $requestArray
+     *
+     * @return array
+     *
+     * @todo глубину вложенности.
+     */
+    public function getItemDataAsArray(ItemModel $item, array $requestArray = [])
+    {
+        /** @var UnicatAttribute[] $attributes */
+        $attributes = [];
+        foreach ($this->getAttributes() as $name => $attribute) {
+            if ($attribute->getIsEnabled()) {
+                $attributes[$name] = $attribute;
+            }
+        }
+
+        $data = [
+            'id' => $item->getId(),
+            'slug' => $item->getSlug(),
+            'meta' => $item->getMeta(),
+            'position' => $item->getPosition(),
+            'type' => $item->getType()->getName(),
+            'taxonomy' => [],
+            'attrs' => [],
+            'hidden_extra' => $item->getHiddenExtra(),
+        ];
+
+        // Сначала ищем связи unicat_item
+        foreach ($attributes as $name => $attribute) {
+            if ($attribute->isItemsTypeMany2many() and $item->hasAttribute($name)) {
+                /** @var ItemModel $item2 */
+                foreach ($item->getAttr($name) as $item2) {
+                    $data['attrs'][$name][$item2->getId()] = $this->getItemDataAsArray($item2, $requestArray);
+                }
+            } elseif ($attribute->getType() == 'unicat_item' and $item->hasAttribute($name)) {
+                $item2 = $item->getAttr($name);
+                if ($item2 instanceof ItemModel) {
+                    $data['attrs'][$name] = $this->getItemDataAsArray($item2, $requestArray);
+                }
+            }
+        }
+
+        // Потом всем остальные атрибуты
+        foreach ($item->getAttributes() as $name2 => $val2) {
+            if (isset($attributes[$name2]) and !is_null($val2)) {
+                /** @var UnicatAttribute $attr */
+                $attr = $attributes[$name2];
+
+                if ($attr->getType() == 'choice') {
+                    $val3 = [];
+                    $params = $attr->getParam('form');
+
+                    if (isset($params['choices'])) {
+                        $params = array_flip($params['choices']);
+                    }
+
+                    $val3[$val2] = $params[$val2];
+                    $val2 = $val3;
+                }
+
+                if ($attr->getType() == 'image') {
+                    $mc = $this->getMediaCollection();
+
+                    if (isset($requestArray['attr_params'][$item->getType()->getName()][$attr->getName()]['filter'])) {
+                        $filter = $requestArray['attr_params'][$item->getType()->getName()][$attr->getName()]['filter'];
+                    } else {
+                        $filter = $attr->getParam('filter');
+                    }
+
+                    $val2 = $mc->get($val2, $filter);
+                }
+
+                $data['attrs'][$name2] = $val2;
+            }
+        }
+
+        foreach ($item->getTaxons() as $taxon) {
+            $data['taxonomy'][$taxon->getTaxonomy()->getName()][$taxon->getId()] = [
+                'id' => $taxon->getId(),
+                'parent' => $taxon->getParent(),
+                'title' => $taxon->getTitle(),
+                'slug' => $taxon->getSlug(),
+                'slug_full' => $taxon->getSlugFull(),
+                'attrs' => $taxon->getProperties(),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
      * @return UnicatConfiguration
      */
     public function getConfiguration()
@@ -105,67 +519,6 @@ class UnicatConfigurationManager
         ");
     }
 
-    /**
-     * @param array $criteria
-     * @param array|null $orderBy
-     * @param int|null $limit
-     * @param int|null $offset
-     *
-     * @return \Doctrine\ORM\Query
-     *
-     * @todo $orderBy, $limit, $offset
-     */
-    public function getFindItemsQuery(array $criteria, array $orderBy = null, $limit = null, $offset = null)
-    {
-        $itemEntity = $this->configuration->getItemClass();
-        $attributes = $this->getAttributes();
-
-        $from = $itemEntity.' i';
-
-        $qb = $this->em->createQueryBuilder('i');
-        $qb->select('i');
-
-        $firstWhere = true;
-        foreach ($criteria as $key => $val) {
-            if (isset($attributes[$key])) {
-                $attr = $attributes[$key];
-                $from .= ', '.$attr->getValueClassNameWithNameSpace().' '.$key;
-
-                if ($firstWhere) {
-                    $qb->where('i.id = '.$key.'.item');
-                } else {
-                    $qb->andWhere('i.id = '.$key.'.item');
-                }
-
-                $qb->andWhere($key.'.value = :'.$key)
-                   ->setParameter($key, $val);
-            }
-        }
-
-        $qb->add('from', $from);
-
-        $firstOrderBy = true;
-        if (!empty($orderBy)) {
-            foreach ($orderBy as $field => $value) {
-                if ($firstOrderBy) {
-                    $qb->orderBy("i.$field", $value);
-                    $firstOrderBy = false;
-                } else {
-                    $qb->addOrderBy("i.$field", $value);
-                }
-            }
-        }
-
-        if (!empty($limit)) {
-            $qb->setMaxResults($limit);
-        }
-
-        if (!empty($offset)) {
-            $qb->setFirstResult($offset);
-        }
-
-        return $qb->getQuery();
-    }
     /**
      * @param TaxonModel $taxon
      * @param array      $order
@@ -208,6 +561,10 @@ class UnicatConfigurationManager
      */
     public function findItem($val, $use_item_id_as_slug = true)
     {
+        if (empty($val)) {
+            return null;
+        }
+
         $key = 'slug';
 
         if ($use_item_id_as_slug and intval($val)) {
@@ -240,7 +597,7 @@ class UnicatConfigurationManager
                     'is_enabled' => true,
                     'parent'     => $parent,
                     'slug'       => $taxonName,
-                    'taxonomy'  => $taxonomy,
+                    'taxonomy'   => $taxonomy,
                 ]);
             } else {
                 $taxon = $this->getTaxonRepository()->findOneBy([
@@ -262,7 +619,7 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @return \Doctrine\ORM\EntityRepository
+     * @return \SmartCore\Module\Unicat\Model\TaxonRepository
      */
     public function getTaxonRepository()
     {
@@ -634,10 +991,17 @@ class UnicatConfigurationManager
             $groups[] = $group->getName();
         }
 
-        $attributes = $this->em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($groups);
+        $attributes = $this->em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($this->getConfiguration(), $groups);
 
         // Проверка и модификация атрибута. В частности загрука картинок и валидация.
+        /** @var UnicatAttribute $attribute */
         foreach ($attributes as $attribute) {
+            if ($attribute->isType('float')) {
+                $data = str_replace(',', '.', $item->getAttribute($attribute->getName()));
+
+                $item->setAttribute($attribute->getName(), $data);
+            }
+
             if ($attribute->getIsDedicatedTable()) {
                 continue;
             }
@@ -729,7 +1093,7 @@ class UnicatConfigurationManager
             }
         }
 
-        $pd = $request->request->get($form->getName());
+        $pd = $request->request->get($form->getName(), []);
 
         $taxons = [];
         foreach ($pd as $key => $val) {
@@ -927,5 +1291,13 @@ class UnicatConfigurationManager
         }
 
         return $user;
+    }
+
+    /**
+     * @return \SmartCore\Bundle\MediaBundle\Service\CollectionService
+     */
+    public function getMediaCollection()
+    {
+        return $this->mc;
     }
 }

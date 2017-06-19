@@ -2,9 +2,6 @@
 
 namespace SmartCore\Module\Unicat\Controller;
 
-use Pagerfanta\Exception\NotValidCurrentPageException;
-use Pagerfanta\Pagerfanta;
-use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Bundle\CMSBundle\Module\CacheTrait;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
 use SmartCore\Module\Unicat\Model\TaxonModel;
@@ -78,25 +75,16 @@ class UnicatWidgetController extends Controller
 
         return new JsonResponse($taxons);
     }
-    
-    /**
-     * @param array $criteria
-     * @param array $orderBy
-     * @param int   $limit
-     * @param null  $offset
-     *
-     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     */
-    public function getItemsAction(array $criteria, array $orderBy = null, $limit = 10, $offset = null)
-    {
-        $pagerfanta = new Pagerfanta(new SimpleDoctrineORMAdapter($this->unicat->getFindItemsQuery($criteria, $orderBy, $limit, $offset)));
-        $pagerfanta->setMaxPerPage($limit);
 
-        try {
-            $pagerfanta->setCurrentPage(1);
-        } catch (NotValidCurrentPageException $e) {
-            return $this->createNotFoundException('Такой страницы не найдено');
-        }
+    /**
+     * @param array $unicatRequest
+     *
+     * @return Response
+     */
+    public function getItemsAction(array $unicatRequest)
+    {
+        $ucm = $this->get('unicat')->getConfigurationManager($this->configuration_id);
+        $unicatItems = $ucm->getData($unicatRequest);
 
         return $this->render('@UnicatModule/index.html.twig', [
             'mode'          => 'list',
@@ -104,7 +92,7 @@ class UnicatWidgetController extends Controller
             'configuration' => $this->unicat->getConfiguration(),
             'lastTaxon'     => null,
             'childenTaxons' => null,
-            'pagerfanta'    => $pagerfanta,
+            'pagerfanta'    => $unicatItems['items'],
             'slug'          => null,
         ]);
     }

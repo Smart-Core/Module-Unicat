@@ -253,6 +253,8 @@ abstract class TaxonModel
 
     /**
      * @return array
+     *
+     * @deprecated переделать на "атрибуты"
      */
     public function getProperties()
     {

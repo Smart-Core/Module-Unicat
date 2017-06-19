@@ -8,7 +8,11 @@ use Smart\CoreBundle\Doctrine\ColumnTrait;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="unicat__taxonomies")
+ * @ORM\Table(name="unicat__taxonomies",
+ *      indexes={
+ *          @ORM\Index(columns={"name"}),
+ *      }
+ * )
  */
 class UnicatTaxonomy
 {

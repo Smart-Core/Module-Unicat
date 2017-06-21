@@ -104,9 +104,12 @@ class AdminUnicatController extends Controller
         $parentItem = $ucm->findItem($request->query->get('parent_id', 0));
 
         if ($parentItem) {
-            $attr = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy(['items_type' => $parentItem->getType()]);
+            $attr = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy([
+                'is_enabled' => true,
+                'items_type' => $parentItem->getType(),
+            ]);
 
-            $criteria['attr_'.$attr->getName()] = $parentItem->getId();
+            $criteria[] = [$attr->getName(), '=', $parentItem->getId()];
         }
 
         $direction = 'DESC';

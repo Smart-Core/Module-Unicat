@@ -52,10 +52,18 @@
                         <td>
                             {% set attr_item = item.attribute(attribute.name) %}
 
-                            {% if attr_item is iterable and attribute.type != 'gallery' %}
+                            {% if attr_item is iterable and attribute.type == 'unicat_item' %}
                                 <ul>
                                     {% for attr_item_2 in attr_item %}
-                                        <li>{{ attr_item_2 }}</li>
+                                        <li>
+                                            <a href="{{ path('unicat_admin.configuration.items', {
+                                                'configuration': configuration.name,
+                                                'itemTypeId': item.type.id,
+                                                'parent_id': attr_item_2.id
+                                            }) }}"{% if item.isDisabled %} style="text-decoration: line-through;"{% endif %} title="Выборка записей '{{ item.type.title }}' из коллекции: {{ attribute.title }}">
+                                                {{ attr_item_2 }}
+                                            </a>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             {% else %}

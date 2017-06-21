@@ -47,6 +47,19 @@ class Item extends ItemModel
 
 
         $this->attr_{{ attr.name }} = new ArrayCollection();
+        $this->children_{{ attr.name }} = new ArrayCollection();
+
+        {%- endif -%}
+    {% endfor %}
+
+    {%- for attr in configuration.attributes %}
+        {% if attr.itemsType is not null
+            and attr.type == 'unicat_item'
+            and attr.isDedicatedTable == false
+            and attr.isItemsTypeMany2many == false
+        %}
+
+        $this->children_{{ attr.name }} = new ArrayCollection();
 
         {%- endif -%}
     {% endfor %}
@@ -59,14 +72,29 @@ class Item extends ItemModel
 
     // {{ attr.name }} ===============================================================================
 
-            {% if attr.isItemsTypeMany2many %}
+    {% if attr.isItemsTypeMany2many %}
     /**
      * @var Item[]
      *
-     * @ORM\ManyToMany(targetEntity="Item", cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity="Item", inversedBy="children_{{ attr.name }}", cascade={"persist"})
      * @ORM\JoinTable(name="{{ table_prefix ~ configuration.name }}_items_type_{{ attr.name }}_relations")
      */
     protected $attr_{{ attr.name }};
+
+    /**
+     * @var Item[]
+     *
+     * @ORM\ManyToMany(targetEntity="Item", mappedBy="attr_{{ attr.name }}", fetch="EXTRA_LAZY")
+     */
+    protected $children_{{ attr.name }};
+
+    /**
+     * @return ArrayCollection|Item[]
+     */
+    public function getChildren_{{ attr.name }}()
+    {
+        return $this->children_{{ attr.name }};
+    }
 
     /**
      * @param Item ${{ attr.name }}
@@ -120,10 +148,25 @@ class Item extends ItemModel
     /**
      * @var Item
      *
-     * @ORM\ManyToOne(targetEntity="Item")
+     * @ORM\ManyToOne(targetEntity="Item", inversedBy="children_{{ attr.name }}")
      * @ORM\JoinColumn(name="attr_{{ attr.name }}_id")
      */
     protected $attr_{{ attr.name }};
+
+    /**
+     * @var Item[]|ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Item", mappedBy="attr_{{ attr.name }}", fetch="EXTRA_LAZY")
+     */
+    protected $children_{{ attr.name }};
+
+    /**
+     * @return ArrayCollection|Item[]
+     */
+    public function getChildren_{{ attr.name }}()
+    {
+        return $this->children_{{ attr.name }};
+    }
 
     /**
      * @param Item ${{ attr.name }}

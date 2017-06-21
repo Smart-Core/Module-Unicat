@@ -213,7 +213,25 @@ class ItemModel
 
         return $data;
     }
-    
+
+    /**
+     * Получить детей атрибута.
+     *
+     * @param string $name
+     *
+     * @return ArrayCollection|ItemModel[]
+     */
+    public function getChildren($name)
+    {
+        foreach ($this as $key => $value) {
+            if (strpos($key, 'children_'.$name) === 0) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @param TaxonModel $taxon
      *

@@ -4,13 +4,12 @@ unicat.root:
     defaults:
         _controller: UnicatModule:Unicat:index
 
-unicat.index:
-    path: /{slug}
+unicat.item:
+    path: /{itemSlug}.html
     defaults:
-        _controller: UnicatModule:Unicat:index
-        slug: null
+        _controller: UnicatModule:Unicat:item
     requirements:
-        slug: '.+'
+        itemSlug: '.+'
 
 unicat.item_in_taxonomy:
     path: /{taxonomySlug}/{itemSlug}.html
@@ -20,9 +19,10 @@ unicat.item_in_taxonomy:
         itemSlug: '.+'
         taxonomySlug: '.+'
 
-unicat.item:
-    path: /{itemSlug}.html
+unicat.index:
+    path: /{slug}
     defaults:
-        _controller: UnicatModule:Unicat:item
+        _controller: UnicatModule:Unicat:index
+        slug: null
     requirements:
-        itemSlug: '.+'
+        slug: '.+'

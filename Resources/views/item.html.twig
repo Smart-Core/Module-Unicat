@@ -24,6 +24,12 @@
             {{ attr.openTag }}{{ attr.title }}: {% if item.attribute(attr.name) %} да {% else %} нет {% endif %}{{ attr.closeTag }}
         {% elseif attr.type == 'image' %}
             {{ attr.openTag }}{{ smart_media_img(item.attribute(attr.name), attr.params.filter) }}{{ attr.closeTag }}
+        {% elseif attr.type == 'date' or attr.type == 'datetime' %}
+            {% if val is not empty %}
+                {{ attr.openTag }}
+                {{ item.attribute(attr.name)|localizeddate }}
+                {{ attr.closeTag }}
+            {% endif %}
         {% elseif attr.type == 'gallery' %}
             {{ attr.openTag }}
             {% if attr.isShowTitle %}{{ attr.title }}: {% endif %}

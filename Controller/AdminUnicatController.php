@@ -134,6 +134,7 @@ class AdminUnicatController extends Controller
         */
 
         $unicatRequest = [
+            'is_enabled' => 'all',
             'type'     => $itemType->getName(),
             'criteria' => $criteria,
             'order'    => $orderBy,

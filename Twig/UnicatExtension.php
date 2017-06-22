@@ -55,13 +55,17 @@ class UnicatExtension extends \Twig_Extension
     }
 
     /**
-     * @param ItemModel $item
-     * @param string    $attr
+     * @param ItemModel|null $item
+     * @param string         $attr
      *
      * @return array
      */
-    public function getAttrChoiceValue(ItemModel $item, $attr)
+    public function getAttrChoiceValue(ItemModel $item = null, $attr)
     {
+        if (empty($item)) {
+            return [];
+        }
+
         $unicat = $this->container->get('unicat');
         $ucm = $unicat->getCurrentConfigurationManager();
 

@@ -43,6 +43,7 @@ class UnicatExtension extends \Twig_Extension
             new \Twig_SimpleFunction('unicat_get_taxons_by_taxonomy', [$this, 'getTaxonsByTaxonomy']),
             new \Twig_SimpleFunction('unicat_get_items',              [$this, 'getItems']),
             new \Twig_SimpleFunction('unicat_get_attr_choice_value',  [$this, 'getAttrChoiceValue']),
+            new \Twig_SimpleFunction('get_yandex_map_objects',        [$this, 'getYandexMapObjects']),
         ];
     }
 
@@ -177,5 +178,51 @@ class UnicatExtension extends \Twig_Extension
         $ucm = $this->container->get('unicat')->getConfigurationManager($configuration);
 
         return $ucm->getData($requestArray);
+    }
+
+    /**
+     * @param $configuration
+     *
+     * @return \stdClass
+     */
+    public function getYandexMapObjects($configuration)
+    {
+        $ucm = $this->container->get('unicat')->getConfigurationManager($configuration);
+
+        $responseData = $ucm->getData([
+            'type' => 'category',
+        ]);
+
+        $objects = new \stdClass();
+        $objectsCount = 1;
+        /** @var ItemModel $cat */
+        foreach ($responseData['items'] as $cat) {
+            $category = new \stdClass();
+            $category->name = $cat->getAttr('name');
+            $category->icon = $cat->getAttr('icon');
+
+            $points = new \stdClass();
+            $pointsCount = 1;
+            foreach ($cat->getChildren('category') as $child) {
+                  if (!empty($child->getAttr('map'))) {
+                    $coordinates = explode(',', $child->getAttr('map'));
+
+                    $point = new \stdClass();
+                    $point->name = $child->getAttr('name');
+                    $point->address = $child->getAttr('address');
+                    $point->coordinates = [$coordinates[0], $coordinates[1]];
+
+                    $pointName = 'point'.$pointsCount++;
+                    $points->{$pointName} = $point;
+                }
+            }
+
+            $category->points = $points;
+
+            $categoryName = 'category'.$objectsCount++;
+            $objects->{$categoryName} = $category;
+        }
+
+        return $objects;
     }
 }

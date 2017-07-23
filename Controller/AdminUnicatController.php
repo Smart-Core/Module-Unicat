@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminUnicatController extends Controller
@@ -120,18 +121,17 @@ class AdminUnicatController extends Controller
 
         $orderBy = ['id' => $direction];
 
-        /* @todo сделать сортировку по внешним таблицам через джойны, нужно чтобы колонка была NOT NULL
+        /* @todo сделать сортировку по внешним таблицам через джойны, нужно чтобы колонка была NOT NULL */
         if ($itemType instanceof UnicatItemType) {
             if (!empty($itemType->getOrderByAttr()) ) {
                 if ($itemType->getOrderByAttr() !== 'id'
                     or $itemType->getOrderByAttr() !== 'created_at'
                     or $itemType->getOrderByAttr() !== 'position'
                 ) {
-                    $orderBy = [$itemType->getOrderByAttr() => $itemType->getOrderByAttr()];
+                    $orderBy = [$itemType->getOrderByAttr() => $itemType->getOrderByDirection()];
                 }
             }
         }
-        */
 
         $unicatRequest = [
             'is_enabled' => 'all',
@@ -300,6 +300,73 @@ class AdminUnicatController extends Controller
             'form'           => $form->createView(),
             'itemsTypeschildren' => $ucm->getChildrenTypes($item->getType()),
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param string $configuration
+     * @param int $id
+     *
+     * @return JsonResponse
+     */
+    public function itemEditJsonAction(Request $request, $configuration, $id)
+    {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->get('doctrine.orm.entity_manager');
+
+        $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
+
+        $item = $ucm->findItem($id);
+
+        $attributes = [];
+        /*
+        foreach ($ucm->getAttributes() as $name => $attribute) {
+            if ($attribute->getIsEnabled()) {
+                $attributes[$name] = $attribute;
+            }
+        }
+        */
+
+        // @todo проверку на отсутствие групп
+        $groups = [];
+        foreach ($item->getType()->getAttributesGroups() as $attributesGroup) {
+            $groups[] = $attributesGroup->getName();
+        }
+
+        foreach ($em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($ucm->getConfiguration()->getId(), $groups) as $attribute) {
+            if ($attribute->isEnabled() == false) {
+                continue;
+            }
+
+            $attributes[$attribute->getName()] = [
+                'id' => $attribute->getId(),
+                'title' => $attribute->getTitle(),
+                'description' => $attribute->getDescription(),
+                'type' => $attribute->getType(),
+                'is_required' => $attribute->getIsRequired(),
+                'params' => $attribute->getParams(),
+                'position' => $attribute->getPosition(),
+                'items' => '@todo выборка всех итемов для типа атрибута unicat_item',
+            ];
+        }
+
+        $taxonomies = [];
+
+        foreach ($item->getType()->getTaxonomies() as $taxonomy) {
+            $taxonomies[$taxonomy->getName()] = [
+                'id' => $taxonomy->getId(),
+                'title' => $taxonomy->getTitle(),
+                'taxons' => '@todo с учетом древовидности',
+            ];
+        }
+
+        $data = [
+            'taxonomy' => $taxonomies,
+            'attributes' => $attributes,
+            'item' => $ucm->getItemDataAsArray($item),
+        ];
+
+        return new JsonResponse($data);
     }
 
     /**

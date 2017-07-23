@@ -4,6 +4,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
+use Smart\CoreBundle\Form\DataTransformer\HtmlTransformer;
 use Smart\CoreBundle\Form\TypeResolverTtait;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
@@ -17,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -54,7 +56,12 @@ class ItemFormType extends AbstractType
         $item = $options['data'];
 
         $builder
-            ->add('hidden_extra', HiddenType::class)
+            //->add('hidden_extra', HiddenType::class)
+            ->add(
+                $builder
+                    ->create('hidden_extra', HiddenType::class)
+                    ->addViewTransformer(new HtmlTransformer(false))
+            )
             ->add('slug', null, ['attr' => ['autofocus' => 'autofocus']])
             ->add('is_enabled')
             ->add('position')
@@ -87,10 +94,14 @@ class ItemFormType extends AbstractType
             $builder->add('taxonomy--'.$taxonomy->getName(), TaxonTreeType::class, $optionsCat);
         }
 
-        // @todo проверку на отсутсвие групп
+        // @todo проверку на отсутствие групп
         $groups = [];
         foreach ($item->getType()->getAttributesGroups() as $attributesGroup) {
             $groups[] = $attributesGroup->getName();
+        }
+
+        if (empty($groups)) {
+            return null;
         }
 
         foreach ($this->doctrine->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($this->configuration, $groups) as $attribute) {
@@ -179,7 +190,15 @@ class ItemFormType extends AbstractType
                 continue;
             }
 
-            $builder->add('attribute--'.$attribute->getName(), $this->resolveTypeName($type), $attributeOptions);
+            if ($type == 'text') {
+                $builder->add(
+                    $builder
+                        ->create('attribute--'.$attribute->getName(), TextType::class, $attributeOptions)
+                        ->addViewTransformer(new HtmlTransformer(false))
+                );
+            } else {
+                $builder->add('attribute--'.$attribute->getName(), $this->resolveTypeName($type), $attributeOptions);
+            }
         }
     }
 

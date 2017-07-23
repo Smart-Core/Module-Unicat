@@ -276,7 +276,22 @@ class UnicatAttribute
 
         return $str;
     }
-    
+
+    /**
+     * Получение вариантов выбора для типа choice
+     *
+     * @return array|bool
+     */
+    public function getChoices()
+    {
+        $choices = [];
+        if (isset($this->params['form']['choices'])) {
+            $choices = array_flip($this->params['form']['choices']);
+        }
+
+        return $choices;
+    }
+
     /**
      * @return string
      */

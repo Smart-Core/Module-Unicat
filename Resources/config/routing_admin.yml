@@ -113,3 +113,11 @@ unicat_admin.item_edit:
         _controller: UnicatModule:AdminUnicat:itemEdit
     requirements:
         id: \d+
+
+unicat_admin.item_edit_json:
+    path: /{configuration}/item_{id}.json
+    defaults:
+        _controller: UnicatModule:AdminUnicat:itemEditJson
+    requirements:
+        id: \d+
+

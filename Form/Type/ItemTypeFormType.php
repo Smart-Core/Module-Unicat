@@ -34,7 +34,7 @@ class ItemTypeFormType extends AbstractType
             ->add('taxonomies', null, [
                 'expanded' => true,
             ])
-            //->add('order_by_attr')
+            ->add('order_by_attr')
             ->add('order_by_direction')
         ;
     }

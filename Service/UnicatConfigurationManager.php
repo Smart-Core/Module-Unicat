@@ -15,6 +15,7 @@ use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
+use SmartCore\Module\Unicat\Event\ItemUpdateEvent;
 use SmartCore\Module\Unicat\Form\Type\AttributeFormType;
 use SmartCore\Module\Unicat\Form\Type\AttributesGroupFormType;
 use SmartCore\Module\Unicat\Form\Type\ItemFormType;
@@ -25,6 +26,8 @@ use SmartCore\Module\Unicat\Model\AbstractValueModel;
 use SmartCore\Module\Unicat\Model\ItemModel;
 use SmartCore\Module\Unicat\Model\ItemRepository;
 use SmartCore\Module\Unicat\Model\TaxonModel;
+use SmartCore\Module\Unicat\UnicatEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -39,6 +42,9 @@ class UnicatConfigurationManager
 
     /** @var \Doctrine\ORM\EntityRepository */
     protected $em;
+
+    /** @var  EventDispatcherInterface */
+    protected $eventDispatcher;
 
     /** @var \Symfony\Component\Form\FormFactoryInterface */
     protected $formFactory;
@@ -64,10 +70,12 @@ class UnicatConfigurationManager
         FormFactoryInterface $formFactory,
         UnicatConfiguration $configuration,
         CollectionService $mc,
-        TokenStorageInterface $securityToken
+        TokenStorageInterface $securityToken,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->doctrine    = $doctrine;
         $this->em          = $doctrine->getManager();
+        $this->eventDispatcher = $eventDispatcher;
         $this->formFactory = $formFactory;
         $this->mc          = $mc;
         $this->configuration = $configuration;
@@ -252,8 +260,22 @@ class UnicatConfigurationManager
                             $val = $criteria[2];
                         }
 
-                        $qb->andWhere('i.attr_'.$field.' '.$comparison.' :'.$field.$key)
-                            ->setParameter($field.$key, $val);
+                        if (($comparison == 'IN' or $comparison == 'NOT IN') and empty($val)) {
+                            continue;
+                        }
+
+                        if ($comparison == 'IN' or $comparison == 'NOT IN') {
+                            if (is_array($val)) {
+                                $val = implode(',', $val);
+                            }
+
+                            $qb->join('i.attr_'.$field, $field, 'WITH', $field.".id {$comparison} ({$val})");
+                        } else {
+//                            $qb->join('i.attr_'.$field, $field, 'WITH', $field.".id = :".$field)
+//                                ->setParameter($field, $val);
+                            $qb->andWhere('i.attr_'.$field.' '.$comparison.' :'.$field.$key)
+                                ->setParameter($field.$key, $val);
+                        }
                     }
                 }
             }
@@ -267,10 +289,10 @@ class UnicatConfigurationManager
 
                     if ($attr->isDedicatedTable()) {
                         if ($firstOrderBy) {
-                            $qb->orderBy($field.'.value ', $value);
+                            $qb->leftJoin('i.attr_'.$field.'_value', $field.'_order')->orderBy($field.'_order.value ', $value);
                             $firstOrderBy = false;
                         } else {
-                            $qb->addOrderBy($field.'.value ', $value);
+                            $qb->leftJoin('i.attr_'.$field.'_value', $field.'_order')->addOrderBy($field.'_order.value ', $value);
                         }
                     }
                 }
@@ -461,6 +483,10 @@ class UnicatConfigurationManager
                         $filter = $requestArray['attr_params'][$item->getType()->getName()][$attr->getName()]['filter'];
                     } else {
                         $filter = $attr->getParam('filter');
+                    }
+
+                    if (empty($filter)) {
+                        $filter = null;
                     }
 
                     $val2 = $mc->get($val2, $filter);
@@ -986,6 +1012,9 @@ class UnicatConfigurationManager
         /** @var ItemModel $item */
         $item = $form->getData();
 
+        $event = new ItemUpdateEvent($item);
+        $this->eventDispatcher->dispatch(UnicatEvent::PRE_ITEM_UPDATE, $event);
+
         $groups = [];
         foreach ($item->getType()->getAttributesGroups() as $group) {
             $groups[] = $group->getName();
@@ -1012,11 +1041,13 @@ class UnicatConfigurationManager
                 $sql = "SELECT * FROM $tableItems WHERE id = '{$item->getId()}'";
                 $res = $this->em->getConnection()->query($sql)->fetch();
 
+                $fileId = null;
+
                 if (!empty($res)) {
                     $previousAttributes = unserialize($res['attributes']);
-                    $fileId = $previousAttributes[$attribute->getName()];
-                } else {
-                    $fileId = null;
+                    if (isset($previousAttributes[$attribute->getName()])) {
+                        $fileId = $previousAttributes[$attribute->getName()];
+                    }
                 }
 
                 // удаление файла.
@@ -1144,6 +1175,9 @@ class UnicatConfigurationManager
             $this->em->persist($item);
             $this->em->flush();
         }
+
+        $event = new ItemUpdateEvent($item);
+        $this->eventDispatcher->dispatch(UnicatEvent::POST_ITEM_UPDATE, $event);
 
         return $this;
     }

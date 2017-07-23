@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -31,6 +32,9 @@ class UnicatService
 
     /** @var \Doctrine\ORM\EntityManager */
     protected $em;
+
+    /** @var  EventDispatcherInterface */
+    protected $eventDispatcher;
 
     /** @var \Symfony\Component\Form\FormFactoryInterface */
     protected $formFactory;
@@ -55,16 +59,19 @@ class UnicatService
      * @param FormFactoryInterface $formFactory
      * @param MediaCloudService $mediaCloud
      * @param TokenStorageInterface $securityToken
+     * @param EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         ManagerRegistry $doctrine,
         FormFactoryInterface $formFactory,
         MediaCloudService $mediaCloud,
-        TokenStorageInterface $securityToken
+        TokenStorageInterface $securityToken,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->currentConfiguration = null;
         $this->doctrine    = $doctrine;
         $this->em          = $doctrine->getManager();
+        $this->eventDispatcher = $eventDispatcher;
         $this->formFactory = $formFactory;
         $this->mc          = $mediaCloud->getCollection(1); // @todo настройку медиаколлекции. @important
         $this->securityToken = $securityToken;
@@ -164,7 +171,7 @@ class UnicatService
         $this->setCurrentConfiguration($configuration);
 
         if (!isset($this->ucm[$configuration->getId()])) {
-            $this->ucm[$configuration->getId()] = new UnicatConfigurationManager($this->doctrine, $this->formFactory, $configuration, $this->mc, $this->securityToken);
+            $this->ucm[$configuration->getId()] = new UnicatConfigurationManager($this->doctrine, $this->formFactory, $configuration, $this->mc, $this->securityToken, $this->eventDispatcher);
         }
 
         return $this->ucm[$configuration->getId()];

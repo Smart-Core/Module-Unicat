@@ -16,11 +16,12 @@
       myMap = new ymaps.Map("map", {
           center:
           {% if data is empty %}
-              [53.339115, 83.793780]
+          //    [53.339115, 83.793780]
+            [54.979754,82.866072]
           {% else %}
               [{{ data }}]
           {% endif %},
-          zoom: 12
+          zoom: 16
       }, {
           balloonMaxWidth: 200,
           searchControlProvider: 'yandex#search'
@@ -227,7 +228,6 @@
           document.getElementById(galleryId).value = JSON.stringify(jsonData);
           console.log(JSON.stringify(jsonData));
         });
-
 
         console.log(galleryName);
 

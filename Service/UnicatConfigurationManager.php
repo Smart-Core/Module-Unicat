@@ -175,16 +175,24 @@ class UnicatConfigurationManager
         foreach ($grouppedCriteria as $field => $criterias) {
             // Выборка по полям сущности
             if ($field == 'id' or $field == 'position' or $field == 'slug') {
-                // @todo  !!!!!!!!!!!!!!!!!!!!!!!!!
-                if ($comparison == 'IN' or $comparison == 'NOT IN') {
-                    if (is_array($val)) {
-                        $val = implode(',', $val);
+                foreach ($criterias as $key => $criteria) {
+                    $comparison = trim($criteria[1]);
+
+                    $val = '';
+                    if (isset($criteria[2])) {
+                        $val = $criteria[2];
                     }
 
-                    $qb->andWhere('i.'.$field.' '.$comparison.' ('.$val.')');
-                } else {
-                    $qb->andWhere('i.'.$field.' '.$comparison.' :'.$field.$key)
-                        ->setParameter($field.$key, $val);
+                    if ($comparison == 'IN' or $comparison == 'NOT IN') {
+                        if (is_array($val)) {
+                            $val = implode(',', $val);
+                        }
+
+                        $qb->andWhere('i.'.$field.' '.$comparison.' ('.$val.')');
+                    } else {
+                        $qb->andWhere('i.'.$field.' '.$comparison.' :'.$field.$key)
+                            ->setParameter($field.$key, $val);
+                    }
                 }
             } elseif (isset($attributes[$field])) {
                 /** @var UnicatAttribute $attr */

@@ -31,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -1069,7 +1070,7 @@ class UnicatConfigurationManager
                 } else {
                     $file = $item->getAttribute($attribute->getName());
 
-                    if ($file) {
+                    if ($file instanceof UploadedFile) {
                         $this->mc->remove($fileId);
                         $fileId = $this->mc->upload($file);
                     }
@@ -1077,7 +1078,11 @@ class UnicatConfigurationManager
 
                 $item->setAttribute($attribute->getName(), $fileId);
             } elseif ($attribute->isType('gallery')) {
-                $data = json_decode($item->getAttribute($attribute->getName()), true);
+                $data = $item->getAttribute($attribute->getName());
+
+                if (!is_array($data)) {
+                    $data = json_decode($item->getAttribute($attribute->getName()), true);
+                }
 
                 $item->setAttribute($attribute->getName(), $data);
             } elseif ($attribute->isType('unicat_item')) {

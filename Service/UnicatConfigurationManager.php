@@ -528,52 +528,6 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param array|null $orderBy
-     *
-     * @return ItemModel|null
-     */
-    public function findAllItems($orderBy = null)
-    {
-        return $this->em->getRepository($this->configuration->getItemClass())->findBy([], $orderBy);
-    }
-
-    /**
-     * @param TaxonModel $taxon
-     * @param array      $order
-     *
-     * @return ItemModel[]|null
-     */
-    public function findItemsInTaxon(TaxonModel $taxon, array $order = ['position' => 'ASC'])
-    {
-        return $this->getFindItemsInTaxonQuery($taxon, $order)->getResult();
-    }
-
-    /**
-     * @param TaxonModel $taxon
-     * @param array $order
-     *
-     * @return \Doctrine\ORM\Query
-     *
-     * @todo сделать настройку сортировки
-     * @todo вынести в Repository
-     *
-     * @deprecated
-     */
-    public function getFindItemsInTaxonQuery(TaxonModel $taxon, array $order = ['position' => 'ASC'])
-    {
-        $itemEntity = $this->configuration->getItemClass();
-
-        return $this->em->createQuery("
-           SELECT i
-           FROM $itemEntity AS i
-           JOIN i.taxonsSingle AS cs
-           WHERE cs.id = :taxon
-           AND i.is_enabled = 1
-           ORDER BY i.position ASC, i.id DESC
-        ")->setParameter('taxon', $taxon->getId());
-    }
-
-    /**
      * @param string|int $val
      * @param bool $use_item_id_as_slug
      *

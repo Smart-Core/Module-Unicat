@@ -538,23 +538,6 @@ class UnicatConfigurationManager
     }
 
     /**
-     * @param array|null $orderBy
-     *
-     * @return \Doctrine\ORM\Query
-     */
-    public function getFindAllItemsQuery($orderBy = null)
-    {
-        $itemEntity = $this->configuration->getItemClass();
-
-        return $this->em->createQuery("
-           SELECT i
-           FROM $itemEntity AS i
-           WHERE i.is_enabled = 1
-           ORDER BY i.position ASC, i.id DESC
-        ");
-    }
-
-    /**
      * @param TaxonModel $taxon
      * @param array      $order
      *
@@ -573,6 +556,8 @@ class UnicatConfigurationManager
      *
      * @todo сделать настройку сортировки
      * @todo вынести в Repository
+     *
+     * @deprecated
      */
     public function getFindItemsInTaxonQuery(TaxonModel $taxon, array $order = ['position' => 'ASC'])
     {

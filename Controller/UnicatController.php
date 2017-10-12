@@ -6,19 +6,29 @@ use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Smart\CoreBundle\Controller\Controller;
+use SmartCore\Bundle\CMSBundle\Module\CacheTrait;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Yaml\Yaml;
 
 class UnicatController extends Controller
 {
+    use CacheTrait;
     use NodeTrait;
     use UnicatTrait;
 
     protected $configuration_id;
     protected $use_item_id_as_slug;
+
+    /**
+     * В формате YAML.
+     *
+     * @var string
+     */
+    protected $params;
 
     /**
      * @param Request    $request
@@ -63,14 +73,39 @@ class UnicatController extends Controller
 
         $this->buildFrontControlForTaxon($lastTaxon);
 
+        $cacheKey = md5('smart_module.unicat.yaml_params'.$this->node->getId());
+        if (false === $params = $this->getCacheService()->get($cacheKey)) {
+            $params = Yaml::parse($this->params);
+
+            $this->getCacheService()->set($cacheKey, $params, ['smart_module.unicat', 'node_'.$this->node->getId(), 'node']);
+        }
+
+        // Автоматическое определение типа итема
+        if (!isset($params['type'])) {
+            /** @var \Doctrine\ORM\EntityManager $em */
+            $em = $this->get('doctrine.orm.entity_manager');
+            $itemType = $em->getRepository('UnicatModule:UnicatItemType')->findOneBy([
+                'configuration' => $this->unicat->getConfiguration()
+            ], ['position' => 'ASC']);
+
+            $params['type'] = $itemType->getName();
+        }
+
+        /** @var Pagerfanta $pagerfanta */
         $pagerfanta = null;
 
         if ($slug) {
             if ($lastTaxon) {
-                $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($this->unicat->getFindItemsInTaxonQuery($lastTaxon)));
+                $params['taxonomy'][] = [$lastTaxon->getTaxonomy()->getName(), 'IN', $lastTaxon->getId()];
+
+                $unicatResult = $this->unicat->getData($params);
+                $pagerfanta = $unicatResult['items'];
             }
         } elseif ($this->unicat->getConfiguration()->isInheritance()) {
-            $pagerfanta = new Pagerfanta(new DoctrineORMAdapter($this->unicat->getFindAllItemsQuery()));
+            if (!empty($params)) {
+                $unicatResult = $this->unicat->getData($params);
+                $pagerfanta = $unicatResult['items'];
+            }
         }
 
         if (!empty($pagerfanta)) {
@@ -111,6 +146,7 @@ class UnicatController extends Controller
 
         $lastTaxon = end($requestedTaxons);
 
+        /*
         if ($lastTaxon instanceof TaxonModel) {
             $childenTaxons = $this->unicat->getTaxonRepository()->findBy([
                 'is_enabled' => true,
@@ -124,6 +160,7 @@ class UnicatController extends Controller
                 'taxonomy'   => $this->unicat->getDefaultTaxonomy(),
             ]);
         }
+        */
 
         $item = $this->unicat->findItem($itemSlug, $this->use_item_id_as_slug);
 

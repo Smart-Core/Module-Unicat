@@ -6,6 +6,7 @@ use SmartCore\Bundle\CMSBundle\Module\AbstractNodePropertiesFormType;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class NodePropertiesFormType extends AbstractNodePropertiesFormType
@@ -30,7 +31,15 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
                 'label'    => 'Использовать ID записей в качестве URI',
                 'required' => false,
             ])
+            ->add('params',     TextareaType::class, ['required' => false, 'attr' => ['cols' => 15, 'style' => 'height: 150px;']])
+//            ->add('order_by',  null, ['required' => false])
+//            ->add('order_dir', null, ['required' => false])
         ;
+    }
+
+    public static function getTemplate()
+    {
+        return '@UnicatModule/node_properties_form.html.twig';
     }
 
     public function getBlockPrefix()

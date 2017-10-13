@@ -317,6 +317,8 @@ class UnicatService
         $applicationInput = new ArrayInput([
             'command' => 'doctrine:schema:update',
             '--force' => true,
+            '--env'   => 'prod',
+            '--no-debug' => true,
         ]);
         $applicationOutput = new BufferedOutput();
         $retval = $application->run($applicationInput, $applicationOutput);
@@ -363,9 +365,9 @@ class UnicatService
 
         // Обновление для всех записей значением по умолчанию.
         $defaultValue = $entity->getUpdateAllRecordsWithDefaultValue();
-        if (!empty($defaultValue) or $defaultValue == 0) {
+        if (!empty($defaultValue) or $defaultValue === 0) {
             /** @var ItemModel $item */
-            foreach ($this->getCurrentConfigurationManager()->findAllItems() as $item) {
+            foreach ($this->findAllItems($entity->getConfiguration()) as $item) {
                 // @todo поддержку других типов.
                 switch ($entity->getType()) {
                     case 'checkbox':

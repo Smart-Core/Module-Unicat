@@ -104,6 +104,7 @@ class UnicatConfiguration
         $this->is_inheritance       = true;
         $this->items_per_page       = 10;
         $this->entities_namespace   = null;
+        $this->item_types           = new ArrayCollection();
         $this->taxonomies           = new ArrayCollection();
     }
 
@@ -220,7 +221,7 @@ class UnicatConfiguration
     }
 
     /**
-     * @return UnicatItemType[]
+     * @return UnicatItemType[]|ArrayCollection
      */
     public function getItemTypes()
     {

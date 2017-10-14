@@ -86,8 +86,8 @@ class AdminUnicatController extends Controller
 
         $conf = $ucm->getConfiguration();
 
-        if (empty($conf->getItemTypes())) {
-            return $this->redirect($this->generateUrl('unicat_admin.items_types'));
+        if (empty($conf->getItemTypes()->count())) {
+            return $this->redirect($this->generateUrl('unicat_admin.items_types', ['configuration' => $configuration]));
         }
 
         // @todo валидация item type id

@@ -24,6 +24,13 @@ class UnicatItemType
     use ColumnTrait\FosUser;
 
     /**
+     * @var integer|null
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $content_min_width;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(type="string", nullable=true)
@@ -80,6 +87,7 @@ class UnicatItemType
     public function __construct()
     {
         $this->attributes_groups = new ArrayCollection();
+        $this->content_min_width = null;
         $this->created_at        = new \DateTime();
         $this->position          = 0;
         $this->taxonomies        = new ArrayCollection();
@@ -227,6 +235,26 @@ class UnicatItemType
     public function setOrderByDirection($order_by_direction)
     {
         $this->order_by_direction = $order_by_direction;
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getContentMinWidth()
+    {
+        return $this->content_min_width;
+    }
+
+    /**
+     * @param int|null $content_min_width
+     *
+     * @return $this
+     */
+    public function setContentMinWidth($content_min_width)
+    {
+        $this->content_min_width = $content_min_width;
 
         return $this;
     }

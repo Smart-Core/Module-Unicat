@@ -4,6 +4,15 @@
 
 {% block content %}
 
+    {% if itemType.contentMinWidth is not empty %}
+        <style media="all" type="text/css">
+            body, html, .wrapper {
+                min-width: {{ itemType.contentMinWidth }}px !important;
+                overflow-x: auto !important;
+            }
+        </style>
+    {% endif %}
+
 <div class="box box-primary">
     <div class="box-header with-border">
 

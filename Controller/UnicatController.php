@@ -84,7 +84,7 @@ class UnicatController extends Controller
         if (!isset($params['type'])) {
             /** @var \Doctrine\ORM\EntityManager $em */
             $em = $this->get('doctrine.orm.entity_manager');
-            $itemType = $em->getRepository('UnicatModule:UnicatItemType')->findOneBy([
+            $itemType = $em->getRepository('UnicatModuleBundle:UnicatItemType')->findOneBy([
                 'configuration' => $this->unicat->getConfiguration()
             ], ['position' => 'ASC']);
 

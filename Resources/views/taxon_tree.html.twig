@@ -6,7 +6,7 @@
     {% set template = 'knp_menu.html.twig' %}
 {% endif %}
 
-{% set menuItem = knp_menu_get('UnicatModule:TaxonMenu:tree', [], {
+{% set menuItem = knp_menu_get('UnicatModuleBundle:TaxonMenu:tree', [], {
     'taxonClass': taxonClass,
     'css_class':  css_class,
     'depth':      depth,

@@ -23,11 +23,11 @@ class AdminAttributesController extends Controller
         $group = $request->query->get('group', 'ALL');
 
         if ($group == 'ALL') {
-            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findBy([
+            $attributes = $em->getRepository('UnicatModuleBundle:UnicatAttribute')->findBy([
                 'configuration' => $ucm->getConfiguration(),
             ], ['position' => 'ASC']);
         } else {
-            $attributes = $em->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($ucm-> getConfiguration(), [$group]);
+            $attributes = $em->getRepository('UnicatModuleBundle:UnicatAttribute')->findByGroupsNames($ucm-> getConfiguration(), [$group]);
         }
 
         return $this->render('@UnicatModule/AdminAttributes/index.html.twig', [
@@ -117,7 +117,7 @@ class AdminAttributesController extends Controller
         $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
 
-        $attribute = $em->getRepository('UnicatModule:UnicatAttribute')->findOneBy(['name' => $name, 'configuration' => $unicat->getCurrentConfiguration()]);
+        $attribute = $em->getRepository('UnicatModuleBundle:UnicatAttribute')->findOneBy(['name' => $name, 'configuration' => $unicat->getCurrentConfiguration()]);
 
         $form   = $ucm->getAttributeEditForm($attribute);
 

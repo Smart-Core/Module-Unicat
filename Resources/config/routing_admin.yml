@@ -1,45 +1,45 @@
 unicat_admin:
     path: /
     defaults:
-        _controller: UnicatModule:AdminUnicat:index
+        _controller: UnicatModuleBundle:AdminUnicat:index
 
 unicat_admin.configuration:
     path: /{configuration}/
     defaults:
-        _controller: UnicatModule:AdminUnicat:configuration
+        _controller: UnicatModuleBundle:AdminUnicat:configuration
 
 unicat_admin.configuration.items:
     path: /{configuration}/type_{itemTypeId}/
     defaults:
-        _controller: UnicatModule:AdminUnicat:configuration
+        _controller: UnicatModuleBundle:AdminUnicat:configuration
     requirements:
         itemTypeId: \d+
 
 unicat_admin.configuration.settings:
     path: /{configuration}/settings/
     defaults:
-        _controller: UnicatModule:AdminUnicat:configurationSettings
+        _controller: UnicatModuleBundle:AdminUnicat:configurationSettings
 
 # Taxonomy
 unicat_admin.taxonomies_index:
     path: /{configuration}/taxonomy/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:index
+        _controller: UnicatModuleBundle:AdminTaxonomy:index
 
 unicat_admin.taxonomy_create:
     path: /{configuration}/taxonomy/create/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:create
+        _controller: UnicatModuleBundle:AdminTaxonomy:create
 
 unicat_admin.taxonomy:
     path: /{configuration}/taxonomy/{name}/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:taxonomy
+        _controller: UnicatModuleBundle:AdminTaxonomy:taxonomy
 
 unicat_admin.taxonomy_with_parent_id:
     path: /{configuration}/taxonomy/{id}/{parent_id}/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:taxonomy
+        _controller: UnicatModuleBundle:AdminTaxonomy:taxonomy
     requirements:
         parent_id: \d+
         id: \d+
@@ -47,12 +47,12 @@ unicat_admin.taxonomy_with_parent_id:
 unicat_admin.taxonomy_edit:
     path: /{configuration}/taxonomy/{name}/edit/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:edit
+        _controller: UnicatModuleBundle:AdminTaxonomy:edit
 
 unicat_admin.taxon:
     path: /{configuration}/taxonomy/{taxonomy_name}/{id}/
     defaults:
-        _controller: UnicatModule:AdminTaxonomy:taxonEdit
+        _controller: UnicatModuleBundle:AdminTaxonomy:taxonEdit
     requirements:
         id: \d+
 
@@ -60,64 +60,64 @@ unicat_admin.taxon:
 unicat_admin.attributes_index:
     path: /{configuration}/attributes/
     defaults:
-        _controller: UnicatModule:AdminAttributes:index
+        _controller: UnicatModuleBundle:AdminAttributes:index
 
 unicat_admin.attributes_group_create:
     path: /{configuration}/attributes/create_group/
     defaults:
-        _controller: UnicatModule:AdminAttributes:createGroup
+        _controller: UnicatModuleBundle:AdminAttributes:createGroup
 
 unicat_admin.attributes_create:
     path: /{configuration}/attributes/create/
     defaults:
-        _controller: UnicatModule:AdminAttributes:create
+        _controller: UnicatModuleBundle:AdminAttributes:create
 
 unicat_admin.attributes_edit:
     path: /{configuration}/attributes/{name}/
     defaults:
-        _controller: UnicatModule:AdminAttributes:edit
+        _controller: UnicatModuleBundle:AdminAttributes:edit
 
 # Items
 unicat_admin.items_types:
     path: /{configuration}/items_types/
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemsTypes
+        _controller: UnicatModuleBundle:AdminUnicat:itemsTypes
 
 unicat_admin.items_type_create:
     path: /{configuration}/items_type_create/
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemsTypeCreate
+        _controller: UnicatModuleBundle:AdminUnicat:itemsTypeCreate
 
 unicat_admin.items_type_edit:
     path: /{configuration}/items_type/{id}/
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemsTypeEdit
+        _controller: UnicatModuleBundle:AdminUnicat:itemsTypeEdit
     requirements:
         id: \d+
 
 unicat_admin.item_create:
     path: /{configuration}/item_create/
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemCreate
+        _controller: UnicatModuleBundle:AdminUnicat:itemCreate
 
 unicat_admin.item_create_in_taxon:
     path: /{configuration}/item_create/{default_taxon_id}/
     requirements:
         default_taxon_id: \d+
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemCreate
+        _controller: UnicatModuleBundle:AdminUnicat:itemCreate
 
 unicat_admin.item_edit:
     path: /{configuration}/item_{id}/
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemEdit
+        _controller: UnicatModuleBundle:AdminUnicat:itemEdit
     requirements:
         id: \d+
 
 unicat_admin.item_edit_json:
     path: /{configuration}/item_{id}.json
     defaults:
-        _controller: UnicatModule:AdminUnicat:itemEditJson
+        _controller: UnicatModuleBundle:AdminUnicat:itemEditJson
     requirements:
         id: \d+
 

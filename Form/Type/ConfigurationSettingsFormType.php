@@ -23,7 +23,7 @@ class ConfigurationSettingsFormType extends AbstractType
             ->add('items_per_page')
             ->add('media_collection')
             ->add('default_taxonomy', EntityType::class, [
-                'class' => 'UnicatModule:UnicatTaxonomy',
+                'class' => 'UnicatModuleBundle:UnicatTaxonomy',
                 'query_builder' => function (EntityRepository $er) use ($configuration) {
                     return $er->createQueryBuilder('s')
                         ->where('s.configuration = :configuration')

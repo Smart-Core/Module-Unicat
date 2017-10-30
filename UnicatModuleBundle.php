@@ -9,7 +9,7 @@ use SmartCore\Module\Unicat\DependencyInjection\UnicatExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class UnicatModule extends Bundle
+class UnicatModuleBundle extends Bundle
 {
     use ModuleBundleTrait;
 
@@ -22,7 +22,7 @@ class UnicatModule extends Bundle
     {
         $em      = $this->container->get('doctrine.orm.default_entity_manager');
         $r       = $this->container->get('router');
-        $configs = $em->getRepository('UnicatModule:UnicatConfiguration')->findAll();
+        $configs = $em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll();
 
         $data = [
             'title' => 'Юникат',
@@ -109,7 +109,7 @@ class UnicatModule extends Bundle
             /** @var \Doctrine\ORM\EntityManager $em */
             $em = $this->container->get('doctrine.orm.entity_manager');
 
-            foreach ($em->getRepository('UnicatModule:UnicatConfiguration')->findAll() as $uc) {
+            foreach ($em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll() as $uc) {
                 $submenu->addChild($uc->getTitle(), [
                     'route' => 'unicat_admin.configuration',
                     'routeParameters' => ['configuration' => $uc->getName()],

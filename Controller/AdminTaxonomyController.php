@@ -24,7 +24,7 @@ class AdminTaxonomyController extends Controller
         $unicat = $this->get('unicat');
         $ucm    = $unicat->getConfigurationManager($configuration);
 
-        $taxonomy  = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $taxonomy_name, 'configuration' => $ucm->getConfiguration()]);
+        $taxonomy  = $em->getRepository('UnicatModuleBundle:UnicatTaxonomy')->findOneBy(['name' => $taxonomy_name, 'configuration' => $ucm->getConfiguration()]);
         $taxon     = $ucm->getTaxon($id);
 
         $form = $ucm->getTaxonEditForm($taxon);
@@ -91,7 +91,7 @@ class AdminTaxonomyController extends Controller
 
         $unicat     = $this->get('unicat'); // @todo перевести всё на $ucm.
         $ucm        = $unicat->getConfigurationManager($configuration);
-        $taxonomy   = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
+        $taxonomy   = $em->getRepository('UnicatModuleBundle:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
 
         $parentTaxon = $parent_id ? $ucm->getTaxonRepository()->find($parent_id) : null;
 
@@ -159,7 +159,7 @@ class AdminTaxonomyController extends Controller
 
         $ucm = $this->get('unicat')->getConfigurationManager($configuration);
 
-        $taxonomy  = $em->getRepository('UnicatModule:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
+        $taxonomy  = $em->getRepository('UnicatModuleBundle:UnicatTaxonomy')->findOneBy(['name' => $name, 'configuration' => $ucm->getConfiguration()]);
 
         $form = $ucm->getTaxonomyEditForm($ucm->getTaxonomy($taxonomy->getId()));
 

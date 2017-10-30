@@ -18,7 +18,7 @@
         </div>
 
         <div class="span8 col-md-8">
-            {% set menuItem = knp_menu_get('UnicatModule:TaxonMenu:adminTree', [], {
+            {% set menuItem = knp_menu_get('UnicatModuleBundle:TaxonMenu:adminTree', [], {
                 'taxonClass': taxonomy.configuration.taxonClass,
                 'taxonomy': taxonomy
             }) %}

@@ -104,7 +104,7 @@ class ItemFormType extends AbstractType
             return null;
         }
 
-        foreach ($this->doctrine->getRepository('UnicatModule:UnicatAttribute')->findByGroupsNames($this->configuration, $groups) as $attribute) {
+        foreach ($this->doctrine->getRepository('UnicatModuleBundle:UnicatAttribute')->findByGroupsNames($this->configuration, $groups) as $attribute) {
             if ($attribute->isEnabled() == false) {
                 continue;
             }

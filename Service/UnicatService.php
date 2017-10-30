@@ -228,7 +228,7 @@ class UnicatService
     {
         $key = intval($val) ? 'id' : 'name';
 
-        return $this->em->getRepository('UnicatModule:UnicatConfiguration')->findOneBy([$key => $val]);
+        return $this->em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findOneBy([$key => $val]);
     }
 
     /**
@@ -236,7 +236,7 @@ class UnicatService
      */
     public function allConfigurations()
     {
-        return $this->em->getRepository('UnicatModule:UnicatConfiguration')->findAll();
+        return $this->em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll();
     }
 
     /**
@@ -256,7 +256,7 @@ class UnicatService
      */
     public function getTaxonomyRepository()
     {
-        return $this->em->getRepository('UnicatModule:UnicatTaxonomy');
+        return $this->em->getRepository('UnicatModuleBundle:UnicatTaxonomy');
     }
 
     /**
@@ -339,7 +339,7 @@ class UnicatService
             $targetDir  = $siteBundle->getPath().'/Entity/'.ucfirst($configuration->getName());
 
             $generator = new DoctrineValueEntityGenerator();
-            $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModule')->getPath().'/Resources/skeleton');
+            $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModuleBundle')->getPath().'/Resources/skeleton');
 
             $generator->generate(
                 $targetDir,

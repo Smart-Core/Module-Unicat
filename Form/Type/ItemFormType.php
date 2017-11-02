@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use Smart\CoreBundle\Form\DataTransformer\HtmlTransformer;
 use Smart\CoreBundle\Form\TypeResolverTtait;
 use SmartCore\Bundle\SeoBundle\Form\Type\MetaFormType;
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Form\Tree\TaxonTreeType;
 use SmartCore\Module\Unicat\Model\ItemModel;
@@ -104,7 +105,7 @@ class ItemFormType extends AbstractType
             return null;
         }
 
-        foreach ($this->doctrine->getRepository('UnicatModuleBundle:UnicatAttribute')->findByGroupsNames($this->configuration, $groups) as $attribute) {
+        foreach ($this->doctrine->getRepository(UnicatAttribute::class)->findByGroupsNames($this->configuration, $groups) as $attribute) {
             if ($attribute->isEnabled() == false) {
                 continue;
             }

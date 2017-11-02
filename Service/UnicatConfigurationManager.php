@@ -96,7 +96,7 @@ class UnicatConfigurationManager
             throw new \Exception('Missed required option "type".');
         }
 
-        $itemType = $this->em->getRepository('UnicatModuleBundle:UnicatItemType')->findOneBy(['name' => $options['type']]);
+        $itemType = $this->em->getRepository(UnicatItemType::class)->findOneBy(['name' => $options['type']]);
 
         if (empty($itemType)) {
             throw new \Exception("Item type {$options['type']} is incorrect.");
@@ -326,7 +326,7 @@ class UnicatConfigurationManager
                 continue;
             }
 
-            $taxonomy = $this->em->getRepository('UnicatModuleBundle:UnicatTaxonomy')->findOneBy(['name' => $taxonomyCriteria[0]]);
+            $taxonomy = $this->em->getRepository(UnicatTaxonomy::class)->findOneBy(['name' => $taxonomyCriteria[0]]);
 
             if (empty($taxonomy)) {
                 throw new \Exception("Taxonomy name '{$taxonomy}' is incorrect.");
@@ -692,7 +692,7 @@ class UnicatConfigurationManager
      */
     public function getAttributesGroup($groupId)
     {
-        return $this->em->getRepository('UnicatModuleBundle:UnicatAttributesGroup')->find($groupId);
+        return $this->em->getRepository(UnicatAttributesGroup::class)->find($groupId);
     }
 
     /**
@@ -764,7 +764,7 @@ class UnicatConfigurationManager
      */
     public function getAttribute($id)
     {
-        return $this->em->getRepository('UnicatModuleBundle:UnicatAttribute')->find($id);
+        return $this->em->getRepository(UnicatAttribute::class)->find($id);
     }
 
     /**
@@ -876,7 +876,7 @@ class UnicatConfigurationManager
      */
     public function getTaxonomy($id)
     {
-        return $this->em->getRepository('UnicatModuleBundle:UnicatTaxonomy')->find($id);
+        return $this->em->getRepository(UnicatTaxonomy::class)->find($id);
     }
 
     /**
@@ -968,7 +968,7 @@ class UnicatConfigurationManager
             $groups[] = $group->getName();
         }
 
-        $attributes = $this->em->getRepository('UnicatModuleBundle:UnicatAttribute')->findByGroupsNames($this->getConfiguration(), $groups);
+        $attributes = $this->em->getRepository(UnicatAttribute::class)->findByGroupsNames($this->getConfiguration(), $groups);
 
         // Проверка и модификация атрибута. В частности загрука картинок и валидация.
         /** @var UnicatAttribute $attribute */
@@ -1145,7 +1145,7 @@ class UnicatConfigurationManager
             return [];
         }
 
-        $attrs = $this->em->getRepository('UnicatModuleBundle:UnicatAttribute')->findBy(['items_type' => $itemType]);
+        $attrs = $this->em->getRepository(UnicatAttribute::class)->findBy(['items_type' => $itemType]);
 
         $attrGroups = [];
         foreach ($attrs as $attr) {
@@ -1155,7 +1155,7 @@ class UnicatConfigurationManager
         }
 
         $itemTypes = [];
-        foreach ($this->em->getRepository('UnicatModuleBundle:UnicatItemType')->findAll() as $itemType2) {
+        foreach ($this->em->getRepository(UnicatItemType::class)->findAll() as $itemType2) {
             foreach ($itemType2->getAttributesGroups() as $attrGroup2) {
                 if (isset($attrGroups[$attrGroup2->getId()]) and $itemType->getId() !== $itemType2->getId()) {
                     $itemTypes[$itemType2->getId()] = $itemType2;
@@ -1191,7 +1191,7 @@ class UnicatConfigurationManager
         $filter = ($groupId) ? ['group' => $groupId] : [];
 
         $attrs = [];
-        foreach ($this->em->getRepository('UnicatModuleBundle:UnicatAttribute')->findBy($filter, ['position' => 'ASC']) as $attr) {
+        foreach ($this->em->getRepository(UnicatAttribute::class)->findBy($filter, ['position' => 'ASC']) as $attr) {
             $attrs[$attr->getName()] = $attr;
         }
 

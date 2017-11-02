@@ -3,6 +3,7 @@
 namespace SmartCore\Module\Unicat\Form\Type;
 
 use SmartCore\Bundle\CMSBundle\Module\AbstractNodePropertiesFormType;
+use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,7 +15,7 @@ class NodePropertiesFormType extends AbstractNodePropertiesFormType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $configurations = [];
-        foreach ($this->em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll() as $configuration) {
+        foreach ($this->em->getRepository(UnicatConfiguration::class)->findAll() as $configuration) {
             $configurations[(string) $configuration] = $configuration->getId();
         }
 

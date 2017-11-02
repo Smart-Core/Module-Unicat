@@ -4,6 +4,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 
 use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -23,7 +24,7 @@ class ConfigurationSettingsFormType extends AbstractType
             ->add('items_per_page')
             ->add('media_collection')
             ->add('default_taxonomy', EntityType::class, [
-                'class' => 'UnicatModuleBundle:UnicatTaxonomy',
+                'class' => UnicatTaxonomy::class,
                 'query_builder' => function (EntityRepository $er) use ($configuration) {
                     return $er->createQueryBuilder('s')
                         ->where('s.configuration = :configuration')

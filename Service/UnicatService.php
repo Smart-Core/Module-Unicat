@@ -228,7 +228,7 @@ class UnicatService
     {
         $key = intval($val) ? 'id' : 'name';
 
-        return $this->em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findOneBy([$key => $val]);
+        return $this->em->getRepository(UnicatConfiguration::class)->findOneBy([$key => $val]);
     }
 
     /**
@@ -236,7 +236,7 @@ class UnicatService
      */
     public function allConfigurations()
     {
-        return $this->em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll();
+        return $this->em->getRepository(UnicatConfiguration::class)->findAll();
     }
 
     /**
@@ -256,7 +256,7 @@ class UnicatService
      */
     public function getTaxonomyRepository()
     {
-        return $this->em->getRepository('UnicatModuleBundle:UnicatTaxonomy');
+        return $this->em->getRepository(UnicatTaxonomy::class);
     }
 
     /**

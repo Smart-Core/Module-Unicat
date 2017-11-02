@@ -8,6 +8,7 @@ use Pagerfanta\Pagerfanta;
 use Smart\CoreBundle\Controller\Controller;
 use SmartCore\Bundle\CMSBundle\Module\CacheTrait;
 use SmartCore\Bundle\CMSBundle\Module\NodeTrait;
+use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Model\TaxonModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,7 +85,7 @@ class UnicatController extends Controller
         if (!isset($params['type'])) {
             /** @var \Doctrine\ORM\EntityManager $em */
             $em = $this->get('doctrine.orm.entity_manager');
-            $itemType = $em->getRepository('UnicatModuleBundle:UnicatItemType')->findOneBy([
+            $itemType = $em->getRepository(UnicatItemType::class)->findOneBy([
                 'configuration' => $this->unicat->getConfiguration()
             ], ['position' => 'ASC']);
 

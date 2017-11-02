@@ -7,6 +7,7 @@ use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Smart\CoreBundle\Controller\Controller;
 use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
+use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatItemType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;
@@ -62,7 +63,7 @@ class AdminUnicatController extends Controller
         }
 
         return $this->render('@UnicatModule/Admin/index.html.twig', [
-            'configurations' => $em->getRepository('UnicatModuleBundle:UnicatConfiguration')->findAll(),
+            'configurations' => $em->getRepository(UnicatConfiguration::class)->findAll(),
             'form' => $form->createView(),
         ]);
     }
@@ -99,13 +100,13 @@ class AdminUnicatController extends Controller
             }
         }
 
-        $itemType = $em->find('UnicatModuleBundle:UnicatItemType', (int) $itemTypeId);
+        $itemType = $em->find(UnicatItemType::class, (int) $itemTypeId);
 
         $criteria = [];
         $parentItem = $ucm->findItem($request->query->get('parent_id', 0));
 
         if ($parentItem) {
-            $attr = $em->getRepository('UnicatModuleBundle:UnicatAttribute')->findOneBy([
+            $attr = $em->getRepository(UnicatAttribute::class)->findOneBy([
                 'is_enabled' => true,
                 'items_type' => $parentItem->getType(),
             ]);
@@ -203,7 +204,7 @@ class AdminUnicatController extends Controller
 
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
-        $itemType = $em->getRepository('UnicatModuleBundle:UnicatItemType')->find($request->query->get('type', 0));
+        $itemType = $em->getRepository(UnicatItemType::class)->find($request->query->get('type', 0));
 
         if (empty($itemType)) {
             throw new \Exception("Не указан тип записи");
@@ -223,7 +224,7 @@ class AdminUnicatController extends Controller
         // @todo пока можно указать только один родительский итем. сделать массив.
         $parentItem = $ucm->findItem($request->query->get('parent_id'));
         if ($parentItem) {
-            $attr = $em->getRepository('UnicatModuleBundle:UnicatAttribute')->findOneBy(['items_type' => $parentItem->getType(), 'is_enabled' => true]);
+            $attr = $em->getRepository(UnicatAttribute::class)->findOneBy(['items_type' => $parentItem->getType(), 'is_enabled' => true]);
 
             if ($attr) {
                 if (method_exists($newItem, 'addAttr'.$attr->getName())) {
@@ -333,7 +334,7 @@ class AdminUnicatController extends Controller
             $groups[] = $attributesGroup->getName();
         }
 
-        foreach ($em->getRepository('UnicatModuleBundle:UnicatAttribute')->findByGroupsNames($ucm->getConfiguration()->getId(), $groups) as $attribute) {
+        foreach ($em->getRepository(UnicatAttribute::class)->findByGroupsNames($ucm->getConfiguration()->getId(), $groups) as $attribute) {
             if ($attribute->isEnabled() == false) {
                 continue;
             }
@@ -383,7 +384,7 @@ class AdminUnicatController extends Controller
         $ucm  = $this->get('unicat')->getConfigurationManager($configuration);
 
         return $this->render('@UnicatModule/Admin/items_types.html.twig', [
-            'types' => $em->getRepository('UnicatModuleBundle:UnicatItemType')->findBy(['configuration' => $ucm->getConfiguration()], ['position' => 'ASC']),
+            'types' => $em->getRepository(UnicatItemType::class)->findBy(['configuration' => $ucm->getConfiguration()], ['position' => 'ASC']),
         ]);
     }
 

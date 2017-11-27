@@ -281,6 +281,16 @@ class ItemModel
     }
 
     /**
+     * @param TaxonModel $taxon
+     *
+     * @return bool
+     */
+    public function hasTaxon(TaxonModel $taxon)
+    {
+        return $this->taxons->contains($taxon) ? true : false;
+    }
+
+    /**
      * @param TaxonModel[] $taxonsSingle
      *
      * @return $this
@@ -431,7 +441,7 @@ class ItemModel
         return (
             method_exists($this, 'getAttr'.$name)
             or isset($this->attributes[$name])
-            or null === @$this->attributes[$name]
+            //or null === @$this->attributes[$name] @todo
         ) ? true : false;
     }
 

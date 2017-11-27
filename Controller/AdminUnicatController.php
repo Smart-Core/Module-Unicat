@@ -10,15 +10,18 @@ use Smart\CoreBundle\Pagerfanta\SimpleDoctrineORMAdapter;
 use SmartCore\Module\Unicat\Entity\UnicatAttribute;
 use SmartCore\Module\Unicat\Entity\UnicatConfiguration;
 use SmartCore\Module\Unicat\Entity\UnicatItemType;
+use SmartCore\Module\Unicat\Event\FormItemValidateEvent;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationFormType;
 use SmartCore\Module\Unicat\Form\Type\ConfigurationSettingsFormType;
 use SmartCore\Module\Unicat\Form\Type\ItemTypeFormType;
 use SmartCore\Module\Unicat\Generator\DoctrineEntityGenerator;
 use SmartCore\Module\Unicat\Model\ItemModel;
+use SmartCore\Module\Unicat\UnicatEvent;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -239,6 +242,12 @@ class AdminUnicatController extends Controller
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
+
+            if (!$form->get('cancel')->isClicked()) {
+                $event = new FormItemValidateEvent($form);
+                $this->get('event_dispatcher')->dispatch(UnicatEvent::FORM_ITEM_VALIDATE, $event);
+            }
+
             if ($form->isValid()) {
                 if ($form->get('cancel')->isClicked()) {
                     return $this->redirectToConfigurationAdmin($ucm->getConfiguration(), $itemType);
@@ -271,6 +280,12 @@ class AdminUnicatController extends Controller
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
+
+            if (!$form->get('cancel')->isClicked()) {
+                $event = new FormItemValidateEvent($form);
+                $this->get('event_dispatcher')->dispatch(UnicatEvent::FORM_ITEM_VALIDATE, $event);
+            }
+
             $item = $form->getData();
 
             if ($form->get('cancel')->isClicked()) {

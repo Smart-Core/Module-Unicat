@@ -96,7 +96,10 @@ class UnicatConfigurationManager
             throw new \Exception('Missed required option "type".');
         }
 
-        $itemType = $this->em->getRepository(UnicatItemType::class)->findOneBy(['name' => $options['type']]);
+        $itemType = $this->em->getRepository(UnicatItemType::class)->findOneBy([
+            'name' => $options['type'],
+            'configuration' => $this->configuration,
+        ]);
 
         if (empty($itemType)) {
             throw new \Exception("Item type {$options['type']} is incorrect.");
@@ -924,6 +927,11 @@ class UnicatConfigurationManager
      */
     public function removeItem(ItemModel $item)
     {
+        $item
+            ->setTaxons([])
+            ->setTaxonsSingle([])
+        ;
+
         foreach ($this->getAttributes() as $attribute) {
             if ($attribute->isType('image') and $item->hasAttribute($attribute->getName())) {
                 // @todo сделать кеширование при первом же вытаскивании данных о записи. тоже самое в saveItem(), а еще лучше выделить этот код в отельный защищенный метод.
@@ -942,7 +950,7 @@ class UnicatConfigurationManager
         }
 
         $this->em->remove($item);
-        $this->em->flush(); // Надо делать полный flush т.к. каскадом удаляются связи с категориями.
+        $this->em->flush(); // Надо делать полный flush т.к. каскадом удаляются связи с таксонам. @todo убрать каскад remove
 
         return $this;
     }
@@ -1174,7 +1182,7 @@ class UnicatConfigurationManager
      */
     protected function getTaxonsInherited(&$taxonsInherited, TaxonModel $taxon)
     {
-        if ($taxon->getParent()) {
+        if ($taxon->getParent() and $taxon->getIsInheritance()) {
             $this->getTaxonsInherited($taxonsInherited, $taxon->getParent());
         }
 

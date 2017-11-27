@@ -5,6 +5,7 @@ namespace SmartCore\Module\Unicat\Form\Type;
 use Doctrine\ORM\EntityRepository;
 use SmartCore\Module\Unicat\Entity\UnicatAttributesGroup;
 use SmartCore\Module\Unicat\Entity\UnicatItemType;
+use SmartCore\Module\Unicat\Entity\UnicatTaxonomy;
 use SmartCore\Module\Unicat\Service\UnicatService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -33,6 +34,14 @@ class ItemTypeFormType extends AbstractType
             ])
             ->add('taxonomies', null, [
                 'expanded' => true,
+                'multiple' => true,
+                'class'         => UnicatTaxonomy::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('e')
+                        ->where('e.configuration = :configuration')
+                        ->setParameter('configuration', UnicatService::getCurrentConfigurationStatic());
+                },
+                'required' => false,
             ])
             ->add('content_min_width')
             ->add('order_by_attr')

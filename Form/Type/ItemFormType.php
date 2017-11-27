@@ -125,6 +125,7 @@ class ItemFormType extends AbstractType
 
                 if (isset($item)) {
                     $attributeOptions['data'] = $item->getAttribute($attribute->getName());
+                    $attributeOptions['empty_data'] = $item->getAttribute($attribute->getName());
                 }
             }
 

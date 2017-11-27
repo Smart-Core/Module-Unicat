@@ -290,7 +290,7 @@ class UnicatService
 
         foreach ($this->allConfigurations() as $configuration) {
             $generator = new DoctrineEntityGenerator();
-            $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModule')->getPath().'/Resources/skeleton');
+            $generator->setSkeletonDirs($this->container->get('kernel')->getBundle('UnicatModuleBundle')->getPath().'/Resources/skeleton');
             $siteBundle = $this->container->get('kernel')->getBundle('SiteBundle');
             $targetDir  = $siteBundle->getPath().'/Entity/'.ucfirst($configuration->getName());
 

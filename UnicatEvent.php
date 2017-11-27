@@ -4,6 +4,7 @@ namespace SmartCore\Module\Unicat;
 
 final class UnicatEvent
 {
-    const PRE_ITEM_UPDATE  = 'unicat.pre.item.update';
-    const POST_ITEM_UPDATE = 'unicat.post.item.update';
+    const FORM_ITEM_VALIDATE  = 'unicat.form.item.validate';
+    const PRE_ITEM_UPDATE     = 'unicat.pre.item.update';
+    const POST_ITEM_UPDATE    = 'unicat.post.item.update';
 }
